@@ -75,6 +75,7 @@
 |---|---|---|
 | BR-50 | `limit` เป็นจำนวนเต็ม 1–100 (default 20), `offset` เป็นจำนวนเต็ม ≥ 0 (default 0); `total` คือจำนวนทั้งหมดก่อนแบ่งหน้า | ผิด → 400 `VALIDATION_ERROR` |
 | BR-51 | ลำดับการตรวจ: auth (401/403) → validation (400) → existence/conflict (404/409) | — |
+| BR-53 | route หรือ method ที่ไม่มีอยู่ → 404 `FLAG_NOT_FOUND` ในรูปแบบ error มาตรฐาน (ไม่ใช่หน้า 404 ของ framework) โดย **ไม่ต้อง auth** (ใช้ code เดิมเพื่อไม่ต้องเพิ่ม code ใหม่) | — |
 | BR-52 | request body ต้องเป็น JSON 1 ค่าพอดีที่ parse ได้ (ไม่มีข้อมูลเกินตามหลัง) และ **ไม่ใหญ่กว่า 1 MiB (1,048,576 ไบต์)** มิฉะนั้น 400 `VALIDATION_ERROR` (ไม่ใช่ 413); **ไม่ตรวจ `Content-Type`** body ถูกอ่านเป็น JSON เสมอ (เช่น `curl -d` ที่ส่ง `application/x-www-form-urlencoded` ต้องใช้ได้) | 400 `VALIDATION_ERROR` |
 
 ## รูปแบบ Error

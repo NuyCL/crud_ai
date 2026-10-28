@@ -38,10 +38,38 @@ describe("auth on the admin API (BR-10, BR-12)", () => {
     });
   }
 
+  test("auth is checked before the body is read: a malformed body without a key is 401/403, not 400 (BR-51)", async () => {
+    assertError(await call("POST", "/v1/flags", { rawBody: "{oops", auth: "none" }), 401, "UNAUTHORIZED");
+    assertError(await call("POST", "/v1/flags", { rawBody: "{oops", auth: "bad-admin" }), 401, "UNAUTHORIZED");
+    assertError(await call("POST", "/v1/flags", { rawBody: "{oops", auth: "client" }), 403, "FORBIDDEN");
+    assertError(await call("PUT", `/v1/flags/${key}`, { rawBody: "[", auth: "none" }), 401, "UNAUTHORIZED");
+    assertError(await call("POST", "/v1/evaluate", { rawBody: "{oops", auth: "none" }), 401, "UNAUTHORIZED");
+    assertError(await call("POST", "/v1/events", { rawBody: "{oops", auth: "bad-client" }), 401, "UNAUTHORIZED");
+  });
+
   test("a rejected create leaves no flag behind", async () => {
     await post("/v1/flags", { key }, { auth: "client" });
     assertError(await get(`/v1/flags/${key}`), 404, "FLAG_NOT_FOUND");
   });
+});
+
+describe("routes that do not exist (BR-53)", () => {
+  const routes = [
+    ["GET", "/nope"],
+    ["GET", "/v1/nope"],
+    ["GET", "/v1/flags/a/b/c"],
+    ["GET", "/v1/flags/"],
+    ["PATCH", "/v1/flags"],
+    ["POST", "/healthz"],
+    ["DELETE", "/v1/evaluate"],
+  ];
+  for (const [method, path] of routes) {
+    for (const auth of ["admin", "none"]) {
+      test(`${method} ${path} (${auth === "none" ? "no key" : "admin key"}) -> 404 in the standard error shape`, async () => {
+        assertError(await call(method, path, { auth }), 404, "FLAG_NOT_FOUND");
+      });
+    }
+  }
 });
 
 describe("create (BR-01, BR-02, BR-08)", () => {

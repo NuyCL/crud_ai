@@ -292,8 +292,10 @@ function build(input, existing) {
 
 async function route(req, res) {
   const url = new URL(req.url, "http://x");
-  const parts = url.pathname.split("/").filter(Boolean);
   const m = req.method;
+  // "/v1/flags/" is not "/v1/flags": a trailing slash makes it a different, non-existent route.
+  if (url.pathname.length > 1 && url.pathname.endsWith("/")) throw new HttpError(404, "FLAG_NOT_FOUND", "no such route");
+  const parts = url.pathname.split("/").filter(Boolean);
 
   if (url.pathname === "/healthz" && m === "GET") return send(res, 200, { status: "ok" });
 
@@ -327,7 +329,13 @@ async function route(req, res) {
     return send(res, 202, { accepted: b.events.length });
   }
 
-  // ---- admin API
+  // ---- admin API: a request is authenticated only once it matches a real admin route (BR-53)
+  const isAdminRoute =
+    (parts[1] === "audit-logs" && parts.length === 2 && m === "GET") ||
+    (parts[1] === "flags" && parts.length === 2 && (m === "GET" || m === "POST")) ||
+    (parts[1] === "flags" && parts[3] === "results" && parts.length === 4 && m === "GET") ||
+    (parts[1] === "flags" && parts.length === 3 && ["GET", "PUT", "DELETE"].includes(m));
+  if (!isAdminRoute) throw new HttpError(404, "FLAG_NOT_FOUND", "no such route");
   authorize(req, { adminOnly: true });
 
   if (parts[1] === "audit-logs" && parts.length === 2 && m === "GET") {
