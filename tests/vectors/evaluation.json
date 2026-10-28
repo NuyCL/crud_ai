@@ -635,6 +635,182 @@
       }
     },
     {
+      "id": "target-attr-constructor-missing",
+      "description": "attribute named 'constructor' that the context does not contain counts as missing (neq fails too)",
+      "flagKey": "f",
+      "flag": {
+        "key": "f",
+        "enabled": true,
+        "rules": [
+          {
+            "attribute": "constructor",
+            "operator": "neq",
+            "value": "x"
+          }
+        ],
+        "rolloutPercent": 100,
+        "variants": []
+      },
+      "context": {
+        "userId": "u1",
+        "attributes": {
+          "country": "TH"
+        }
+      },
+      "expected": {
+        "enabled": false,
+        "variant": null,
+        "reason": "TARGETING_MISS"
+      }
+    },
+    {
+      "id": "target-attr-toString-missing",
+      "description": "attribute named 'toString' that the context does not contain counts as missing (neq fails too)",
+      "flagKey": "f",
+      "flag": {
+        "key": "f",
+        "enabled": true,
+        "rules": [
+          {
+            "attribute": "toString",
+            "operator": "neq",
+            "value": "x"
+          }
+        ],
+        "rolloutPercent": 100,
+        "variants": []
+      },
+      "context": {
+        "userId": "u1",
+        "attributes": {
+          "country": "TH"
+        }
+      },
+      "expected": {
+        "enabled": false,
+        "variant": null,
+        "reason": "TARGETING_MISS"
+      }
+    },
+    {
+      "id": "target-attr-__proto__-missing",
+      "description": "attribute named '__proto__' that the context does not contain counts as missing (neq fails too)",
+      "flagKey": "f",
+      "flag": {
+        "key": "f",
+        "enabled": true,
+        "rules": [
+          {
+            "attribute": "__proto__",
+            "operator": "neq",
+            "value": "x"
+          }
+        ],
+        "rolloutPercent": 100,
+        "variants": []
+      },
+      "context": {
+        "userId": "u1",
+        "attributes": {
+          "country": "TH"
+        }
+      },
+      "expected": {
+        "enabled": false,
+        "variant": null,
+        "reason": "TARGETING_MISS"
+      }
+    },
+    {
+      "id": "target-attr-not-in-tostring-missing",
+      "description": "not_in on a missing attribute named 'toString' fails",
+      "flagKey": "f",
+      "flag": {
+        "key": "f",
+        "enabled": true,
+        "rules": [
+          {
+            "attribute": "toString",
+            "operator": "not_in",
+            "value": [
+              "x"
+            ]
+          }
+        ],
+        "rolloutPercent": 100,
+        "variants": []
+      },
+      "context": {
+        "attributes": {
+          "country": "TH"
+        }
+      },
+      "expected": {
+        "enabled": false,
+        "variant": null,
+        "reason": "TARGETING_MISS"
+      }
+    },
+    {
+      "id": "target-attr-proto-present",
+      "description": "an attribute literally named '__proto__' is compared like any other",
+      "flagKey": "f",
+      "flag": {
+        "key": "f",
+        "enabled": true,
+        "rules": [
+          {
+            "attribute": "__proto__",
+            "operator": "eq",
+            "value": "x"
+          }
+        ],
+        "rolloutPercent": 100,
+        "variants": []
+      },
+      "context": {
+        "attributes": {
+          "__proto__": "x"
+        }
+      },
+      "expected": {
+        "enabled": true,
+        "variant": null,
+        "reason": "ON"
+      }
+    },
+    {
+      "id": "target-attr-constructor-present",
+      "description": "an attribute literally named 'constructor' is compared like any other",
+      "flagKey": "f",
+      "flag": {
+        "key": "f",
+        "enabled": true,
+        "rules": [
+          {
+            "attribute": "constructor",
+            "operator": "in",
+            "value": [
+              "a",
+              "b"
+            ]
+          }
+        ],
+        "rolloutPercent": 100,
+        "variants": []
+      },
+      "context": {
+        "attributes": {
+          "constructor": "b"
+        }
+      },
+      "expected": {
+        "enabled": true,
+        "variant": null,
+        "reason": "ON"
+      }
+    },
+    {
       "id": "target-userid-is-not-attribute",
       "description": "userId cannot be targeted as an attribute",
       "flagKey": "f",

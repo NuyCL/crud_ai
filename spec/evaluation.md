@@ -62,6 +62,7 @@
 - เทียบเท่ากันต้อง **ชนิดเดียวกัน**: `"1"` (string) ไม่เท่ากับ `1` (number) ไม่มีการแปลงชนิด
 - string เทียบแบบ case-sensitive เทียบ byte ต่อ byte (ไม่ normalize Unicode)
 - `userId` **ไม่ใช่** attribute (ใช้ rule กับ userId ไม่ได้)
+- ชื่อ attribute เป็น string ธรรมดาทุกชื่อ ชื่อที่ตรงกับสมาชิกสำเร็จรูปของ object ในบางภาษา (`constructor`, `toString`, `__proto__`) ก็ไม่ใช่ข้อยกเว้น: ถ้า context ไม่ได้ส่งมาจริง ถือว่า **ไม่มี** (rule ไม่ผ่าน) และถ้าส่งมา ก็เทียบค่าตามปกติ
 
 ### 3.2 ต้องใช้ bucketing เมื่อไร
 

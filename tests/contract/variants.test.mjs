@@ -2,7 +2,7 @@
 // Covers BR-30..35.
 import { describe, test, after } from "node:test";
 import assert from "node:assert/strict";
-import { get, post, put, uniqueKey, assertError, fixture, mvp2 } from "./lib.mjs";
+import { get, post, put, call, uniqueKey, assertError, fixture, mvp2 } from "./lib.mjs";
 
 const fx = fixture();
 after(() => fx.cleanup());
@@ -15,6 +15,16 @@ describe("rolloutPercent (BR-30)", mvp2, () => {
     test(`${n} is accepted and returned`, async () => {
       const f = await fx.create({ rolloutPercent: n });
       assert.equal(f.rolloutPercent, n);
+    });
+  }
+  // JavaScript cannot tell 10 from 10.0 after parsing, so the spec treats them alike (BR-30).
+  for (const literal of ["10", "10.0", "1e1", "1.0E1"]) {
+    test(`the JSON number ${literal} is the integer 10`, async () => {
+      const key = uniqueKey("var");
+      const res = await call("POST", "/v1/flags", { rawBody: `{"key":"${key}","rolloutPercent":${literal}}` });
+      fx.track(key);
+      assert.equal(res.status, 201, res.text);
+      assert.equal(res.body.rolloutPercent, 10);
     });
   }
   for (const [name, value] of [["negative", -1], ["over 100", 101], ["fractional", 10.5], ["a string", "50"], ["null", null], ["boolean", true]]) {

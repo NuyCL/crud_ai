@@ -313,6 +313,18 @@ func genEvaluation(dir string) {
 	both := []Rule{{"country", "eq", "TH"}, {"plan", "in", arr("pro", "team")}}
 	add("target-and-both-pass", "all rules must pass: both do", mk("f", true, both, 100, nil), "f", Context{Attributes: attrs("country", "TH", "plan", "pro")}, "ON", "")
 	add("target-and-one-fails", "all rules must pass: second fails", mk("f", true, both, 100, nil), "f", Context{Attributes: attrs("country", "TH", "plan", "free")}, "TARGETING_MISS", "")
+	// Attribute names that collide with members of JavaScript's Object.prototype. A port that
+	// looks attributes up with `attrs[name]` or `name in attrs` finds a function that is not there.
+	for _, name := range []string{"constructor", "toString", "__proto__"} {
+		add("target-attr-"+name+"-missing", "attribute named '"+name+"' that the context does not contain counts as missing (neq fails too)",
+			mk("f", true, []Rule{{name, "neq", "x"}}, 100, nil), "f", Context{UserID: "u1", Attributes: attrs("country", "TH")}, "TARGETING_MISS", "")
+	}
+	add("target-attr-not-in-tostring-missing", "not_in on a missing attribute named 'toString' fails",
+		mk("f", true, []Rule{{"toString", "not_in", arr("x")}}, 100, nil), "f", Context{Attributes: attrs("country", "TH")}, "TARGETING_MISS", "")
+	add("target-attr-proto-present", "an attribute literally named '__proto__' is compared like any other",
+		mk("f", true, []Rule{{"__proto__", "eq", "x"}}, 100, nil), "f", Context{Attributes: attrs("__proto__", "x")}, "ON", "")
+	add("target-attr-constructor-present", "an attribute literally named 'constructor' is compared like any other",
+		mk("f", true, []Rule{{"constructor", "in", arr("a", "b")}}, 100, nil), "f", Context{Attributes: attrs("constructor", "b")}, "ON", "")
 	add("target-userid-is-not-attribute", "userId cannot be targeted as an attribute", mk("f", true, []Rule{{"userId", "eq", "u1"}}, 100, nil), "f", Context{UserID: "u1"}, "TARGETING_MISS", "")
 	add("target-disabled-wins", "DISABLED is reported before targeting", mk("f", false, ukRule("eq", "TH"), 100, nil), "f", Context{Attributes: attrs("country", "US")}, "DISABLED", "")
 

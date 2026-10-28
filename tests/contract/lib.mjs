@@ -22,13 +22,14 @@ const AUTH = {
 /**
  * Send a request. `body` is JSON-encoded; `rawBody` is sent as-is (for malformed JSON).
  * `auth` is one of admin (default) | client | none | bad-admin | bad-client.
+ * `contentType` defaults to application/json; the service must not depend on it (BR-52).
  */
-export async function call(method, path, { body, rawBody, auth = "admin" } = {}) {
+export async function call(method, path, { body, rawBody, auth = "admin", contentType = "application/json" } = {}) {
   const headers = { ...AUTH[auth] };
   let payload;
   if (rawBody !== undefined) payload = rawBody;
   else if (body !== undefined) payload = JSON.stringify(body);
-  if (payload !== undefined) headers["content-type"] = "application/json";
+  if (payload !== undefined) headers["content-type"] = contentType;
   const res = await fetch(BASE + path, { method, headers, body: payload });
   const text = await res.text();
   let json;

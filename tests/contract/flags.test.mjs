@@ -161,6 +161,47 @@ describe("create (BR-01, BR-02, BR-08)", () => {
   });
 });
 
+describe("request body handling (BR-52)", () => {
+  test("Content-Type is not consulted: the body is always read as JSON", async () => {
+    for (const contentType of ["text/plain", "application/x-www-form-urlencoded", "application/octet-stream"]) {
+      const key = uniqueKey();
+      const res = await call("POST", "/v1/flags", { rawBody: JSON.stringify({ key }), contentType });
+      fx.track(key);
+      assert.equal(res.status, 201, `${contentType}: ${res.text}`);
+    }
+  });
+
+  test("more than one JSON value, or anything after it, -> 400 VALIDATION_ERROR", async () => {
+    for (const rawBody of ['{"key":"a"}{"key":"b"}', '{"key":"a"} junk', '{"key":"a"},', "[]{}"]) {
+      assertError(await call("POST", "/v1/flags", { rawBody }), 400, "VALIDATION_ERROR");
+    }
+  });
+
+  test("trailing whitespace after the JSON value is fine", async () => {
+    const key = uniqueKey();
+    const res = await call("POST", "/v1/flags", { rawBody: `${JSON.stringify({ key })}\n \t\r\n` });
+    fx.track(key);
+    assert.equal(res.status, 201);
+  });
+
+  const MIB = 1024 * 1024;
+  test("a body of exactly 1 MiB is accepted", async () => {
+    const key = uniqueKey();
+    const json = JSON.stringify({ key });
+    const res = await call("POST", "/v1/flags", { rawBody: json + " ".repeat(MIB - json.length) }); // ASCII: 1 char = 1 byte
+    fx.track(key);
+    assert.equal(res.status, 201, res.text.slice(0, 200));
+  });
+
+  test("a body over 1 MiB -> 400 VALIDATION_ERROR (not 413) and nothing is created", async () => {
+    const key = uniqueKey();
+    const json = JSON.stringify({ key });
+    // Valid JSON that is only too large: padding, so no other rule can be the reason for the 400.
+    assertError(await call("POST", "/v1/flags", { rawBody: json + " ".repeat(MIB - json.length + 1) }), 400, "VALIDATION_ERROR");
+    assertError(await get(`/v1/flags/${key}`), 404, "FLAG_NOT_FOUND");
+  });
+});
+
 describe("description length counts Unicode code points (BR-04)", () => {
   test("exactly 500 ASCII characters is accepted", async () => {
     const f = await fx.create({ description: "a".repeat(500) });

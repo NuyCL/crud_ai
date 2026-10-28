@@ -48,7 +48,7 @@
 
 | ID | กฎ | ผลเมื่อฝ่าฝืน |
 |---|---|---|
-| BR-30 | `rolloutPercent` เป็นจำนวนเต็ม 0–100 (default 100) | 400 `VALIDATION_ERROR` |
+| BR-30 | `rolloutPercent` เป็นจำนวนเต็ม 0–100 (default 100) ค่าที่เป็นจำนวนเต็มทางคณิตศาสตร์รับได้ไม่ว่าเขียนอย่างไร (`10`, `10.0`, `1e1`) ส่วน `10.5` ไม่รับ เพราะบางภาษา (เช่น JavaScript) แยก `10` กับ `10.0` ไม่ได้ | 400 `VALIDATION_ERROR` |
 | BR-31 | ผลรวม `weight` ของ variants ต้องเท่ากับ 100 | 400 `INVALID_VARIANTS` |
 | BR-32 | variant `key` ต้องไม่ซ้ำใน flag เดียวกัน และตรงกับ `^[a-z0-9][a-z0-9_-]{0,31}$` | 400 `INVALID_VARIANTS` |
 | BR-33 | variants มีได้ 2–10 รายการ (หรือว่างทั้งหมด) | 400 `INVALID_VARIANTS` |
@@ -64,7 +64,7 @@
 | BR-40 | Exposure dedupe: `(flagKey, userId)` ซ้ำนับครั้งเดียว — **exposure แรกชนะ** (variant ของ exposure ถัดๆ ไปถูกเมิน) | — |
 | BR-41 | Conversion `(goal, userId)` ซ้ำนับครั้งเดียว; นับในรายงานของ flag ก็ต่อเมื่อ user นั้นมี exposure ของ flag นั้น มิฉะนั้นยอมรับ event แต่ไม่นับ | — |
 | BR-42 | รายงานผล: ต่อ variant (ตามลำดับที่ประกาศ) ให้ `exposures`, `conversions` (จำนวน user ที่ exposed ใน variant นั้นและมี conversion ของ goal), `rate = conversions/exposures` (0 ถ้า exposures = 0). `pValue` เทียบกับ variant แรก (control) ด้วย **pooled two-proportion z-test แบบ two-sided**: `p̂ = (x1+x2)/(n1+n2)`, `se = √(p̂(1−p̂)(1/n1+1/n2))`, `z = (p2−p1)/se`, `pValue = erfc(|z|/√2)`. `pValue = null` สำหรับ control เอง, เมื่อ variant ใดมี exposures < 30, หรือ `se = 0`. `significant = (pValue != null && pValue < 0.05)` | — |
-| BR-43 | `events` ต้องมี 1–100 รายการ; `type` ∈ {exposure, conversion}; `userId` string ไม่ว่าง; exposure ต้องมี `flagKey` และ `variant` (string ไม่ว่าง); conversion ต้องมี `goal` (string ไม่ว่าง); `timestamp` (ถ้ามี) เป็น RFC 3339 | 400 `VALIDATION_ERROR` |
+| BR-43 | `events` ต้องมี 1–100 รายการ; `type` ∈ {exposure, conversion}; `userId` string ไม่ว่าง; exposure ต้องมี `flagKey` และ `variant` (string ไม่ว่าง); conversion ต้องมี `goal` (string ไม่ว่าง); `timestamp` (ถ้ามี) เป็น RFC 3339 ที่ **ถูกต้องตามปฏิทินและมีเวลากับโซนเวลาครบ** เช่น `2026-01-31T08:00:00Z` หรือ `2026-01-31T15:00:00.250+07:00`; วันที่ที่ไม่มีจริง (`2026-02-30`, `2027-02-29`), ชั่วโมง 24, นาทีหรือวินาที 60, วันที่ล้วนๆ (`2026-01-31`) และเวลาที่ไม่มีโซน (`2026-01-31T08:00:00`) เป็นค่าผิด | 400 `VALIDATION_ERROR` |
 | BR-44 | Batch เป็น all-or-nothing: มี event ผิดแม้รายการเดียว → ปฏิเสธทั้งชุด ไม่บันทึกอะไร; สำเร็จ → 202 `accepted` = จำนวน event ในชุด (รวมที่ซ้ำ/ไม่นับ) | — |
 | BR-45 | Event ที่ตอบ 202 แล้วต้องปรากฏในรายงานทันที (read-your-writes) | — |
 | BR-46 | `GET /v1/flags/{key}/results` ต้องมี `goal` (ไม่ส่ง/ว่าง = `VALIDATION_ERROR`); flag ไม่มี = 404 `FLAG_NOT_FOUND`; flag ที่ไม่มี variants ได้ `variants: []` | — |
@@ -75,7 +75,7 @@
 |---|---|---|
 | BR-50 | `limit` เป็นจำนวนเต็ม 1–100 (default 20), `offset` เป็นจำนวนเต็ม ≥ 0 (default 0); `total` คือจำนวนทั้งหมดก่อนแบ่งหน้า | ผิด → 400 `VALIDATION_ERROR` |
 | BR-51 | ลำดับการตรวจ: auth (401/403) → validation (400) → existence/conflict (404/409) | — |
-| BR-52 | request body ที่ไม่ใช่ JSON ที่ parse ได้ → 400 `VALIDATION_ERROR` | — |
+| BR-52 | request body ต้องเป็น JSON 1 ค่าพอดีที่ parse ได้ (ไม่มีข้อมูลเกินตามหลัง) และ **ไม่ใหญ่กว่า 1 MiB (1,048,576 ไบต์)** มิฉะนั้น 400 `VALIDATION_ERROR` (ไม่ใช่ 413); **ไม่ตรวจ `Content-Type`** body ถูกอ่านเป็น JSON เสมอ (เช่น `curl -d` ที่ส่ง `application/x-www-form-urlencoded` ต้องใช้ได้) | 400 `VALIDATION_ERROR` |
 
 ## รูปแบบ Error
 

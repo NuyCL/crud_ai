@@ -21,7 +21,8 @@ const BUG = process.env.MOCK_BUG ?? "";
 
 const KEY_RE = /^[a-z0-9][a-z0-9_-]{0,63}$/;
 const VARIANT_KEY_RE = /^[a-z0-9][a-z0-9_-]{0,31}$/;
-const TS_RE = /^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(\.\d+)?(Z|[+-]\d\d:\d\d)$/;
+const TS_RE = /^(\d{4})-(\d\d)-(\d\d)T(\d\d):(\d\d):(\d\d)(?:\.\d+)?(?:Z|[+-](\d\d):(\d\d))$/;
+const MAX_BODY_BYTES = 1024 * 1024;
 
 const flags = new Map();
 const audit = [];
@@ -65,14 +66,34 @@ function authorize(req, { adminOnly }) {
   if (!client) throw new HttpError(401, "UNAUTHORIZED", "missing or invalid key");
 }
 
+// BR-52: any Content-Type, one JSON value, at most 1 MiB. The whole body is read before
+// answering so that a client still uploading does not see a reset connection.
 async function readJson(req) {
   const chunks = [];
-  for await (const c of req) chunks.push(c);
+  let size = 0;
+  for await (const c of req) {
+    size += c.length;
+    if (size <= MAX_BODY_BYTES) chunks.push(c);
+  }
+  if (size > MAX_BODY_BYTES) throw bad("VALIDATION_ERROR", "body is larger than 1 MiB");
   try {
     return JSON.parse(Buffer.concat(chunks).toString("utf8"));
   } catch {
     throw bad("VALIDATION_ERROR", "body is not valid JSON");
   }
+}
+
+// RFC 3339 that is also correct on the calendar. Date.parse alone is too lenient: it accepts
+// Feb 30, hour 24, dates without a time, and times without a zone.
+function validTimestamp(s) {
+  const m = TS_RE.exec(s);
+  if (!m) return false;
+  const [year, month, day, hour, minute, second] = m.slice(1, 7).map(Number);
+  if (month < 1 || month > 12 || hour > 23 || minute > 59 || second > 59) return false;
+  const lastDay = new Date(0);
+  lastDay.setUTCFullYear(year, month, 0); // day 0 of the next month = last day of this one
+  if (day < 1 || day > lastDay.getUTCDate()) return false;
+  return m[7] === undefined || (Number(m[7]) <= 23 && Number(m[8]) <= 59);
 }
 
 function page(url) {
@@ -213,7 +234,7 @@ function validateEvent(e) {
   if (!nonEmpty(e.userId)) throw bad("VALIDATION_ERROR", "event.userId");
   if (e.type === "exposure" && (!nonEmpty(e.flagKey) || !nonEmpty(e.variant))) throw bad("VALIDATION_ERROR", "exposure needs flagKey and variant");
   if (e.type === "conversion" && !nonEmpty(e.goal)) throw bad("VALIDATION_ERROR", "conversion needs goal");
-  if (e.timestamp !== undefined && (typeof e.timestamp !== "string" || !TS_RE.test(e.timestamp) || Number.isNaN(Date.parse(e.timestamp)))) {
+  if (e.timestamp !== undefined && (typeof e.timestamp !== "string" || !validTimestamp(e.timestamp))) {
     throw bad("VALIDATION_ERROR", "event.timestamp must be RFC 3339");
   }
 }

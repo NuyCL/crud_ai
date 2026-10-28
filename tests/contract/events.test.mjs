@@ -54,6 +54,8 @@ describe("POST /v1/events (BR-11, BR-43, BR-44)", mvp2, () => {
     const e = { ...exposure("f", "u1", "a"), timestamp: "2026-01-31T08:00:00Z" };
     assert.equal((await send([e])).status, 202);
     assert.equal((await send([{ ...e, timestamp: "2026-01-31T15:00:00.250+07:00" }])).status, 202);
+    assert.equal((await send([{ ...e, timestamp: "2028-02-29T23:59:59Z" }])).status, 202, "Feb 29 in a leap year");
+    assert.equal((await send([{ ...e, timestamp: "2026-12-31T23:59:59-05:30" }])).status, 202, "negative offset");
   });
 
   const invalid = [
@@ -70,6 +72,16 @@ describe("POST /v1/events (BR-11, BR-43, BR-44)", mvp2, () => {
     ["conversion with empty goal", [{ type: "conversion", userId: "u1", goal: "" }]],
     ["timestamp is not a string", [{ ...conversion("u1", "g"), timestamp: 1700000000 }]],
     ["timestamp is not RFC 3339", [{ ...conversion("u1", "g"), timestamp: "yesterday" }]],
+    // Valid-looking but wrong: lenient parsers (JavaScript's Date.parse among them) accept these.
+    ["timestamp on a day that does not exist (Feb 30)", [{ ...conversion("u1", "g"), timestamp: "2026-02-30T00:00:00Z" }]],
+    ["timestamp Feb 29 in a non-leap year", [{ ...conversion("u1", "g"), timestamp: "2027-02-29T00:00:00Z" }]],
+    ["timestamp April 31", [{ ...conversion("u1", "g"), timestamp: "2026-04-31T00:00:00Z" }]],
+    ["timestamp month 13", [{ ...conversion("u1", "g"), timestamp: "2026-13-01T00:00:00Z" }]],
+    ["timestamp hour 24", [{ ...conversion("u1", "g"), timestamp: "2026-01-31T24:00:00Z" }]],
+    ["timestamp minute 60", [{ ...conversion("u1", "g"), timestamp: "2026-01-31T08:60:00Z" }]],
+    ["timestamp with a date only", [{ ...conversion("u1", "g"), timestamp: "2026-01-31" }]],
+    ["timestamp without a time zone", [{ ...conversion("u1", "g"), timestamp: "2026-01-31T08:00:00" }]],
+    ["timestamp offset without a colon", [{ ...conversion("u1", "g"), timestamp: "2026-01-31T08:00:00+0700" }]],
     ["event is not an object", ["x"]],
   ];
   for (const [name, events] of invalid) {
