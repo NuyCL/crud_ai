@@ -592,6 +592,32 @@ func TestBR43_EventValidation(t *testing.T) {
 	}
 }
 
+func TestBR43_TimestampsAreRFC3339AndCorrectOnTheCalendar(t *testing.T) {
+	valid := []string{
+		"2026-01-31T08:00:00Z", "2026-01-31T15:00:00.250+07:00", "2028-02-29T23:59:59Z", "2026-12-31T23:59:59-05:30",
+		"2026-06-30T23:59:59.999999999Z", "2026-01-31T08:00:00.1Z", "2026-01-31T08:00:00+23:59", "0000-01-01T00:00:00Z",
+	}
+	invalid := []string{
+		"", "yesterday", "2026-02-30T00:00:00Z", "2027-02-29T00:00:00Z", "2100-02-29T00:00:00Z", "2026-04-31T00:00:00Z",
+		"2026-13-01T00:00:00Z", "2026-00-10T00:00:00Z", "2026-01-00T00:00:00Z", "2026-01-31T24:00:00Z", "2026-01-31T08:60:00Z",
+		"2026-01-31T08:00:60Z", "2026-01-31", "2026-01-31T08:00:00", "2026-01-31T08:00:00+0700", "2026-01-31t08:00:00z",
+		"2026-01-31 08:00:00Z", " 2026-01-31T08:00:00Z", "2026-01-31T08:00:00Z\n", "2026-01-31T08:00:00.Z",
+		// time.Parse accepts every one of these; RFC 3339 does not (found by differential testing against the TypeScript port)
+		"2026-01-31T8:00:00Z", "2026-01-31T08:00:00,5Z", "2026-01-31T08:00:00+24:00", "2026-01-31T08:00:00+07:60",
+		"2026-01-31T08:00:00-24:00", "٢٠٢٦-٠١-٣١T٠٨:٠٠:٠٠Z",
+	}
+	for _, ts := range valid {
+		if !validTimestamp(ts) {
+			t.Errorf("%q rejected", ts)
+		}
+	}
+	for _, ts := range invalid {
+		if validTimestamp(ts) {
+			t.Errorf("%q accepted", ts)
+		}
+	}
+}
+
 func TestBR44_ABatchWithOneBadEventStoresNothing(t *testing.T) {
 	s, _ := newService(t)
 	create(t, s, `{"key":"f","enabled":true,"variants":[{"key":"control","weight":50},{"key":"treatment","weight":50}]}`)

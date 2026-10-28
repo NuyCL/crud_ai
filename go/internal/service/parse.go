@@ -331,13 +331,35 @@ func ParseEvents(raw any) ([]model.Event, error) {
 			if !ok {
 				return nil, validationError("events[%d].timestamp must be an RFC 3339 string", i)
 			}
-			if _, err := time.Parse(time.RFC3339, s); err != nil {
+			if !validTimestamp(s) {
 				return nil, validationError("events[%d].timestamp must be an RFC 3339 string", i)
 			}
 		}
 		events = append(events, e)
 	}
 	return events, nil
+}
+
+// timestampRE is the RFC 3339 date-time grammar. time.Parse alone is too lenient: it also accepts a
+// one-digit hour ("T8:00:00Z"), a comma before the fraction ("08:00:00,5Z") and offsets out of range
+// ("+24:00", "+07:60"). RE2's \d matches ASCII digits only.
+var timestampRE = regexp.MustCompile(`^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-](\d{2}):(\d{2}))$`)
+
+// validTimestamp reports whether s is an RFC 3339 date-time that also exists on the calendar (BR-43).
+func validTimestamp(s string) bool {
+	m := timestampRE.FindStringSubmatch(s)
+	if m == nil {
+		return false
+	}
+	if m[1] != "" { // a numeric offset: hours 00-23, minutes 00-59
+		hours, _ := strconv.Atoi(m[1])
+		minutes, _ := strconv.Atoi(m[2])
+		if hours > 23 || minutes > 59 {
+			return false
+		}
+	}
+	_, err := time.Parse(time.RFC3339, s) // month 13, Feb 30, hour 24, minute or second 60
+	return err == nil
 }
 
 // ParsePage reads limit and offset from a query string (BR-50).

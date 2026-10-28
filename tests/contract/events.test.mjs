@@ -82,6 +82,11 @@ describe("POST /v1/events (BR-11, BR-43, BR-44)", mvp2, () => {
     ["timestamp with a date only", [{ ...conversion("u1", "g"), timestamp: "2026-01-31" }]],
     ["timestamp without a time zone", [{ ...conversion("u1", "g"), timestamp: "2026-01-31T08:00:00" }]],
     ["timestamp offset without a colon", [{ ...conversion("u1", "g"), timestamp: "2026-01-31T08:00:00+0700" }]],
+    // Found by differential testing: Go's time.Parse accepts all four of these, RFC 3339 does not.
+    ["timestamp with a one-digit hour", [{ ...conversion("u1", "g"), timestamp: "2026-01-31T8:00:00Z" }]],
+    ["timestamp with a comma before the fraction", [{ ...conversion("u1", "g"), timestamp: "2026-01-31T08:00:00,5Z" }]],
+    ["timestamp with an offset of +24:00", [{ ...conversion("u1", "g"), timestamp: "2026-01-31T08:00:00+24:00" }]],
+    ["timestamp with offset minutes 60", [{ ...conversion("u1", "g"), timestamp: "2026-01-31T08:00:00+07:60" }]],
     ["event is not an object", ["x"]],
   ];
   for (const [name, events] of invalid) {
