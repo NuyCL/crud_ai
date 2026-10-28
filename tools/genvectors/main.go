@@ -12,8 +12,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"hash/fnv"
+	"math"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 )
 
@@ -169,6 +171,36 @@ func main() {
 	genFNV(dir)
 	genBucketing(dir)
 	genEvaluation(dir)
+	genErfc(dir)
+}
+
+// ---------------------------------------------------------------- erfc.json
+
+// genErfc writes reference values of the complementary error function. Several
+// languages have no erfc in their standard library (JavaScript, Rust), yet BR-42's
+// p-value is erfc(|z| / sqrt 2). A port that approximates erfc must stay within
+// the tolerance below for every row.
+func genErfc(dir string) {
+	type row struct {
+		X    float64 `json:"x"`
+		Erfc float64 `json:"erfc"`
+	}
+	xs := []float64{0, 1e-9, 0.01, 0.1, 0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 1.9803, 2, 2.25, 2.5, 2.75, 3, 3.5, 4, 4.5, 5, 6, 7, 8, 10, 15, 26}
+	// the arguments the service actually produces: x = |z| / sqrt 2 for z around the 0.05 cut-off
+	for _, z := range []float64{0.5, 1, 1.6449, 1.96, 2.2, 2.5758, 2.80056, 3.29, 4, 5} {
+		xs = append(xs, z/math.Sqrt2)
+	}
+	sort.Float64s(xs)
+	var rows []row
+	for _, x := range xs {
+		rows = append(rows, row{x, math.Erfc(x)})
+	}
+	writeJSON(dir, "erfc.json", map[string]interface{}{
+		"description":       "erfc(x) for x >= 0, from Go's math.Erfc and cross-checked against Python's math.erfc. A port must match within max(absoluteTolerance, relativeTolerance * erfc) for every row.",
+		"absoluteTolerance": 1e-12,
+		"relativeTolerance": 1e-9,
+		"cases":             rows,
+	})
 }
 
 // ------------------------------------------------------------- fnv1a32.json

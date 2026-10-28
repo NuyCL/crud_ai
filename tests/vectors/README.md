@@ -6,7 +6,8 @@
 |---|---|---|
 | `fnv1a32.json` | 11 | ฟังก์ชัน hash เดี่ยวๆ (มีค่าอ้างอิงที่เผยแพร่ทั่วไป: `""`, `a`, `foobar`) |
 | `bucketing.json` | 300 | `bucket = fnv1a32(flagKey:salt:userId) mod 10000` รวม userId ภาษาไทย/จีน/emoji, มี `:` ในชื่อ, ยาว 200 ตัว |
-| `evaluation.json` | 51 | การประเมินทั้งลำดับตาม `spec/evaluation.md` (targeting, rollout, variants, ขอบเขต bucket) |
+| `evaluation.json` | 57 | การประเมินทั้งลำดับตาม `spec/evaluation.md` (targeting, rollout, variants, ขอบเขต bucket, attribute ชื่อ `constructor`/`__proto__`) |
+| `erfc.json` | 37 | ค่า `erfc(x)` อ้างอิงจาก Go และตรวจกับ `math.erfc` ของ Python (ต่างกัน ≤ 3e-16) ภาษาที่ไม่มี `erfc` ในตัว (JavaScript, Rust) ต้องเขียนเองและแม่นตาม `absoluteTolerance` / `relativeTolerance` ในไฟล์ เพราะ p-value ของ BR-42 คือ `erfc(\|z\|/√2)` |
 
 ## รูปแบบ
 
@@ -14,6 +15,8 @@
 
 **bucketing.json** — `{ "cases": [{ "flagKey", "salt", "userId", "input", "hash", "bucket" }] }`
 `input` คือ string ที่นำไป hash จริง (`flagKey:salt:userId`) ช่วยแยกว่าพลาดที่การต่อ string หรือที่ hash
+
+**erfc.json** — `{ "absoluteTolerance", "relativeTolerance", "cases": [{ "x", "erfc" }] }`
 
 **evaluation.json** — `{ "cases": [{ "id", "description", "flagKey", "flag", "context", "expected", "debug?" }] }`
 - `flag` เป็น `null` = flag ไม่มีในระบบ
