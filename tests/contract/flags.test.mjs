@@ -113,6 +113,9 @@ describe("create (BR-01, BR-02, BR-08)", () => {
     ["dot", "a.b"],
     ["non-ASCII", "ไทย"],
     ["65 chars", "x".repeat(65)],
+    // Python's `$` and Java's `find()` accept a trailing newline; the key pattern must not.
+    ["trailing newline", "abc\n"],
+    ["only a newline", "\n"],
   ];
   for (const [name, key] of badKeys) {
     test(`invalid key (${name}) -> 400 INVALID_KEY`, async () => {

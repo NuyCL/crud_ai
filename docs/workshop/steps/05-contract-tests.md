@@ -51,7 +51,7 @@ node --test --test-concurrency=1 "tests/contract/*.test.mjs"
 kill $MOCK_PID
 ```
 
-ผลที่ถูกต้อง: `# pass 258` และ `# fail 0` (จำนวน test ของคุณอาจต่าง)
+ผลที่ถูกต้อง: `# pass 260` และ `# fail 0` (จำนวน test ของคุณอาจต่าง)
 
 ถ้ามี test fail ให้ถามตัวเองก่อนว่า **ใครผิด**: test, mock หรือสเปก แล้วแก้ที่ต้นเหตุ อย่าแก้ที่ปลายทาง
 
@@ -105,7 +105,7 @@ git add -A && git commit -m "Add contract tests and mock server"
 
 ## เฉลย/อ้างอิงในรีโปนี้
 
-- [`tests/contract/`](../../../tests/contract/README.md) (258 test, คู่มือการรัน, ตาราง mutation)
+- [`tests/contract/`](../../../tests/contract/README.md) (260 test, คู่มือการรัน, ตาราง mutation)
 - [`tools/mock-server/server.mjs`](../../../tools/mock-server/server.mjs)
 
 ## ข้อควรระวัง

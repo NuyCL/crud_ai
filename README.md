@@ -10,7 +10,7 @@
 | [`spec/evaluation.md`](spec/evaluation.md) | ลำดับและอัลกอริทึมการประเมิน flag รวม bucketing |
 | [`spec/business-rules.md`](spec/business-rules.md) | กฎ BR-xx และรูปแบบ error |
 | [`tests/vectors/`](tests/vectors/README.md) | ข้อมูลทดสอบกลาง (fnv1a32 / bucketing / evaluation) |
-| [`tests/contract/`](tests/contract/README.md) | contract test ผ่าน HTTP (258 ข้อ) ใช้กับทุกภาษา |
+| [`tests/contract/`](tests/contract/README.md) | contract test ผ่าน HTTP (260 ข้อ) ใช้กับทุกภาษา |
 | [`docs/workshop/`](docs/workshop/README.md) | **คู่มือ workshop แบบ step-by-step** (ภาพรวม + เอกสารละเอียด 13 step) |
 | [`CONVENTIONS.md`](CONVENTIONS.md) | โครงสร้าง layer, library ต่อภาษา, กับดักต่อภาษา |
 
@@ -24,8 +24,8 @@
 
 | MVP | ขอบเขต | สถานะ |
 |---|---|---|
-| MVP1 | Feature flag เปิด/ปิด (on/off) | Planned |
-| MVP2 | A/B testing: variants, targeting, rollout %, exposure/conversion | Planned |
+| MVP1 | Feature flag เปิด/ปิด (on/off) | ✅ Go (ฝั่ง server) |
+| MVP2 | A/B testing: variants, targeting, rollout %, exposure/conversion | ✅ Go (ฝั่ง server) |
 | MVP3 | JavaScript/TypeScript library สำหรับ web | Planned |
 
 ### MVP1: On/Off
@@ -149,7 +149,7 @@ tools/
   verify-vectors/ ตัวตรวจอิสระด้วย Node                                  ✅
   mock-server/   mock ในหน่วยความจำ ไว้พิสูจน์ว่า contract test ถูก     ✅
   check-openapi/ ตัวตรวจโครงสร้าง openapi.yaml (Python)                  ✅
-go/              original implementation
+go/              original implementation (golden) ✅  ดู go/README.md
 typescript/      port
 rust/            port
 java/            port
@@ -170,21 +170,29 @@ cd tools/genvectors && go run . ../../tests/vectors   # สร้าง vectors 
 node tools/verify-vectors/verify.mjs                  # ตรวจด้วย implementation อิสระ
 ```
 
-รัน contract test กับ service (ตอนนี้ใช้ mock แทนจนกว่าจะมี `go/`):
+รัน service ที่เขียนด้วย Go แล้วทดสอบด้วย contract test ทั้งหมด:
 
 ```bash
-PORT=8080 node tools/mock-server/server.mjs &
+cd go && go build -o ffservice ./cmd/server && cd ..
+ADMIN_KEY=test-admin-key CLIENT_KEY=test-client-key PORT=8080 DB_PATH=go/contract.db go/ffservice & SVC_PID=$!
+sleep 1
 node --test --test-concurrency=1 "tests/contract/*.test.mjs"
+kill $SVC_PID
+rm -f go/contract.db go/contract.db-shm go/contract.db-wal go/ffservice
 ```
+
+หรือรันกับ mock ที่ทำตามสเปก (ใช้พิสูจน์ตัว test ไม่ต้องมี Go): `PORT=8080 node tools/mock-server/server.mjs &`
+
+ตรวจคุณภาพโค้ด Go: `cd go && go build ./... && go vet ./... && test -z "$(gofmt -l .)" && go test -race ./...`
 
 รายละเอียดและตัวแปรที่ปรับได้อยู่ใน [`tests/contract/README.md`](tests/contract/README.md)
 
-ส่วนการรัน service จริง: **TODO** เติมเมื่อมีโค้ด
+วิธีรัน service และตัวแปรที่ตั้งได้: [`go/README.md`](go/README.md)
 
 ## Roadmap
 
 1. ~~เขียน `spec/`, test vectors และ contract test~~ เสร็จแล้ว
-2. MVP1 ใน Go
+2. ~~MVP1 ใน Go~~ เสร็จแล้ว (รวมฝั่ง server ของ MVP2: variants, rollout, events, รายงานผล)
 3. แปล MVP1 เป็น TypeScript และบันทึกบทเรียน
 4. MVP2 ใน Go (variants, bucketing, events) แล้วแปลเป็น Python, Java, Rust
 5. MVP3 JavaScript library

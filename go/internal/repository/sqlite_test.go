@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"os"
 	"path/filepath"
 	"reflect"
 	"testing"
@@ -367,5 +368,54 @@ func TestConcurrentWritersDoNotCorruptState(t *testing.T) {
 	}
 	if _, total, _ := r.ListAudit(ctx, nil, 1, 0); total != n {
 		t.Fatalf("audit entries: %d", total)
+	}
+}
+
+func TestAPanicInsideATxDoesNotStrandTheConnection(t *testing.T) {
+	r := open(t)
+	func() {
+		defer func() {
+			if recover() == nil {
+				t.Error("the panic must propagate to the caller")
+			}
+		}()
+		r.Tx(ctx, func(Tx) error { panic("boom") })
+	}()
+
+	// The pool has one connection. If the panic leaked the transaction, this
+	// call would wait for it forever; the timeout turns that into a failure.
+	short, cancel := context.WithTimeout(ctx, 2*time.Second)
+	defer cancel()
+	if _, err := r.GetFlag(short, "anything"); !errors.Is(err, ErrNotFound) {
+		t.Fatalf("repository unusable after a panic in Tx: %v", err)
+	}
+}
+
+func TestDatabasePathsWithURICharactersWork(t *testing.T) {
+	dir := t.TempDir()
+	for _, name := range []string{"a b.db", "q?mark.db", "hash#tag.db", "pct%41.db", "ไทย.db"} {
+		path := filepath.Join(dir, name)
+		r, err := Open(path)
+		if err != nil {
+			t.Errorf("%q: %v", name, err)
+			continue
+		}
+		insert(t, r, flag("x"))
+		r.Close()
+
+		// The file must really be at that path, not at a mangled one. Reopening
+		// alone proves nothing: it would reach the same mangled file again.
+		if _, err := os.Stat(path); err != nil {
+			t.Errorf("%q: no database file at that path: %v", name, err)
+		}
+		r2, err := Open(path)
+		if err != nil {
+			t.Errorf("%q reopen: %v", name, err)
+			continue
+		}
+		if _, err := r2.GetFlag(ctx, "x"); err != nil {
+			t.Errorf("%q: data not found after reopening: %v", name, err)
+		}
+		r2.Close()
 	}
 }

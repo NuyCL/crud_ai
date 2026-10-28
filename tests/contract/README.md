@@ -78,4 +78,6 @@ node --test --test-concurrency=1 "tests/contract/*.test.mjs"     # ต้อง�
 | `client-gets-401` | client key เรียก admin API ได้ 401 แทน 403 | auth BR-12 |
 | `offset-ignored` | list ไม่สนใจ `offset` | paging (BR-50) |
 
-เมื่อมี `go/` แล้ว ให้ใช้ Go เป็น golden implementation และเก็บ mock ไว้เป็นตัวอ้างอิงตอนสงสัยว่า test หรือ implementation ผิด
+## รันกับ implementation จริง
+
+`go/` ผ่านชุดนี้ทั้งหมด (ทั้งแบบเรียง แบบขนาน และ build ด้วย `-race`) วิธีรัน: [`../../go/README.md`](../../go/README.md) หรือหัวข้อ "Getting started" ใน [`README.md`](../../README.md) เก็บ mock ไว้เป็นตัวอ้างอิงตอนสงสัยว่า test หรือ implementation ผิด: ถ้า mock ผ่านแต่ implementation ไม่ผ่าน มักผิดที่ implementation; ถ้าทั้งคู่ไม่ผ่าน มักผิดที่ test หรือสเปก

@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"strings"
 	"time"
 
 	_ "modernc.org/sqlite" // registers the "sqlite" driver, no cgo needed
@@ -53,6 +54,11 @@ type SQLite struct {
 
 var _ Repository = (*SQLite)(nil)
 
+// uriPathEscaper protects the three characters that would otherwise end or
+// corrupt the path part of a "file:" URI: '?' starts the query, '#' starts the
+// fragment and '%' starts an escape.
+var uriPathEscaper = strings.NewReplacer("%", "%25", "?", "%3f", "#", "%23")
+
 // Open opens (and creates, if needed) the database at path. Use ":memory:"
 // for a private in-memory database.
 //
@@ -61,7 +67,7 @@ var _ Repository = (*SQLite)(nil)
 // connection would otherwise get its own empty database. The consequence: do
 // not use the *SQLite while a Tx callback is running, it would wait forever.
 func Open(path string) (*SQLite, error) {
-	dsn := "file:" + path + "?_pragma=busy_timeout(5000)&_pragma=journal_mode(WAL)"
+	dsn := "file:" + uriPathEscaper.Replace(path) + "?_pragma=busy_timeout(5000)&_pragma=journal_mode(WAL)"
 	if path == ":memory:" {
 		dsn = "file::memory:?_pragma=busy_timeout(5000)"
 	}
@@ -171,6 +177,14 @@ func (s *SQLite) Tx(ctx context.Context, fn func(Tx) error) error {
 	if err != nil {
 		return err
 	}
+	// A panic in fn must still end the transaction. With a one-connection pool a
+	// leaked transaction would block every later call forever.
+	defer func() {
+		if p := recover(); p != nil {
+			tx.Rollback()
+			panic(p)
+		}
+	}()
 	if err := fn(&sqlTx{ctx: ctx, tx: tx}); err != nil {
 		tx.Rollback()
 		return err
