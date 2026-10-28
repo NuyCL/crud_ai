@@ -2,7 +2,15 @@
 
 โปรเจกต์ฝึกเขียนโค้ดหลายภาษาและฝึกใช้ AI แปลโค้ดอย่างมีขั้นตอน โดยใช้โจทย์เป็น **microservice สำหรับ feature flag** ที่ต่อยอดไปเป็น **A/B testing** ได้
 
-> **สถานะ:** เริ่มต้น (มีเอกสารเท่านั้น ยังไม่มีโค้ด) หัวข้อที่ระบุ **TODO** จะเติมเมื่อมี implementation
+> **สถานะ:** มีสเปกและ test vectors แล้ว ยังไม่มี implementation (`go/` เป็นขั้นถัดไป) หัวข้อที่ระบุ **TODO** จะเติมเมื่อมีโค้ด
+
+| เอกสาร | เนื้อหา |
+|---|---|
+| [`spec/openapi.yaml`](spec/openapi.yaml) | สัญญา API (admin, evaluate, events) |
+| [`spec/evaluation.md`](spec/evaluation.md) | ลำดับและอัลกอริทึมการประเมิน flag รวม bucketing |
+| [`spec/business-rules.md`](spec/business-rules.md) | กฎ BR-xx และรูปแบบ error |
+| [`tests/vectors/`](tests/vectors/README.md) | ข้อมูลทดสอบกลาง (fnv1a32 / bucketing / evaluation) |
+| [`CONVENTIONS.md`](CONVENTIONS.md) | โครงสร้าง layer, library ต่อภาษา, กับดักต่อภาษา |
 
 ## วัตถุประสงค์
 
@@ -65,10 +73,10 @@ Cache (memory + localStorage), polling/SSE, ส่ง exposure แบบ batch, 
 ### Bucketing: จุดที่แปลพลาดง่ายที่สุด
 
 ```
-bucket = fnv1a32(flagKey + ":" + userId) mod 10000
+bucket = fnv1a32(flagKey + ":" + salt + ":" + userId) mod 10000    // salt = "rollout" | "variant"
 ```
 
-ทุกภาษาต้องได้ bucket เท่ากันทุกแถวใน `tests/vectors/bucketing.json` (สร้างจาก Go) กับดักเรื่อง integer ของแต่ละภาษา:
+ทุกภาษาต้องได้ hash/bucket เท่ากันทุกแถวใน `tests/vectors/` (สร้างจาก Go และตรวจซ้ำด้วย Node) รายละเอียดอยู่ที่ [`spec/evaluation.md`](spec/evaluation.md) กับดักเรื่อง integer ของแต่ละภาษา:
 
 | ภาษา | กับดัก |
 |---|---|
@@ -129,10 +137,13 @@ Output: the code, plus a list of behavior differences or assumptions.
 ## โครงสร้างโปรเจกต์ (planned)
 
 ```
-spec/            openapi.yaml, evaluation.md, business-rules.md
+spec/            openapi.yaml, evaluation.md, business-rules.md          ✅
 tests/
-  contract/      black-box HTTP tests (ใช้ร่วมทุกภาษา)
-  vectors/       bucketing.json, evaluation cases
+  contract/      black-box HTTP tests (ใช้ร่วมทุกภาษา)                   (planned)
+  vectors/       fnv1a32.json, bucketing.json, evaluation.json          ✅
+tools/
+  genvectors/    Go generator ของ vectors                               ✅
+  verify-vectors/ ตัวตรวจอิสระด้วย Node                                  ✅
 go/              original implementation
 typescript/      port
 rust/            port
@@ -147,11 +158,18 @@ Makefile         make test-<lang>, make build-<lang>
 
 ## Getting started
 
-**TODO:** เติมเมื่อมีโค้ด
+ตรวจ test vectors (ต้องมี Go 1.22+ และ Node 22+):
+
+```bash
+cd tools/genvectors && go run . ../../tests/vectors   # สร้าง vectors ใหม่
+node tools/verify-vectors/verify.mjs                  # ตรวจด้วย implementation อิสระ
+```
+
+ส่วนการรัน service: **TODO** เติมเมื่อมีโค้ด
 
 ## Roadmap
 
-1. เขียน `spec/`, contract test และ vectors
+1. ~~เขียน `spec/` และ test vectors~~ เสร็จแล้ว; เหลือ contract test (`tests/contract/`)
 2. MVP1 ใน Go
 3. แปล MVP1 เป็น TypeScript และบันทึกบทเรียน
 4. MVP2 ใน Go (variants, bucketing, events) แล้วแปลเป็น Python, Java, Rust

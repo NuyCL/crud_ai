@@ -1,0 +1,2405 @@
+{
+  "cases": [
+    {
+      "flagKey": "new-checkout",
+      "salt": "rollout",
+      "userId": "alice",
+      "input": "new-checkout:rollout:alice",
+      "hash": 3449471093,
+      "bucket": 1093
+    },
+    {
+      "flagKey": "new-checkout",
+      "salt": "rollout",
+      "userId": "bob",
+      "input": "new-checkout:rollout:bob",
+      "hash": 497135762,
+      "bucket": 5762
+    },
+    {
+      "flagKey": "new-checkout",
+      "salt": "rollout",
+      "userId": "user@example.com",
+      "input": "new-checkout:rollout:user@example.com",
+      "hash": 227802717,
+      "bucket": 2717
+    },
+    {
+      "flagKey": "new-checkout",
+      "salt": "rollout",
+      "userId": "ผู้ใช้-1",
+      "input": "new-checkout:rollout:ผู้ใช้-1",
+      "hash": 1899751408,
+      "bucket": 1408
+    },
+    {
+      "flagKey": "new-checkout",
+      "salt": "rollout",
+      "userId": "café",
+      "input": "new-checkout:rollout:café",
+      "hash": 1550018855,
+      "bucket": 8855
+    },
+    {
+      "flagKey": "new-checkout",
+      "salt": "rollout",
+      "userId": "日本語",
+      "input": "new-checkout:rollout:日本語",
+      "hash": 2550665693,
+      "bucket": 5693
+    },
+    {
+      "flagKey": "new-checkout",
+      "salt": "rollout",
+      "userId": "😀",
+      "input": "new-checkout:rollout:😀",
+      "hash": 2127566362,
+      "bucket": 6362
+    },
+    {
+      "flagKey": "new-checkout",
+      "salt": "rollout",
+      "userId": "a:b",
+      "input": "new-checkout:rollout:a:b",
+      "hash": 2310662738,
+      "bucket": 2738
+    },
+    {
+      "flagKey": "new-checkout",
+      "salt": "rollout",
+      "userId": "550e8400-e29b-41d4-a716-446655440000",
+      "input": "new-checkout:rollout:550e8400-e29b-41d4-a716-446655440000",
+      "hash": 825528222,
+      "bucket": 8222
+    },
+    {
+      "flagKey": "new-checkout",
+      "salt": "rollout",
+      "userId": "uuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuu",
+      "input": "new-checkout:rollout:uuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuu",
+      "hash": 370150683,
+      "bucket": 683
+    },
+    {
+      "flagKey": "new-checkout",
+      "salt": "rollout",
+      "userId": "u1",
+      "input": "new-checkout:rollout:u1",
+      "hash": 2091417145,
+      "bucket": 7145
+    },
+    {
+      "flagKey": "new-checkout",
+      "salt": "rollout",
+      "userId": "u2",
+      "input": "new-checkout:rollout:u2",
+      "hash": 2041084288,
+      "bucket": 4288
+    },
+    {
+      "flagKey": "new-checkout",
+      "salt": "rollout",
+      "userId": "u3",
+      "input": "new-checkout:rollout:u3",
+      "hash": 2057861907,
+      "bucket": 1907
+    },
+    {
+      "flagKey": "new-checkout",
+      "salt": "rollout",
+      "userId": "u4",
+      "input": "new-checkout:rollout:u4",
+      "hash": 2141750002,
+      "bucket": 2
+    },
+    {
+      "flagKey": "new-checkout",
+      "salt": "rollout",
+      "userId": "u5",
+      "input": "new-checkout:rollout:u5",
+      "hash": 2158527621,
+      "bucket": 7621
+    },
+    {
+      "flagKey": "new-checkout",
+      "salt": "rollout",
+      "userId": "u6",
+      "input": "new-checkout:rollout:u6",
+      "hash": 2108194764,
+      "bucket": 4764
+    },
+    {
+      "flagKey": "new-checkout",
+      "salt": "rollout",
+      "userId": "u7",
+      "input": "new-checkout:rollout:u7",
+      "hash": 2124972383,
+      "bucket": 2383
+    },
+    {
+      "flagKey": "new-checkout",
+      "salt": "rollout",
+      "userId": "u8",
+      "input": "new-checkout:rollout:u8",
+      "hash": 2208860478,
+      "bucket": 478
+    },
+    {
+      "flagKey": "new-checkout",
+      "salt": "rollout",
+      "userId": "u9",
+      "input": "new-checkout:rollout:u9",
+      "hash": 2225638097,
+      "bucket": 8097
+    },
+    {
+      "flagKey": "new-checkout",
+      "salt": "rollout",
+      "userId": "u10",
+      "input": "new-checkout:rollout:u10",
+      "hash": 1178495019,
+      "bucket": 5019
+    },
+    {
+      "flagKey": "new-checkout",
+      "salt": "rollout",
+      "userId": "u11",
+      "input": "new-checkout:rollout:u11",
+      "hash": 1161717400,
+      "bucket": 7400
+    },
+    {
+      "flagKey": "new-checkout",
+      "salt": "rollout",
+      "userId": "u12",
+      "input": "new-checkout:rollout:u12",
+      "hash": 1212050257,
+      "bucket": 257
+    },
+    {
+      "flagKey": "new-checkout",
+      "salt": "rollout",
+      "userId": "u13",
+      "input": "new-checkout:rollout:u13",
+      "hash": 1195272638,
+      "bucket": 2638
+    },
+    {
+      "flagKey": "new-checkout",
+      "salt": "rollout",
+      "userId": "u14",
+      "input": "new-checkout:rollout:u14",
+      "hash": 1245605495,
+      "bucket": 5495
+    },
+    {
+      "flagKey": "new-checkout",
+      "salt": "rollout",
+      "userId": "u15",
+      "input": "new-checkout:rollout:u15",
+      "hash": 1228827876,
+      "bucket": 7876
+    },
+    {
+      "flagKey": "new-checkout",
+      "salt": "rollout",
+      "userId": "u16",
+      "input": "new-checkout:rollout:u16",
+      "hash": 1279160733,
+      "bucket": 733
+    },
+    {
+      "flagKey": "new-checkout",
+      "salt": "rollout",
+      "userId": "u17",
+      "input": "new-checkout:rollout:u17",
+      "hash": 1262383114,
+      "bucket": 3114
+    },
+    {
+      "flagKey": "new-checkout",
+      "salt": "rollout",
+      "userId": "u18",
+      "input": "new-checkout:rollout:u18",
+      "hash": 1044274067,
+      "bucket": 4067
+    },
+    {
+      "flagKey": "new-checkout",
+      "salt": "rollout",
+      "userId": "u19",
+      "input": "new-checkout:rollout:u19",
+      "hash": 1027496448,
+      "bucket": 6448
+    },
+    {
+      "flagKey": "new-checkout",
+      "salt": "rollout",
+      "userId": "u20",
+      "input": "new-checkout:rollout:u20",
+      "hash": 876056592,
+      "bucket": 6592
+    },
+    {
+      "flagKey": "new-checkout",
+      "salt": "variant",
+      "userId": "alice",
+      "input": "new-checkout:variant:alice",
+      "hash": 4006340633,
+      "bucket": 633
+    },
+    {
+      "flagKey": "new-checkout",
+      "salt": "variant",
+      "userId": "bob",
+      "input": "new-checkout:variant:bob",
+      "hash": 256758910,
+      "bucket": 8910
+    },
+    {
+      "flagKey": "new-checkout",
+      "salt": "variant",
+      "userId": "user@example.com",
+      "input": "new-checkout:variant:user@example.com",
+      "hash": 4182087265,
+      "bucket": 7265
+    },
+    {
+      "flagKey": "new-checkout",
+      "salt": "variant",
+      "userId": "ผู้ใช้-1",
+      "input": "new-checkout:variant:ผู้ใช้-1",
+      "hash": 3967868268,
+      "bucket": 8268
+    },
+    {
+      "flagKey": "new-checkout",
+      "salt": "variant",
+      "userId": "café",
+      "input": "new-checkout:variant:café",
+      "hash": 598255091,
+      "bucket": 5091
+    },
+    {
+      "flagKey": "new-checkout",
+      "salt": "variant",
+      "userId": "日本語",
+      "input": "new-checkout:variant:日本語",
+      "hash": 2130387385,
+      "bucket": 7385
+    },
+    {
+      "flagKey": "new-checkout",
+      "salt": "variant",
+      "userId": "😀",
+      "input": "new-checkout:variant:😀",
+      "hash": 3005323998,
+      "bucket": 3998
+    },
+    {
+      "flagKey": "new-checkout",
+      "salt": "variant",
+      "userId": "a:b",
+      "input": "new-checkout:variant:a:b",
+      "hash": 2353013334,
+      "bucket": 3334
+    },
+    {
+      "flagKey": "new-checkout",
+      "salt": "variant",
+      "userId": "550e8400-e29b-41d4-a716-446655440000",
+      "input": "new-checkout:variant:550e8400-e29b-41d4-a716-446655440000",
+      "hash": 73780922,
+      "bucket": 922
+    },
+    {
+      "flagKey": "new-checkout",
+      "salt": "variant",
+      "userId": "uuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuu",
+      "input": "new-checkout:variant:uuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuu",
+      "hash": 3983267319,
+      "bucket": 7319
+    },
+    {
+      "flagKey": "new-checkout",
+      "salt": "variant",
+      "userId": "u1",
+      "input": "new-checkout:variant:u1",
+      "hash": 3245987181,
+      "bucket": 7181
+    },
+    {
+      "flagKey": "new-checkout",
+      "salt": "variant",
+      "userId": "u2",
+      "input": "new-checkout:variant:u2",
+      "hash": 3195654324,
+      "bucket": 4324
+    },
+    {
+      "flagKey": "new-checkout",
+      "salt": "variant",
+      "userId": "u3",
+      "input": "new-checkout:variant:u3",
+      "hash": 3212431943,
+      "bucket": 1943
+    },
+    {
+      "flagKey": "new-checkout",
+      "salt": "variant",
+      "userId": "u4",
+      "input": "new-checkout:variant:u4",
+      "hash": 3162099086,
+      "bucket": 9086
+    },
+    {
+      "flagKey": "new-checkout",
+      "salt": "variant",
+      "userId": "u5",
+      "input": "new-checkout:variant:u5",
+      "hash": 3178876705,
+      "bucket": 6705
+    },
+    {
+      "flagKey": "new-checkout",
+      "salt": "variant",
+      "userId": "u6",
+      "input": "new-checkout:variant:u6",
+      "hash": 3128543848,
+      "bucket": 3848
+    },
+    {
+      "flagKey": "new-checkout",
+      "salt": "variant",
+      "userId": "u7",
+      "input": "new-checkout:variant:u7",
+      "hash": 3145321467,
+      "bucket": 1467
+    },
+    {
+      "flagKey": "new-checkout",
+      "salt": "variant",
+      "userId": "u8",
+      "input": "new-checkout:variant:u8",
+      "hash": 3094988610,
+      "bucket": 8610
+    },
+    {
+      "flagKey": "new-checkout",
+      "salt": "variant",
+      "userId": "u9",
+      "input": "new-checkout:variant:u9",
+      "hash": 3111766229,
+      "bucket": 6229
+    },
+    {
+      "flagKey": "new-checkout",
+      "salt": "variant",
+      "userId": "u10",
+      "input": "new-checkout:variant:u10",
+      "hash": 4023050599,
+      "bucket": 599
+    },
+    {
+      "flagKey": "new-checkout",
+      "salt": "variant",
+      "userId": "u11",
+      "input": "new-checkout:variant:u11",
+      "hash": 4006272980,
+      "bucket": 2980
+    },
+    {
+      "flagKey": "new-checkout",
+      "salt": "variant",
+      "userId": "u12",
+      "input": "new-checkout:variant:u12",
+      "hash": 4056605837,
+      "bucket": 5837
+    },
+    {
+      "flagKey": "new-checkout",
+      "salt": "variant",
+      "userId": "u13",
+      "input": "new-checkout:variant:u13",
+      "hash": 4039828218,
+      "bucket": 8218
+    },
+    {
+      "flagKey": "new-checkout",
+      "salt": "variant",
+      "userId": "u14",
+      "input": "new-checkout:variant:u14",
+      "hash": 3955940123,
+      "bucket": 123
+    },
+    {
+      "flagKey": "new-checkout",
+      "salt": "variant",
+      "userId": "u15",
+      "input": "new-checkout:variant:u15",
+      "hash": 3939162504,
+      "bucket": 2504
+    },
+    {
+      "flagKey": "new-checkout",
+      "salt": "variant",
+      "userId": "u16",
+      "input": "new-checkout:variant:u16",
+      "hash": 3989495361,
+      "bucket": 5361
+    },
+    {
+      "flagKey": "new-checkout",
+      "salt": "variant",
+      "userId": "u17",
+      "input": "new-checkout:variant:u17",
+      "hash": 3972717742,
+      "bucket": 7742
+    },
+    {
+      "flagKey": "new-checkout",
+      "salt": "variant",
+      "userId": "u18",
+      "input": "new-checkout:variant:u18",
+      "hash": 3888829647,
+      "bucket": 9647
+    },
+    {
+      "flagKey": "new-checkout",
+      "salt": "variant",
+      "userId": "u19",
+      "input": "new-checkout:variant:u19",
+      "hash": 3872052028,
+      "bucket": 2028
+    },
+    {
+      "flagKey": "new-checkout",
+      "salt": "variant",
+      "userId": "u20",
+      "input": "new-checkout:variant:u20",
+      "hash": 1573076940,
+      "bucket": 6940
+    },
+    {
+      "flagKey": "checkout-button",
+      "salt": "rollout",
+      "userId": "alice",
+      "input": "checkout-button:rollout:alice",
+      "hash": 1615014093,
+      "bucket": 4093
+    },
+    {
+      "flagKey": "checkout-button",
+      "salt": "rollout",
+      "userId": "bob",
+      "input": "checkout-button:rollout:bob",
+      "hash": 2690172154,
+      "bucket": 2154
+    },
+    {
+      "flagKey": "checkout-button",
+      "salt": "rollout",
+      "userId": "user@example.com",
+      "input": "checkout-button:rollout:user@example.com",
+      "hash": 679352357,
+      "bucket": 2357
+    },
+    {
+      "flagKey": "checkout-button",
+      "salt": "rollout",
+      "userId": "ผู้ใช้-1",
+      "input": "checkout-button:rollout:ผู้ใช้-1",
+      "hash": 2874653784,
+      "bucket": 3784
+    },
+    {
+      "flagKey": "checkout-button",
+      "salt": "rollout",
+      "userId": "café",
+      "input": "checkout-button:rollout:café",
+      "hash": 657790383,
+      "bucket": 383
+    },
+    {
+      "flagKey": "checkout-button",
+      "salt": "rollout",
+      "userId": "日本語",
+      "input": "checkout-button:rollout:日本語",
+      "hash": 2447029893,
+      "bucket": 9893
+    },
+    {
+      "flagKey": "checkout-button",
+      "salt": "rollout",
+      "userId": "😀",
+      "input": "checkout-button:rollout:😀",
+      "hash": 1033491650,
+      "bucket": 1650
+    },
+    {
+      "flagKey": "checkout-button",
+      "salt": "rollout",
+      "userId": "a:b",
+      "input": "checkout-button:rollout:a:b",
+      "hash": 224400474,
+      "bucket": 474
+    },
+    {
+      "flagKey": "checkout-button",
+      "salt": "rollout",
+      "userId": "550e8400-e29b-41d4-a716-446655440000",
+      "input": "checkout-button:rollout:550e8400-e29b-41d4-a716-446655440000",
+      "hash": 972747206,
+      "bucket": 7206
+    },
+    {
+      "flagKey": "checkout-button",
+      "salt": "rollout",
+      "userId": "uuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuu",
+      "input": "checkout-button:rollout:uuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuu",
+      "hash": 3589047587,
+      "bucket": 7587
+    },
+    {
+      "flagKey": "checkout-button",
+      "salt": "rollout",
+      "userId": "u1",
+      "input": "checkout-button:rollout:u1",
+      "hash": 2857249217,
+      "bucket": 9217
+    },
+    {
+      "flagKey": "checkout-button",
+      "salt": "rollout",
+      "userId": "u2",
+      "input": "checkout-button:rollout:u2",
+      "hash": 2806916360,
+      "bucket": 6360
+    },
+    {
+      "flagKey": "checkout-button",
+      "salt": "rollout",
+      "userId": "u3",
+      "input": "checkout-button:rollout:u3",
+      "hash": 2823693979,
+      "bucket": 3979
+    },
+    {
+      "flagKey": "checkout-button",
+      "salt": "rollout",
+      "userId": "u4",
+      "input": "checkout-button:rollout:u4",
+      "hash": 2907582074,
+      "bucket": 2074
+    },
+    {
+      "flagKey": "checkout-button",
+      "salt": "rollout",
+      "userId": "u5",
+      "input": "checkout-button:rollout:u5",
+      "hash": 2924359693,
+      "bucket": 9693
+    },
+    {
+      "flagKey": "checkout-button",
+      "salt": "rollout",
+      "userId": "u6",
+      "input": "checkout-button:rollout:u6",
+      "hash": 2874026836,
+      "bucket": 6836
+    },
+    {
+      "flagKey": "checkout-button",
+      "salt": "rollout",
+      "userId": "u7",
+      "input": "checkout-button:rollout:u7",
+      "hash": 2890804455,
+      "bucket": 4455
+    },
+    {
+      "flagKey": "checkout-button",
+      "salt": "rollout",
+      "userId": "u8",
+      "input": "checkout-button:rollout:u8",
+      "hash": 2706250646,
+      "bucket": 646
+    },
+    {
+      "flagKey": "checkout-button",
+      "salt": "rollout",
+      "userId": "u9",
+      "input": "checkout-button:rollout:u9",
+      "hash": 2723028265,
+      "bucket": 8265
+    },
+    {
+      "flagKey": "checkout-button",
+      "salt": "rollout",
+      "userId": "u10",
+      "input": "checkout-button:rollout:u10",
+      "hash": 168560227,
+      "bucket": 227
+    },
+    {
+      "flagKey": "checkout-button",
+      "salt": "rollout",
+      "userId": "u11",
+      "input": "checkout-button:rollout:u11",
+      "hash": 151782608,
+      "bucket": 2608
+    },
+    {
+      "flagKey": "checkout-button",
+      "salt": "rollout",
+      "userId": "u12",
+      "input": "checkout-button:rollout:u12",
+      "hash": 202115465,
+      "bucket": 5465
+    },
+    {
+      "flagKey": "checkout-button",
+      "salt": "rollout",
+      "userId": "u13",
+      "input": "checkout-button:rollout:u13",
+      "hash": 185337846,
+      "bucket": 7846
+    },
+    {
+      "flagKey": "checkout-button",
+      "salt": "rollout",
+      "userId": "u14",
+      "input": "checkout-button:rollout:u14",
+      "hash": 235670703,
+      "bucket": 703
+    },
+    {
+      "flagKey": "checkout-button",
+      "salt": "rollout",
+      "userId": "u15",
+      "input": "checkout-button:rollout:u15",
+      "hash": 218893084,
+      "bucket": 3084
+    },
+    {
+      "flagKey": "checkout-button",
+      "salt": "rollout",
+      "userId": "u16",
+      "input": "checkout-button:rollout:u16",
+      "hash": 269225941,
+      "bucket": 5941
+    },
+    {
+      "flagKey": "checkout-button",
+      "salt": "rollout",
+      "userId": "u17",
+      "input": "checkout-button:rollout:u17",
+      "hash": 252448322,
+      "bucket": 8322
+    },
+    {
+      "flagKey": "checkout-button",
+      "salt": "rollout",
+      "userId": "u18",
+      "input": "checkout-button:rollout:u18",
+      "hash": 302781179,
+      "bucket": 1179
+    },
+    {
+      "flagKey": "checkout-button",
+      "salt": "rollout",
+      "userId": "u19",
+      "input": "checkout-button:rollout:u19",
+      "hash": 286003560,
+      "bucket": 3560
+    },
+    {
+      "flagKey": "checkout-button",
+      "salt": "rollout",
+      "userId": "u20",
+      "input": "checkout-button:rollout:u20",
+      "hash": 2550437672,
+      "bucket": 7672
+    },
+    {
+      "flagKey": "checkout-button",
+      "salt": "variant",
+      "userId": "alice",
+      "input": "checkout-button:variant:alice",
+      "hash": 1826126321,
+      "bucket": 6321
+    },
+    {
+      "flagKey": "checkout-button",
+      "salt": "variant",
+      "userId": "bob",
+      "input": "checkout-button:variant:bob",
+      "hash": 2903590502,
+      "bucket": 502
+    },
+    {
+      "flagKey": "checkout-button",
+      "salt": "variant",
+      "userId": "user@example.com",
+      "input": "checkout-button:variant:user@example.com",
+      "hash": 1465628393,
+      "bucket": 8393
+    },
+    {
+      "flagKey": "checkout-button",
+      "salt": "variant",
+      "userId": "ผู้ใช้-1",
+      "input": "checkout-button:variant:ผู้ใช้-1",
+      "hash": 3891145012,
+      "bucket": 5012
+    },
+    {
+      "flagKey": "checkout-button",
+      "salt": "variant",
+      "userId": "café",
+      "input": "checkout-button:variant:café",
+      "hash": 62683995,
+      "bucket": 3995
+    },
+    {
+      "flagKey": "checkout-button",
+      "salt": "variant",
+      "userId": "日本語",
+      "input": "checkout-button:variant:日本語",
+      "hash": 490253825,
+      "bucket": 3825
+    },
+    {
+      "flagKey": "checkout-button",
+      "salt": "variant",
+      "userId": "😀",
+      "input": "checkout-button:variant:😀",
+      "hash": 3119253094,
+      "bucket": 3094
+    },
+    {
+      "flagKey": "checkout-button",
+      "salt": "variant",
+      "userId": "a:b",
+      "input": "checkout-button:variant:a:b",
+      "hash": 689312158,
+      "bucket": 2158
+    },
+    {
+      "flagKey": "checkout-button",
+      "salt": "variant",
+      "userId": "550e8400-e29b-41d4-a716-446655440000",
+      "input": "checkout-button:variant:550e8400-e29b-41d4-a716-446655440000",
+      "hash": 1159769474,
+      "bucket": 9474
+    },
+    {
+      "flagKey": "checkout-button",
+      "salt": "variant",
+      "userId": "uuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuu",
+      "input": "checkout-button:variant:uuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuu",
+      "hash": 3509313919,
+      "bucket": 3919
+    },
+    {
+      "flagKey": "checkout-button",
+      "salt": "variant",
+      "userId": "u1",
+      "input": "checkout-button:variant:u1",
+      "hash": 841026229,
+      "bucket": 6229
+    },
+    {
+      "flagKey": "checkout-button",
+      "salt": "variant",
+      "userId": "u2",
+      "input": "checkout-button:variant:u2",
+      "hash": 790693372,
+      "bucket": 3372
+    },
+    {
+      "flagKey": "checkout-button",
+      "salt": "variant",
+      "userId": "u3",
+      "input": "checkout-button:variant:u3",
+      "hash": 807470991,
+      "bucket": 991
+    },
+    {
+      "flagKey": "checkout-button",
+      "salt": "variant",
+      "userId": "u4",
+      "input": "checkout-button:variant:u4",
+      "hash": 757138134,
+      "bucket": 8134
+    },
+    {
+      "flagKey": "checkout-button",
+      "salt": "variant",
+      "userId": "u5",
+      "input": "checkout-button:variant:u5",
+      "hash": 773915753,
+      "bucket": 5753
+    },
+    {
+      "flagKey": "checkout-button",
+      "salt": "variant",
+      "userId": "u6",
+      "input": "checkout-button:variant:u6",
+      "hash": 723582896,
+      "bucket": 2896
+    },
+    {
+      "flagKey": "checkout-button",
+      "salt": "variant",
+      "userId": "u7",
+      "input": "checkout-button:variant:u7",
+      "hash": 740360515,
+      "bucket": 515
+    },
+    {
+      "flagKey": "checkout-button",
+      "salt": "variant",
+      "userId": "u8",
+      "input": "checkout-button:variant:u8",
+      "hash": 958469562,
+      "bucket": 9562
+    },
+    {
+      "flagKey": "checkout-button",
+      "salt": "variant",
+      "userId": "u9",
+      "input": "checkout-button:variant:u9",
+      "hash": 975247181,
+      "bucket": 7181
+    },
+    {
+      "flagKey": "checkout-button",
+      "salt": "variant",
+      "userId": "u10",
+      "input": "checkout-button:variant:u10",
+      "hash": 1862504287,
+      "bucket": 4287
+    },
+    {
+      "flagKey": "checkout-button",
+      "salt": "variant",
+      "userId": "u11",
+      "input": "checkout-button:variant:u11",
+      "hash": 1845726668,
+      "bucket": 6668
+    },
+    {
+      "flagKey": "checkout-button",
+      "salt": "variant",
+      "userId": "u12",
+      "input": "checkout-button:variant:u12",
+      "hash": 1896059525,
+      "bucket": 9525
+    },
+    {
+      "flagKey": "checkout-button",
+      "salt": "variant",
+      "userId": "u13",
+      "input": "checkout-button:variant:u13",
+      "hash": 1879281906,
+      "bucket": 1906
+    },
+    {
+      "flagKey": "checkout-button",
+      "salt": "variant",
+      "userId": "u14",
+      "input": "checkout-button:variant:u14",
+      "hash": 1795393811,
+      "bucket": 3811
+    },
+    {
+      "flagKey": "checkout-button",
+      "salt": "variant",
+      "userId": "u15",
+      "input": "checkout-button:variant:u15",
+      "hash": 1778616192,
+      "bucket": 6192
+    },
+    {
+      "flagKey": "checkout-button",
+      "salt": "variant",
+      "userId": "u16",
+      "input": "checkout-button:variant:u16",
+      "hash": 1828949049,
+      "bucket": 9049
+    },
+    {
+      "flagKey": "checkout-button",
+      "salt": "variant",
+      "userId": "u17",
+      "input": "checkout-button:variant:u17",
+      "hash": 1812171430,
+      "bucket": 1430
+    },
+    {
+      "flagKey": "checkout-button",
+      "salt": "variant",
+      "userId": "u18",
+      "input": "checkout-button:variant:u18",
+      "hash": 1996725239,
+      "bucket": 5239
+    },
+    {
+      "flagKey": "checkout-button",
+      "salt": "variant",
+      "userId": "u19",
+      "input": "checkout-button:variant:u19",
+      "hash": 1979947620,
+      "bucket": 7620
+    },
+    {
+      "flagKey": "checkout-button",
+      "salt": "variant",
+      "userId": "u20",
+      "input": "checkout-button:variant:u20",
+      "hash": 4244381732,
+      "bucket": 1732
+    },
+    {
+      "flagKey": "dark-mode",
+      "salt": "rollout",
+      "userId": "alice",
+      "input": "dark-mode:rollout:alice",
+      "hash": 1730377062,
+      "bucket": 7062
+    },
+    {
+      "flagKey": "dark-mode",
+      "salt": "rollout",
+      "userId": "bob",
+      "input": "dark-mode:rollout:bob",
+      "hash": 2787793033,
+      "bucket": 3033
+    },
+    {
+      "flagKey": "dark-mode",
+      "salt": "rollout",
+      "userId": "user@example.com",
+      "input": "dark-mode:rollout:user@example.com",
+      "hash": 4178867740,
+      "bucket": 7740
+    },
+    {
+      "flagKey": "dark-mode",
+      "salt": "rollout",
+      "userId": "ผู้ใช้-1",
+      "input": "dark-mode:rollout:ผู้ใช้-1",
+      "hash": 1142235189,
+      "bucket": 5189
+    },
+    {
+      "flagKey": "dark-mode",
+      "salt": "rollout",
+      "userId": "café",
+      "input": "dark-mode:rollout:café",
+      "hash": 2122803292,
+      "bucket": 3292
+    },
+    {
+      "flagKey": "dark-mode",
+      "salt": "rollout",
+      "userId": "日本語",
+      "input": "dark-mode:rollout:日本語",
+      "hash": 2995916398,
+      "bucket": 6398
+    },
+    {
+      "flagKey": "dark-mode",
+      "salt": "rollout",
+      "userId": "😀",
+      "input": "dark-mode:rollout:😀",
+      "hash": 4030401599,
+      "bucket": 1599
+    },
+    {
+      "flagKey": "dark-mode",
+      "salt": "rollout",
+      "userId": "a:b",
+      "input": "dark-mode:rollout:a:b",
+      "hash": 3566612421,
+      "bucket": 2421
+    },
+    {
+      "flagKey": "dark-mode",
+      "salt": "rollout",
+      "userId": "550e8400-e29b-41d4-a716-446655440000",
+      "input": "dark-mode:rollout:550e8400-e29b-41d4-a716-446655440000",
+      "hash": 2160523711,
+      "bucket": 3711
+    },
+    {
+      "flagKey": "dark-mode",
+      "salt": "rollout",
+      "userId": "uuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuu",
+      "input": "dark-mode:rollout:uuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuu",
+      "hash": 2119244294,
+      "bucket": 4294
+    },
+    {
+      "flagKey": "dark-mode",
+      "salt": "rollout",
+      "userId": "u1",
+      "input": "dark-mode:rollout:u1",
+      "hash": 1841903440,
+      "bucket": 3440
+    },
+    {
+      "flagKey": "dark-mode",
+      "salt": "rollout",
+      "userId": "u2",
+      "input": "dark-mode:rollout:u2",
+      "hash": 1892236297,
+      "bucket": 6297
+    },
+    {
+      "flagKey": "dark-mode",
+      "salt": "rollout",
+      "userId": "u3",
+      "input": "dark-mode:rollout:u3",
+      "hash": 1875458678,
+      "bucket": 8678
+    },
+    {
+      "flagKey": "dark-mode",
+      "salt": "rollout",
+      "userId": "u4",
+      "input": "dark-mode:rollout:u4",
+      "hash": 1925791535,
+      "bucket": 1535
+    },
+    {
+      "flagKey": "dark-mode",
+      "salt": "rollout",
+      "userId": "u5",
+      "input": "dark-mode:rollout:u5",
+      "hash": 1909013916,
+      "bucket": 3916
+    },
+    {
+      "flagKey": "dark-mode",
+      "salt": "rollout",
+      "userId": "u6",
+      "input": "dark-mode:rollout:u6",
+      "hash": 1959346773,
+      "bucket": 6773
+    },
+    {
+      "flagKey": "dark-mode",
+      "salt": "rollout",
+      "userId": "u7",
+      "input": "dark-mode:rollout:u7",
+      "hash": 1942569154,
+      "bucket": 9154
+    },
+    {
+      "flagKey": "dark-mode",
+      "salt": "rollout",
+      "userId": "u8",
+      "input": "dark-mode:rollout:u8",
+      "hash": 1992902011,
+      "bucket": 2011
+    },
+    {
+      "flagKey": "dark-mode",
+      "salt": "rollout",
+      "userId": "u9",
+      "input": "dark-mode:rollout:u9",
+      "hash": 1976124392,
+      "bucket": 4392
+    },
+    {
+      "flagKey": "dark-mode",
+      "salt": "rollout",
+      "userId": "u10",
+      "input": "dark-mode:rollout:u10",
+      "hash": 868363296,
+      "bucket": 3296
+    },
+    {
+      "flagKey": "dark-mode",
+      "salt": "rollout",
+      "userId": "u11",
+      "input": "dark-mode:rollout:u11",
+      "hash": 885140915,
+      "bucket": 915
+    },
+    {
+      "flagKey": "dark-mode",
+      "salt": "rollout",
+      "userId": "u12",
+      "input": "dark-mode:rollout:u12",
+      "hash": 901918534,
+      "bucket": 8534
+    },
+    {
+      "flagKey": "dark-mode",
+      "salt": "rollout",
+      "userId": "u13",
+      "input": "dark-mode:rollout:u13",
+      "hash": 918696153,
+      "bucket": 6153
+    },
+    {
+      "flagKey": "dark-mode",
+      "salt": "rollout",
+      "userId": "u14",
+      "input": "dark-mode:rollout:u14",
+      "hash": 935473772,
+      "bucket": 3772
+    },
+    {
+      "flagKey": "dark-mode",
+      "salt": "rollout",
+      "userId": "u15",
+      "input": "dark-mode:rollout:u15",
+      "hash": 952251391,
+      "bucket": 1391
+    },
+    {
+      "flagKey": "dark-mode",
+      "salt": "rollout",
+      "userId": "u16",
+      "input": "dark-mode:rollout:u16",
+      "hash": 969029010,
+      "bucket": 9010
+    },
+    {
+      "flagKey": "dark-mode",
+      "salt": "rollout",
+      "userId": "u17",
+      "input": "dark-mode:rollout:u17",
+      "hash": 985806629,
+      "bucket": 6629
+    },
+    {
+      "flagKey": "dark-mode",
+      "salt": "rollout",
+      "userId": "u18",
+      "input": "dark-mode:rollout:u18",
+      "hash": 1002584248,
+      "bucket": 4248
+    },
+    {
+      "flagKey": "dark-mode",
+      "salt": "rollout",
+      "userId": "u19",
+      "input": "dark-mode:rollout:u19",
+      "hash": 1019361867,
+      "bucket": 1867
+    },
+    {
+      "flagKey": "dark-mode",
+      "salt": "rollout",
+      "userId": "u20",
+      "input": "dark-mode:rollout:u20",
+      "hash": 3318336955,
+      "bucket": 6955
+    },
+    {
+      "flagKey": "dark-mode",
+      "salt": "variant",
+      "userId": "alice",
+      "input": "dark-mode:variant:alice",
+      "hash": 2626332618,
+      "bucket": 2618
+    },
+    {
+      "flagKey": "dark-mode",
+      "salt": "variant",
+      "userId": "bob",
+      "input": "dark-mode:variant:bob",
+      "hash": 387966805,
+      "bucket": 6805
+    },
+    {
+      "flagKey": "dark-mode",
+      "salt": "variant",
+      "userId": "user@example.com",
+      "input": "dark-mode:variant:user@example.com",
+      "hash": 1270244144,
+      "bucket": 4144
+    },
+    {
+      "flagKey": "dark-mode",
+      "salt": "variant",
+      "userId": "ผู้ใช้-1",
+      "input": "dark-mode:variant:ผู้ใช้-1",
+      "hash": 1771296657,
+      "bucket": 6657
+    },
+    {
+      "flagKey": "dark-mode",
+      "salt": "variant",
+      "userId": "café",
+      "input": "dark-mode:variant:café",
+      "hash": 1117137960,
+      "bucket": 7960
+    },
+    {
+      "flagKey": "dark-mode",
+      "salt": "variant",
+      "userId": "日本語",
+      "input": "dark-mode:variant:日本語",
+      "hash": 2733725466,
+      "bucket": 5466
+    },
+    {
+      "flagKey": "dark-mode",
+      "salt": "variant",
+      "userId": "😀",
+      "input": "dark-mode:variant:😀",
+      "hash": 852770355,
+      "bucket": 355
+    },
+    {
+      "flagKey": "dark-mode",
+      "salt": "variant",
+      "userId": "a:b",
+      "input": "dark-mode:variant:a:b",
+      "hash": 1449513641,
+      "bucket": 3641
+    },
+    {
+      "flagKey": "dark-mode",
+      "salt": "variant",
+      "userId": "550e8400-e29b-41d4-a716-446655440000",
+      "input": "dark-mode:variant:550e8400-e29b-41d4-a716-446655440000",
+      "hash": 4104424971,
+      "bucket": 4971
+    },
+    {
+      "flagKey": "dark-mode",
+      "salt": "variant",
+      "userId": "uuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuu",
+      "input": "dark-mode:variant:uuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuu",
+      "hash": 101362722,
+      "bucket": 2722
+    },
+    {
+      "flagKey": "dark-mode",
+      "salt": "variant",
+      "userId": "u1",
+      "input": "dark-mode:variant:u1",
+      "hash": 3301515636,
+      "bucket": 5636
+    },
+    {
+      "flagKey": "dark-mode",
+      "salt": "variant",
+      "userId": "u2",
+      "input": "dark-mode:variant:u2",
+      "hash": 3351848493,
+      "bucket": 8493
+    },
+    {
+      "flagKey": "dark-mode",
+      "salt": "variant",
+      "userId": "u3",
+      "input": "dark-mode:variant:u3",
+      "hash": 3335070874,
+      "bucket": 874
+    },
+    {
+      "flagKey": "dark-mode",
+      "salt": "variant",
+      "userId": "u4",
+      "input": "dark-mode:variant:u4",
+      "hash": 3251182779,
+      "bucket": 2779
+    },
+    {
+      "flagKey": "dark-mode",
+      "salt": "variant",
+      "userId": "u5",
+      "input": "dark-mode:variant:u5",
+      "hash": 3234405160,
+      "bucket": 5160
+    },
+    {
+      "flagKey": "dark-mode",
+      "salt": "variant",
+      "userId": "u6",
+      "input": "dark-mode:variant:u6",
+      "hash": 3284738017,
+      "bucket": 8017
+    },
+    {
+      "flagKey": "dark-mode",
+      "salt": "variant",
+      "userId": "u7",
+      "input": "dark-mode:variant:u7",
+      "hash": 3267960398,
+      "bucket": 398
+    },
+    {
+      "flagKey": "dark-mode",
+      "salt": "variant",
+      "userId": "u8",
+      "input": "dark-mode:variant:u8",
+      "hash": 3184072303,
+      "bucket": 2303
+    },
+    {
+      "flagKey": "dark-mode",
+      "salt": "variant",
+      "userId": "u9",
+      "input": "dark-mode:variant:u9",
+      "hash": 3167294684,
+      "bucket": 4684
+    },
+    {
+      "flagKey": "dark-mode",
+      "salt": "variant",
+      "userId": "u10",
+      "input": "dark-mode:variant:u10",
+      "hash": 211770892,
+      "bucket": 892
+    },
+    {
+      "flagKey": "dark-mode",
+      "salt": "variant",
+      "userId": "u11",
+      "input": "dark-mode:variant:u11",
+      "hash": 228548511,
+      "bucket": 8511
+    },
+    {
+      "flagKey": "dark-mode",
+      "salt": "variant",
+      "userId": "u12",
+      "input": "dark-mode:variant:u12",
+      "hash": 245326130,
+      "bucket": 6130
+    },
+    {
+      "flagKey": "dark-mode",
+      "salt": "variant",
+      "userId": "u13",
+      "input": "dark-mode:variant:u13",
+      "hash": 262103749,
+      "bucket": 3749
+    },
+    {
+      "flagKey": "dark-mode",
+      "salt": "variant",
+      "userId": "u14",
+      "input": "dark-mode:variant:u14",
+      "hash": 144660416,
+      "bucket": 416
+    },
+    {
+      "flagKey": "dark-mode",
+      "salt": "variant",
+      "userId": "u15",
+      "input": "dark-mode:variant:u15",
+      "hash": 161438035,
+      "bucket": 8035
+    },
+    {
+      "flagKey": "dark-mode",
+      "salt": "variant",
+      "userId": "u16",
+      "input": "dark-mode:variant:u16",
+      "hash": 178215654,
+      "bucket": 5654
+    },
+    {
+      "flagKey": "dark-mode",
+      "salt": "variant",
+      "userId": "u17",
+      "input": "dark-mode:variant:u17",
+      "hash": 194993273,
+      "bucket": 3273
+    },
+    {
+      "flagKey": "dark-mode",
+      "salt": "variant",
+      "userId": "u18",
+      "input": "dark-mode:variant:u18",
+      "hash": 345991844,
+      "bucket": 1844
+    },
+    {
+      "flagKey": "dark-mode",
+      "salt": "variant",
+      "userId": "u19",
+      "input": "dark-mode:variant:u19",
+      "hash": 362769463,
+      "bucket": 9463
+    },
+    {
+      "flagKey": "dark-mode",
+      "salt": "variant",
+      "userId": "u20",
+      "input": "dark-mode:variant:u20",
+      "hash": 2661744551,
+      "bucket": 4551
+    },
+    {
+      "flagKey": "beta_search",
+      "salt": "rollout",
+      "userId": "alice",
+      "input": "beta_search:rollout:alice",
+      "hash": 4266311945,
+      "bucket": 1945
+    },
+    {
+      "flagKey": "beta_search",
+      "salt": "rollout",
+      "userId": "bob",
+      "input": "beta_search:rollout:bob",
+      "hash": 936647598,
+      "bucket": 7598
+    },
+    {
+      "flagKey": "beta_search",
+      "salt": "rollout",
+      "userId": "user@example.com",
+      "input": "beta_search:rollout:user@example.com",
+      "hash": 1135636241,
+      "bucket": 6241
+    },
+    {
+      "flagKey": "beta_search",
+      "salt": "rollout",
+      "userId": "ผู้ใช้-1",
+      "input": "beta_search:rollout:ผู้ใช้-1",
+      "hash": 2850502684,
+      "bucket": 2684
+    },
+    {
+      "flagKey": "beta_search",
+      "salt": "rollout",
+      "userId": "café",
+      "input": "beta_search:rollout:café",
+      "hash": 105450019,
+      "bucket": 19
+    },
+    {
+      "flagKey": "beta_search",
+      "salt": "rollout",
+      "userId": "日本語",
+      "input": "beta_search:rollout:日本語",
+      "hash": 746688585,
+      "bucket": 8585
+    },
+    {
+      "flagKey": "beta_search",
+      "salt": "rollout",
+      "userId": "😀",
+      "input": "beta_search:rollout:😀",
+      "hash": 845762446,
+      "bucket": 2446
+    },
+    {
+      "flagKey": "beta_search",
+      "salt": "rollout",
+      "userId": "a:b",
+      "input": "beta_search:rollout:a:b",
+      "hash": 1943568934,
+      "bucket": 8934
+    },
+    {
+      "flagKey": "beta_search",
+      "salt": "rollout",
+      "userId": "550e8400-e29b-41d4-a716-446655440000",
+      "input": "beta_search:rollout:550e8400-e29b-41d4-a716-446655440000",
+      "hash": 3728071914,
+      "bucket": 1914
+    },
+    {
+      "flagKey": "beta_search",
+      "salt": "rollout",
+      "userId": "uuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuu",
+      "input": "beta_search:rollout:uuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuu",
+      "hash": 3479693319,
+      "bucket": 3319
+    },
+    {
+      "flagKey": "beta_search",
+      "salt": "rollout",
+      "userId": "u1",
+      "input": "beta_search:rollout:u1",
+      "hash": 3869206141,
+      "bucket": 6141
+    },
+    {
+      "flagKey": "beta_search",
+      "salt": "rollout",
+      "userId": "u2",
+      "input": "beta_search:rollout:u2",
+      "hash": 3818873284,
+      "bucket": 3284
+    },
+    {
+      "flagKey": "beta_search",
+      "salt": "rollout",
+      "userId": "u3",
+      "input": "beta_search:rollout:u3",
+      "hash": 3835650903,
+      "bucket": 903
+    },
+    {
+      "flagKey": "beta_search",
+      "salt": "rollout",
+      "userId": "u4",
+      "input": "beta_search:rollout:u4",
+      "hash": 3785318046,
+      "bucket": 8046
+    },
+    {
+      "flagKey": "beta_search",
+      "salt": "rollout",
+      "userId": "u5",
+      "input": "beta_search:rollout:u5",
+      "hash": 3802095665,
+      "bucket": 5665
+    },
+    {
+      "flagKey": "beta_search",
+      "salt": "rollout",
+      "userId": "u6",
+      "input": "beta_search:rollout:u6",
+      "hash": 3751762808,
+      "bucket": 2808
+    },
+    {
+      "flagKey": "beta_search",
+      "salt": "rollout",
+      "userId": "u7",
+      "input": "beta_search:rollout:u7",
+      "hash": 3768540427,
+      "bucket": 427
+    },
+    {
+      "flagKey": "beta_search",
+      "salt": "rollout",
+      "userId": "u8",
+      "input": "beta_search:rollout:u8",
+      "hash": 3718207570,
+      "bucket": 7570
+    },
+    {
+      "flagKey": "beta_search",
+      "salt": "rollout",
+      "userId": "u9",
+      "input": "beta_search:rollout:u9",
+      "hash": 3734985189,
+      "bucket": 5189
+    },
+    {
+      "flagKey": "beta_search",
+      "salt": "rollout",
+      "userId": "u10",
+      "input": "beta_search:rollout:u10",
+      "hash": 1508772663,
+      "bucket": 2663
+    },
+    {
+      "flagKey": "beta_search",
+      "salt": "rollout",
+      "userId": "u11",
+      "input": "beta_search:rollout:u11",
+      "hash": 1491995044,
+      "bucket": 5044
+    },
+    {
+      "flagKey": "beta_search",
+      "salt": "rollout",
+      "userId": "u12",
+      "input": "beta_search:rollout:u12",
+      "hash": 1542327901,
+      "bucket": 7901
+    },
+    {
+      "flagKey": "beta_search",
+      "salt": "rollout",
+      "userId": "u13",
+      "input": "beta_search:rollout:u13",
+      "hash": 1525550282,
+      "bucket": 282
+    },
+    {
+      "flagKey": "beta_search",
+      "salt": "rollout",
+      "userId": "u14",
+      "input": "beta_search:rollout:u14",
+      "hash": 1441662187,
+      "bucket": 2187
+    },
+    {
+      "flagKey": "beta_search",
+      "salt": "rollout",
+      "userId": "u15",
+      "input": "beta_search:rollout:u15",
+      "hash": 1424884568,
+      "bucket": 4568
+    },
+    {
+      "flagKey": "beta_search",
+      "salt": "rollout",
+      "userId": "u16",
+      "input": "beta_search:rollout:u16",
+      "hash": 1475217425,
+      "bucket": 7425
+    },
+    {
+      "flagKey": "beta_search",
+      "salt": "rollout",
+      "userId": "u17",
+      "input": "beta_search:rollout:u17",
+      "hash": 1458439806,
+      "bucket": 9806
+    },
+    {
+      "flagKey": "beta_search",
+      "salt": "rollout",
+      "userId": "u18",
+      "input": "beta_search:rollout:u18",
+      "hash": 1374551711,
+      "bucket": 1711
+    },
+    {
+      "flagKey": "beta_search",
+      "salt": "rollout",
+      "userId": "u19",
+      "input": "beta_search:rollout:u19",
+      "hash": 1357774092,
+      "bucket": 4092
+    },
+    {
+      "flagKey": "beta_search",
+      "salt": "rollout",
+      "userId": "u20",
+      "input": "beta_search:rollout:u20",
+      "hash": 1206334236,
+      "bucket": 4236
+    },
+    {
+      "flagKey": "beta_search",
+      "salt": "variant",
+      "userId": "alice",
+      "input": "beta_search:variant:alice",
+      "hash": 97822261,
+      "bucket": 2261
+    },
+    {
+      "flagKey": "beta_search",
+      "salt": "variant",
+      "userId": "bob",
+      "input": "beta_search:variant:bob",
+      "hash": 2915597906,
+      "bucket": 7906
+    },
+    {
+      "flagKey": "beta_search",
+      "salt": "variant",
+      "userId": "user@example.com",
+      "input": "beta_search:variant:user@example.com",
+      "hash": 3739223453,
+      "bucket": 3453
+    },
+    {
+      "flagKey": "beta_search",
+      "salt": "variant",
+      "userId": "ผู้ใช้-1",
+      "input": "beta_search:variant:ผู้ใช้-1",
+      "hash": 1279544240,
+      "bucket": 4240
+    },
+    {
+      "flagKey": "beta_search",
+      "salt": "variant",
+      "userId": "café",
+      "input": "beta_search:variant:café",
+      "hash": 705251943,
+      "bucket": 1943
+    },
+    {
+      "flagKey": "beta_search",
+      "salt": "variant",
+      "userId": "日本語",
+      "input": "beta_search:variant:日本語",
+      "hash": 2897225629,
+      "bucket": 5629
+    },
+    {
+      "flagKey": "beta_search",
+      "salt": "variant",
+      "userId": "😀",
+      "input": "beta_search:variant:😀",
+      "hash": 3434763098,
+      "bucket": 3098
+    },
+    {
+      "flagKey": "beta_search",
+      "salt": "variant",
+      "userId": "a:b",
+      "input": "beta_search:variant:a:b",
+      "hash": 455049106,
+      "bucket": 9106
+    },
+    {
+      "flagKey": "beta_search",
+      "salt": "variant",
+      "userId": "550e8400-e29b-41d4-a716-446655440000",
+      "input": "beta_search:variant:550e8400-e29b-41d4-a716-446655440000",
+      "hash": 2726487518,
+      "bucket": 7518
+    },
+    {
+      "flagKey": "beta_search",
+      "salt": "variant",
+      "userId": "uuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuu",
+      "input": "beta_search:variant:uuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuu",
+      "hash": 2417836251,
+      "bucket": 6251
+    },
+    {
+      "flagKey": "beta_search",
+      "salt": "variant",
+      "userId": "u1",
+      "input": "beta_search:variant:u1",
+      "hash": 3016678265,
+      "bucket": 8265
+    },
+    {
+      "flagKey": "beta_search",
+      "salt": "variant",
+      "userId": "u2",
+      "input": "beta_search:variant:u2",
+      "hash": 2966345408,
+      "bucket": 5408
+    },
+    {
+      "flagKey": "beta_search",
+      "salt": "variant",
+      "userId": "u3",
+      "input": "beta_search:variant:u3",
+      "hash": 2983123027,
+      "bucket": 3027
+    },
+    {
+      "flagKey": "beta_search",
+      "salt": "variant",
+      "userId": "u4",
+      "input": "beta_search:variant:u4",
+      "hash": 3067011122,
+      "bucket": 1122
+    },
+    {
+      "flagKey": "beta_search",
+      "salt": "variant",
+      "userId": "u5",
+      "input": "beta_search:variant:u5",
+      "hash": 3083788741,
+      "bucket": 8741
+    },
+    {
+      "flagKey": "beta_search",
+      "salt": "variant",
+      "userId": "u6",
+      "input": "beta_search:variant:u6",
+      "hash": 3033455884,
+      "bucket": 5884
+    },
+    {
+      "flagKey": "beta_search",
+      "salt": "variant",
+      "userId": "u7",
+      "input": "beta_search:variant:u7",
+      "hash": 3050233503,
+      "bucket": 3503
+    },
+    {
+      "flagKey": "beta_search",
+      "salt": "variant",
+      "userId": "u8",
+      "input": "beta_search:variant:u8",
+      "hash": 3134121598,
+      "bucket": 1598
+    },
+    {
+      "flagKey": "beta_search",
+      "salt": "variant",
+      "userId": "u9",
+      "input": "beta_search:variant:u9",
+      "hash": 3150899217,
+      "bucket": 9217
+    },
+    {
+      "flagKey": "beta_search",
+      "salt": "variant",
+      "userId": "u10",
+      "input": "beta_search:variant:u10",
+      "hash": 1470313451,
+      "bucket": 3451
+    },
+    {
+      "flagKey": "beta_search",
+      "salt": "variant",
+      "userId": "u11",
+      "input": "beta_search:variant:u11",
+      "hash": 1453535832,
+      "bucket": 5832
+    },
+    {
+      "flagKey": "beta_search",
+      "salt": "variant",
+      "userId": "u12",
+      "input": "beta_search:variant:u12",
+      "hash": 1503868689,
+      "bucket": 8689
+    },
+    {
+      "flagKey": "beta_search",
+      "salt": "variant",
+      "userId": "u13",
+      "input": "beta_search:variant:u13",
+      "hash": 1487091070,
+      "bucket": 1070
+    },
+    {
+      "flagKey": "beta_search",
+      "salt": "variant",
+      "userId": "u14",
+      "input": "beta_search:variant:u14",
+      "hash": 1537423927,
+      "bucket": 3927
+    },
+    {
+      "flagKey": "beta_search",
+      "salt": "variant",
+      "userId": "u15",
+      "input": "beta_search:variant:u15",
+      "hash": 1520646308,
+      "bucket": 6308
+    },
+    {
+      "flagKey": "beta_search",
+      "salt": "variant",
+      "userId": "u16",
+      "input": "beta_search:variant:u16",
+      "hash": 1570979165,
+      "bucket": 9165
+    },
+    {
+      "flagKey": "beta_search",
+      "salt": "variant",
+      "userId": "u17",
+      "input": "beta_search:variant:u17",
+      "hash": 1554201546,
+      "bucket": 1546
+    },
+    {
+      "flagKey": "beta_search",
+      "salt": "variant",
+      "userId": "u18",
+      "input": "beta_search:variant:u18",
+      "hash": 1336092499,
+      "bucket": 2499
+    },
+    {
+      "flagKey": "beta_search",
+      "salt": "variant",
+      "userId": "u19",
+      "input": "beta_search:variant:u19",
+      "hash": 1319314880,
+      "bucket": 4880
+    },
+    {
+      "flagKey": "beta_search",
+      "salt": "variant",
+      "userId": "u20",
+      "input": "beta_search:variant:u20",
+      "hash": 1167875024,
+      "bucket": 5024
+    },
+    {
+      "flagKey": "a",
+      "salt": "rollout",
+      "userId": "alice",
+      "input": "a:rollout:alice",
+      "hash": 3819282529,
+      "bucket": 2529
+    },
+    {
+      "flagKey": "a",
+      "salt": "rollout",
+      "userId": "bob",
+      "input": "a:rollout:bob",
+      "hash": 128239062,
+      "bucket": 9062
+    },
+    {
+      "flagKey": "a",
+      "salt": "rollout",
+      "userId": "user@example.com",
+      "input": "a:rollout:user@example.com",
+      "hash": 1263358425,
+      "bucket": 8425
+    },
+    {
+      "flagKey": "a",
+      "salt": "rollout",
+      "userId": "ผู้ใช้-1",
+      "input": "a:rollout:ผู้ใช้-1",
+      "hash": 3993953060,
+      "bucket": 3060
+    },
+    {
+      "flagKey": "a",
+      "salt": "rollout",
+      "userId": "café",
+      "input": "a:rollout:café",
+      "hash": 3919527627,
+      "bucket": 7627
+    },
+    {
+      "flagKey": "a",
+      "salt": "rollout",
+      "userId": "日本語",
+      "input": "a:rollout:日本語",
+      "hash": 3391643345,
+      "bucket": 3345
+    },
+    {
+      "flagKey": "a",
+      "salt": "rollout",
+      "userId": "😀",
+      "input": "a:rollout:😀",
+      "hash": 262727574,
+      "bucket": 7574
+    },
+    {
+      "flagKey": "a",
+      "salt": "rollout",
+      "userId": "a:b",
+      "input": "a:rollout:a:b",
+      "hash": 2224596654,
+      "bucket": 6654
+    },
+    {
+      "flagKey": "a",
+      "salt": "rollout",
+      "userId": "550e8400-e29b-41d4-a716-446655440000",
+      "input": "a:rollout:550e8400-e29b-41d4-a716-446655440000",
+      "hash": 1954754866,
+      "bucket": 4866
+    },
+    {
+      "flagKey": "a",
+      "salt": "rollout",
+      "userId": "uuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuu",
+      "input": "a:rollout:uuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuu",
+      "hash": 98255823,
+      "bucket": 5823
+    },
+    {
+      "flagKey": "a",
+      "salt": "rollout",
+      "userId": "u1",
+      "input": "a:rollout:u1",
+      "hash": 4023939973,
+      "bucket": 9973
+    },
+    {
+      "flagKey": "a",
+      "salt": "rollout",
+      "userId": "u2",
+      "input": "a:rollout:u2",
+      "hash": 3973607116,
+      "bucket": 7116
+    },
+    {
+      "flagKey": "a",
+      "salt": "rollout",
+      "userId": "u3",
+      "input": "a:rollout:u3",
+      "hash": 3990384735,
+      "bucket": 4735
+    },
+    {
+      "flagKey": "a",
+      "salt": "rollout",
+      "userId": "u4",
+      "input": "a:rollout:u4",
+      "hash": 3940051878,
+      "bucket": 1878
+    },
+    {
+      "flagKey": "a",
+      "salt": "rollout",
+      "userId": "u5",
+      "input": "a:rollout:u5",
+      "hash": 3956829497,
+      "bucket": 9497
+    },
+    {
+      "flagKey": "a",
+      "salt": "rollout",
+      "userId": "u6",
+      "input": "a:rollout:u6",
+      "hash": 3906496640,
+      "bucket": 6640
+    },
+    {
+      "flagKey": "a",
+      "salt": "rollout",
+      "userId": "u7",
+      "input": "a:rollout:u7",
+      "hash": 3923274259,
+      "bucket": 4259
+    },
+    {
+      "flagKey": "a",
+      "salt": "rollout",
+      "userId": "u8",
+      "input": "a:rollout:u8",
+      "hash": 4141383306,
+      "bucket": 3306
+    },
+    {
+      "flagKey": "a",
+      "salt": "rollout",
+      "userId": "u9",
+      "input": "a:rollout:u9",
+      "hash": 4158160925,
+      "bucket": 925
+    },
+    {
+      "flagKey": "a",
+      "salt": "rollout",
+      "userId": "u10",
+      "input": "a:rollout:u10",
+      "hash": 1186866671,
+      "bucket": 6671
+    },
+    {
+      "flagKey": "a",
+      "salt": "rollout",
+      "userId": "u11",
+      "input": "a:rollout:u11",
+      "hash": 1170089052,
+      "bucket": 9052
+    },
+    {
+      "flagKey": "a",
+      "salt": "rollout",
+      "userId": "u12",
+      "input": "a:rollout:u12",
+      "hash": 1220421909,
+      "bucket": 1909
+    },
+    {
+      "flagKey": "a",
+      "salt": "rollout",
+      "userId": "u13",
+      "input": "a:rollout:u13",
+      "hash": 1203644290,
+      "bucket": 4290
+    },
+    {
+      "flagKey": "a",
+      "salt": "rollout",
+      "userId": "u14",
+      "input": "a:rollout:u14",
+      "hash": 1119756195,
+      "bucket": 6195
+    },
+    {
+      "flagKey": "a",
+      "salt": "rollout",
+      "userId": "u15",
+      "input": "a:rollout:u15",
+      "hash": 1102978576,
+      "bucket": 8576
+    },
+    {
+      "flagKey": "a",
+      "salt": "rollout",
+      "userId": "u16",
+      "input": "a:rollout:u16",
+      "hash": 1153311433,
+      "bucket": 1433
+    },
+    {
+      "flagKey": "a",
+      "salt": "rollout",
+      "userId": "u17",
+      "input": "a:rollout:u17",
+      "hash": 1136533814,
+      "bucket": 3814
+    },
+    {
+      "flagKey": "a",
+      "salt": "rollout",
+      "userId": "u18",
+      "input": "a:rollout:u18",
+      "hash": 1321087623,
+      "bucket": 7623
+    },
+    {
+      "flagKey": "a",
+      "salt": "rollout",
+      "userId": "u19",
+      "input": "a:rollout:u19",
+      "hash": 1304310004,
+      "bucket": 4
+    },
+    {
+      "flagKey": "a",
+      "salt": "rollout",
+      "userId": "u20",
+      "input": "a:rollout:u20",
+      "hash": 3568744116,
+      "bucket": 4116
+    },
+    {
+      "flagKey": "a",
+      "salt": "variant",
+      "userId": "alice",
+      "input": "a:variant:alice",
+      "hash": 3592278189,
+      "bucket": 8189
+    },
+    {
+      "flagKey": "a",
+      "salt": "variant",
+      "userId": "bob",
+      "input": "a:variant:bob",
+      "hash": 2668813786,
+      "bucket": 3786
+    },
+    {
+      "flagKey": "a",
+      "salt": "variant",
+      "userId": "user@example.com",
+      "input": "a:variant:user@example.com",
+      "hash": 3016117573,
+      "bucket": 7573
+    },
+    {
+      "flagKey": "a",
+      "salt": "variant",
+      "userId": "ผู้ใช้-1",
+      "input": "a:variant:ผู้ใช้-1",
+      "hash": 395907832,
+      "bucket": 7832
+    },
+    {
+      "flagKey": "a",
+      "salt": "variant",
+      "userId": "café",
+      "input": "a:variant:café",
+      "hash": 2200048079,
+      "bucket": 8079
+    },
+    {
+      "flagKey": "a",
+      "salt": "variant",
+      "userId": "日本語",
+      "input": "a:variant:日本語",
+      "hash": 3240398245,
+      "bucket": 8245
+    },
+    {
+      "flagKey": "a",
+      "salt": "variant",
+      "userId": "😀",
+      "input": "a:variant:😀",
+      "hash": 243442018,
+      "bucket": 2018
+    },
+    {
+      "flagKey": "a",
+      "salt": "variant",
+      "userId": "a:b",
+      "input": "a:variant:a:b",
+      "hash": 182150586,
+      "bucket": 586
+    },
+    {
+      "flagKey": "a",
+      "salt": "variant",
+      "userId": "550e8400-e29b-41d4-a716-446655440000",
+      "input": "a:variant:550e8400-e29b-41d4-a716-446655440000",
+      "hash": 3793213222,
+      "bucket": 3222
+    },
+    {
+      "flagKey": "a",
+      "salt": "variant",
+      "userId": "uuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuu",
+      "input": "a:variant:uuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuu",
+      "hash": 1906346883,
+      "bucket": 6883
+    },
+    {
+      "flagKey": "a",
+      "salt": "variant",
+      "userId": "u1",
+      "input": "a:variant:u1",
+      "hash": 3692476705,
+      "bucket": 6705
+    },
+    {
+      "flagKey": "a",
+      "salt": "variant",
+      "userId": "u2",
+      "input": "a:variant:u2",
+      "hash": 3642143848,
+      "bucket": 3848
+    },
+    {
+      "flagKey": "a",
+      "salt": "variant",
+      "userId": "u3",
+      "input": "a:variant:u3",
+      "hash": 3658921467,
+      "bucket": 1467
+    },
+    {
+      "flagKey": "a",
+      "salt": "variant",
+      "userId": "u4",
+      "input": "a:variant:u4",
+      "hash": 3742809562,
+      "bucket": 9562
+    },
+    {
+      "flagKey": "a",
+      "salt": "variant",
+      "userId": "u5",
+      "input": "a:variant:u5",
+      "hash": 3759587181,
+      "bucket": 7181
+    },
+    {
+      "flagKey": "a",
+      "salt": "variant",
+      "userId": "u6",
+      "input": "a:variant:u6",
+      "hash": 3709254324,
+      "bucket": 4324
+    },
+    {
+      "flagKey": "a",
+      "salt": "variant",
+      "userId": "u7",
+      "input": "a:variant:u7",
+      "hash": 3726031943,
+      "bucket": 1943
+    },
+    {
+      "flagKey": "a",
+      "salt": "variant",
+      "userId": "u8",
+      "input": "a:variant:u8",
+      "hash": 3541478134,
+      "bucket": 8134
+    },
+    {
+      "flagKey": "a",
+      "salt": "variant",
+      "userId": "u9",
+      "input": "a:variant:u9",
+      "hash": 3558255753,
+      "bucket": 5753
+    },
+    {
+      "flagKey": "a",
+      "salt": "variant",
+      "userId": "u10",
+      "input": "a:variant:u10",
+      "hash": 2294633923,
+      "bucket": 3923
+    },
+    {
+      "flagKey": "a",
+      "salt": "variant",
+      "userId": "u11",
+      "input": "a:variant:u11",
+      "hash": 2277856304,
+      "bucket": 6304
+    },
+    {
+      "flagKey": "a",
+      "salt": "variant",
+      "userId": "u12",
+      "input": "a:variant:u12",
+      "hash": 2328189161,
+      "bucket": 9161
+    },
+    {
+      "flagKey": "a",
+      "salt": "variant",
+      "userId": "u13",
+      "input": "a:variant:u13",
+      "hash": 2311411542,
+      "bucket": 1542
+    },
+    {
+      "flagKey": "a",
+      "salt": "variant",
+      "userId": "u14",
+      "input": "a:variant:u14",
+      "hash": 2361744399,
+      "bucket": 4399
+    },
+    {
+      "flagKey": "a",
+      "salt": "variant",
+      "userId": "u15",
+      "input": "a:variant:u15",
+      "hash": 2344966780,
+      "bucket": 6780
+    },
+    {
+      "flagKey": "a",
+      "salt": "variant",
+      "userId": "u16",
+      "input": "a:variant:u16",
+      "hash": 2395299637,
+      "bucket": 9637
+    },
+    {
+      "flagKey": "a",
+      "salt": "variant",
+      "userId": "u17",
+      "input": "a:variant:u17",
+      "hash": 2378522018,
+      "bucket": 2018
+    },
+    {
+      "flagKey": "a",
+      "salt": "variant",
+      "userId": "u18",
+      "input": "a:variant:u18",
+      "hash": 2428854875,
+      "bucket": 4875
+    },
+    {
+      "flagKey": "a",
+      "salt": "variant",
+      "userId": "u19",
+      "input": "a:variant:u19",
+      "hash": 2412077256,
+      "bucket": 7256
+    },
+    {
+      "flagKey": "a",
+      "salt": "variant",
+      "userId": "u20",
+      "input": "a:variant:u20",
+      "hash": 381544072,
+      "bucket": 4072
+    }
+  ],
+  "description": "bucket = fnv1a32(flagKey + ':' + salt + ':' + userId) mod 10000. Every implementation must reproduce hash and bucket for every row."
+}
