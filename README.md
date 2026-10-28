@@ -10,6 +10,7 @@
 | [`spec/evaluation.md`](spec/evaluation.md) | ลำดับและอัลกอริทึมการประเมิน flag รวม bucketing |
 | [`spec/business-rules.md`](spec/business-rules.md) | กฎ BR-xx และรูปแบบ error |
 | [`tests/vectors/`](tests/vectors/README.md) | ข้อมูลทดสอบกลาง (fnv1a32 / bucketing / evaluation) |
+| [`tests/contract/`](tests/contract/README.md) | contract test ผ่าน HTTP (258 ข้อ) ใช้กับทุกภาษา |
 | [`CONVENTIONS.md`](CONVENTIONS.md) | โครงสร้าง layer, library ต่อภาษา, กับดักต่อภาษา |
 
 ## วัตถุประสงค์
@@ -139,11 +140,12 @@ Output: the code, plus a list of behavior differences or assumptions.
 ```
 spec/            openapi.yaml, evaluation.md, business-rules.md          ✅
 tests/
-  contract/      black-box HTTP tests (ใช้ร่วมทุกภาษา)                   (planned)
+  contract/      black-box HTTP tests (Node, ไม่ต้องติดตั้งอะไร)         ✅
   vectors/       fnv1a32.json, bucketing.json, evaluation.json          ✅
 tools/
   genvectors/    Go generator ของ vectors                               ✅
   verify-vectors/ ตัวตรวจอิสระด้วย Node                                  ✅
+  mock-server/   mock ในหน่วยความจำ ไว้พิสูจน์ว่า contract test ถูก     ✅
 go/              original implementation
 typescript/      port
 rust/            port
@@ -165,11 +167,20 @@ cd tools/genvectors && go run . ../../tests/vectors   # สร้าง vectors 
 node tools/verify-vectors/verify.mjs                  # ตรวจด้วย implementation อิสระ
 ```
 
-ส่วนการรัน service: **TODO** เติมเมื่อมีโค้ด
+รัน contract test กับ service (ตอนนี้ใช้ mock แทนจนกว่าจะมี `go/`):
+
+```bash
+PORT=8080 node tools/mock-server/server.mjs &
+node --test --test-concurrency=1 "tests/contract/*.test.mjs"
+```
+
+รายละเอียดและตัวแปรที่ปรับได้อยู่ใน [`tests/contract/README.md`](tests/contract/README.md)
+
+ส่วนการรัน service จริง: **TODO** เติมเมื่อมีโค้ด
 
 ## Roadmap
 
-1. ~~เขียน `spec/` และ test vectors~~ เสร็จแล้ว; เหลือ contract test (`tests/contract/`)
+1. ~~เขียน `spec/`, test vectors และ contract test~~ เสร็จแล้ว
 2. MVP1 ใน Go
 3. แปล MVP1 เป็น TypeScript และบันทึกบทเรียน
 4. MVP2 ใน Go (variants, bucketing, events) แล้วแปลเป็น Python, Java, Rust

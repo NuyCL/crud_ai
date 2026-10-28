@@ -120,4 +120,4 @@ for v in variants (ตามลำดับที่ประกาศ):
 
 ## 7. Evaluate หลาย flag
 
-`POST /v1/evaluate` ประเมินทุก flag ด้วย context เดียวกัน แต่ละ flag เป็นอิสระต่อกัน ผลเป็น map `flagKey → result` ถ้าระบุ `flags: [...]` ให้ประเมินเฉพาะที่ขอ และ key ที่ไม่มีให้ตอบ `FLAG_NOT_FOUND`
+`POST /v1/evaluate` ประเมินทุก flag ด้วย context เดียวกัน แต่ละ flag เป็นอิสระต่อกัน ผลเป็น map `flagKey → result` ถ้าระบุ `flags: [...]` ให้ประเมินเฉพาะที่ขอ (`[]` = ไม่ประเมินอะไร ได้ `results: {}`) และ key ที่ไม่มีให้ตอบ `FLAG_NOT_FOUND`

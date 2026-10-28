@@ -110,7 +110,7 @@ paths:
     put:
       tags: [flags]
       operationId: updateFlag
-      summary: Replace a flag (full update; key is immutable, BR-03)
+      summary: Replace a flag (full replace, omitted fields reset to defaults; key is immutable, BR-03, BR-09)
       security: [{ AdminKey: [] }]
       requestBody:
         required: true
@@ -248,6 +248,7 @@ paths:
           content:
             application/json:
               schema: { $ref: "#/components/schemas/Results" }
+        "400": { $ref: "#/components/responses/BadRequest" }
         "401": { $ref: "#/components/responses/Unauthorized" }
         "403": { $ref: "#/components/responses/Forbidden" }
         "404": { $ref: "#/components/responses/NotFound" }

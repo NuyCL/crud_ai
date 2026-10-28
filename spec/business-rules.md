@@ -6,33 +6,45 @@
 
 | ID | กฎ | ผลเมื่อฝ่าฝืน |
 |---|---|---|
-| BR-01 | `key` ต้องตรงกับ `^[a-z0-9][a-z0-9_-]{0,63}$` | 400 `INVALID_KEY` |
+| BR-01 | `key` ต้องตรงกับ `^[a-z0-9][a-z0-9_-]{0,63}$` (ไม่ส่งมา/ไม่ใช่ string = `VALIDATION_ERROR`) | 400 `INVALID_KEY` |
 | BR-02 | `key` ต้องไม่ซ้ำ | 409 `FLAG_EXISTS` |
 | BR-03 | `key` เปลี่ยนไม่ได้หลังสร้าง (PUT ที่ส่ง `key` ต่างจาก path) | 400 `KEY_IMMUTABLE` |
-| BR-04 | `description` ยาวได้ไม่เกิน 500 ตัวอักษร (นับ Unicode code point) | 400 `VALIDATION_ERROR` |
+| BR-04 | `description` เป็น string ยาวได้ไม่เกิน 500 **Unicode code point** (ไม่ใช่ UTF-16 unit หรือ byte); `enabled` ต้องเป็น boolean | 400 `VALIDATION_ERROR` |
 | BR-05 | GET/PUT/DELETE flag ที่ไม่มี | 404 `FLAG_NOT_FOUND` |
-| BR-06 | DELETE สำเร็จตอบ 204 และ evaluate หลังลบต้องไม่พัง (ได้ `FLAG_NOT_FOUND` reason) | — |
-| BR-07 | ทุก create/update/delete บันทึก audit log 1 รายการ | — |
-| BR-08 | `enabled` ไม่ส่งตอนสร้าง = `false` | — |
+| BR-06 | DELETE สำเร็จตอบ 204 ไม่มี body และ evaluate หลังลบต้องไม่พัง (ได้ reason `FLAG_NOT_FOUND`) | — |
+| BR-07 | ทุก create/update/delete **ที่สำเร็จ** บันทึก audit log 1 รายการ (request ที่ถูกปฏิเสธไม่บันทึก) ดูรายละเอียดด้านล่าง | — |
+| BR-08 | ไม่ส่งฟิลด์ตอนสร้าง = ค่า default: `description:""`, `enabled:false`, `rules:[]`, `rolloutPercent:100`, `variants:[]` | — |
+| BR-09 | PUT เป็น **full replace**: ฟิลด์ optional ที่ไม่ส่งกลับเป็นค่า default ตาม BR-08; `createdAt` ไม่เปลี่ยน, `updatedAt` เปลี่ยน (ไม่น้อยกว่าเดิม) | — |
+
+**Audit log (BR-07):** `action` เป็น `create` | `update` | `delete`; `before`/`after` คือ Flag ทั้งก้อน (รูปแบบเดียวกับ response):
+
+| action | before | after |
+|---|---|---|
+| create | `null` | flag ที่สร้าง |
+| update | flag เดิม | flag ใหม่ |
+| delete | flag ที่ลบ | `null` |
+
+รายการเรียงใหม่สุดก่อน (`id` มากไปน้อย) และยังอยู่หลัง flag ถูกลบ
 
 ## Auth
 
 | ID | กฎ | ผล |
 |---|---|---|
-| BR-10 | Admin API ต้องมี header `X-Admin-Key` ที่ถูกต้อง | ไม่มี/ผิด → 401 `UNAUTHORIZED` |
-| BR-11 | `POST /v1/evaluate` ใช้ `X-Client-Key` (หรือ admin key ก็ได้) | ไม่มี/ผิด → 401 `UNAUTHORIZED` |
-| BR-12 | client key เรียก Admin API ไม่ได้ | 403 `FORBIDDEN` |
+| BR-10 | Admin API ต้องมี header `X-Admin-Key` ที่ถูกต้อง | ไม่มี key หรือ key ผิด → 401 `UNAUTHORIZED` |
+| BR-11 | `POST /v1/evaluate` และ `POST /v1/events` ใช้ `X-Client-Key` (หรือ admin key ก็ได้) | ไม่มี/ผิด → 401 `UNAUTHORIZED` |
+| BR-12 | client key ที่ถูกต้อง แต่เรียก Admin API → ปฏิเสธ | 403 `FORBIDDEN` |
 | BR-13 | `/healthz` ไม่ต้อง auth | — |
 
 ## Evaluate
 
 | ID | กฎ | ผล |
 |---|---|---|
-| BR-20 | `context` ต้องเป็น object (ไม่ส่ง = `{}`) | อื่นๆ → 400 `VALIDATION_ERROR` |
+| BR-20 | body ต้องเป็น JSON object; `context` (ไม่ส่ง = `{}`) ต้องเป็น object; `context.userId` เป็น string; ค่าใน `context.attributes` ต้องเป็น string/number/boolean เท่านั้น (ห้าม null/object/array); `flags` (ถ้าส่ง) เป็น array ของ string | 400 `VALIDATION_ERROR` |
 | BR-21 | flag ที่ไม่มีอยู่ ต้องไม่ทำให้ request ล้มเหลว | ตอบ `FLAG_NOT_FOUND` ในผล |
-| BR-22 | evaluate ต้องไม่มี side effect (ไม่เขียน DB) | — |
+| BR-22 | evaluate ต้องไม่มี side effect (ไม่เขียน DB ไม่เพิ่ม audit ไม่เปลี่ยน `updatedAt`) | — |
+| BR-23 | ไม่ส่ง `flags` = ประเมินทุก flag; `flags: []` = ไม่ประเมินอะไร (`results` เป็น `{}`) | — |
 
-## Variants / Rollout (MVP2)
+## Variants / Rollout / Rules (MVP2)
 
 | ID | กฎ | ผลเมื่อฝ่าฝืน |
 |---|---|---|
@@ -40,23 +52,37 @@
 | BR-31 | ผลรวม `weight` ของ variants ต้องเท่ากับ 100 | 400 `INVALID_VARIANTS` |
 | BR-32 | variant `key` ต้องไม่ซ้ำใน flag เดียวกัน และตรงกับ `^[a-z0-9][a-z0-9_-]{0,31}$` | 400 `INVALID_VARIANTS` |
 | BR-33 | variants มีได้ 2–10 รายการ (หรือว่างทั้งหมด) | 400 `INVALID_VARIANTS` |
-| BR-34 | `weight` เป็นจำนวนเต็ม 1–100 | 400 `INVALID_VARIANTS` |
-| BR-35 | rule `in`/`not_in` ต้องมี `value` เป็น array ไม่ว่าง; `eq`/`neq` ต้องเป็น scalar | 400 `VALIDATION_ERROR` |
+| BR-34 | `weight` เป็นจำนวนเต็ม 1–100 (ต้องมีทุก variant) | 400 `INVALID_VARIANTS` |
+| BR-35 | rule: `attribute` เป็น string ไม่ว่าง, `operator` ∈ {eq,neq,in,not_in}, `value` ต้องมีและไม่เป็น null; `in`/`not_in` ต้องเป็น array ไม่ว่างของ scalar; `eq`/`neq` ต้องเป็น scalar | 400 `VALIDATION_ERROR` |
+
+ลำดับ variants ที่ส่งมาต้องถูกเก็บและส่งกลับตามเดิม (มีผลต่อการเลือก variant)
 
 ## Events (MVP2)
 
 | ID | กฎ | ผล |
 |---|---|---|
-| BR-40 | Exposure dedupe: `(flagKey, userId)` ซ้ำนับครั้งเดียวต่อการทดลอง | — |
-| BR-41 | Conversion ต้องอ้างถึง user ที่มี exposure แล้ว มิฉะนั้นไม่นับในรายงาน | ยอมรับ event แต่ไม่นับ |
-| BR-42 | รายงานผลคำนวณ two-proportion z-test; ถ้า sample ต่อ variant < 30 ให้ `significant:false` | — |
+| BR-40 | Exposure dedupe: `(flagKey, userId)` ซ้ำนับครั้งเดียว — **exposure แรกชนะ** (variant ของ exposure ถัดๆ ไปถูกเมิน) | — |
+| BR-41 | Conversion `(goal, userId)` ซ้ำนับครั้งเดียว; นับในรายงานของ flag ก็ต่อเมื่อ user นั้นมี exposure ของ flag นั้น มิฉะนั้นยอมรับ event แต่ไม่นับ | — |
+| BR-42 | รายงานผล: ต่อ variant (ตามลำดับที่ประกาศ) ให้ `exposures`, `conversions` (จำนวน user ที่ exposed ใน variant นั้นและมี conversion ของ goal), `rate = conversions/exposures` (0 ถ้า exposures = 0). `pValue` เทียบกับ variant แรก (control) ด้วย **pooled two-proportion z-test แบบ two-sided**: `p̂ = (x1+x2)/(n1+n2)`, `se = √(p̂(1−p̂)(1/n1+1/n2))`, `z = (p2−p1)/se`, `pValue = erfc(|z|/√2)`. `pValue = null` สำหรับ control เอง, เมื่อ variant ใดมี exposures < 30, หรือ `se = 0`. `significant = (pValue != null && pValue < 0.05)` | — |
+| BR-43 | `events` ต้องมี 1–100 รายการ; `type` ∈ {exposure, conversion}; `userId` string ไม่ว่าง; exposure ต้องมี `flagKey` และ `variant` (string ไม่ว่าง); conversion ต้องมี `goal` (string ไม่ว่าง); `timestamp` (ถ้ามี) เป็น RFC 3339 | 400 `VALIDATION_ERROR` |
+| BR-44 | Batch เป็น all-or-nothing: มี event ผิดแม้รายการเดียว → ปฏิเสธทั้งชุด ไม่บันทึกอะไร; สำเร็จ → 202 `accepted` = จำนวน event ในชุด (รวมที่ซ้ำ/ไม่นับ) | — |
+| BR-45 | Event ที่ตอบ 202 แล้วต้องปรากฏในรายงานทันที (read-your-writes) | — |
+| BR-46 | `GET /v1/flags/{key}/results` ต้องมี `goal` (ไม่ส่ง/ว่าง = `VALIDATION_ERROR`); flag ไม่มี = 404 `FLAG_NOT_FOUND`; flag ที่ไม่มี variants ได้ `variants: []` | — |
+
+## ทั่วไป
+
+| ID | กฎ | ผล |
+|---|---|---|
+| BR-50 | `limit` เป็นจำนวนเต็ม 1–100 (default 20), `offset` เป็นจำนวนเต็ม ≥ 0 (default 0); `total` คือจำนวนทั้งหมดก่อนแบ่งหน้า | ผิด → 400 `VALIDATION_ERROR` |
+| BR-51 | ลำดับการตรวจ: auth (401/403) → validation (400) → existence/conflict (404/409) | — |
+| BR-52 | request body ที่ไม่ใช่ JSON ที่ parse ได้ → 400 `VALIDATION_ERROR` | — |
 
 ## รูปแบบ Error
 
-ทุก error ใช้ JSON ตามนี้ (ดู `components/schemas/Error` ใน OpenAPI):
+ทุก error ใช้ JSON ตามนี้ (ดู `components/schemas/Error` ใน OpenAPI) พร้อม `Content-Type: application/json`:
 
 ```json
 { "error": { "code": "INVALID_KEY", "message": "key must match ^[a-z0-9][a-z0-9_-]{0,63}$" } }
 ```
 
-contract test ตรวจ **status code และ `error.code`** เท่านั้น ไม่ตรวจข้อความ `message`
+contract test ตรวจ **status code และ `error.code`** เท่านั้น ไม่ตรวจข้อความ `message` (แต่ต้องเป็น string)
