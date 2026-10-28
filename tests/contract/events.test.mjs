@@ -221,6 +221,27 @@ describe("GET /v1/flags/{key}/results", mvp2, () => {
     }
   });
 
+  test("the minimum sample is exactly 30 exposures per variant (BR-42)", async () => {
+    // Found by differential testing: a boundary of 31 passed every other test.
+    const run = async (nControl, nTreatment) => {
+      const goal = uniqueKey("goal");
+      const f = await abFlag();
+      await sendAll([
+        ...Array.from({ length: nControl }, (_, i) => exposure(f.key, `c${i}`, "control")),
+        ...Array.from({ length: nTreatment }, (_, i) => exposure(f.key, `t${i}`, "treatment")),
+        ...Array.from({ length: 3 }, (_, i) => conversion(`c${i}`, goal)),
+        ...Array.from({ length: 15 }, (_, i) => conversion(`t${i}`, goal)),
+      ]);
+      return (await results(f.key, goal)).body.variants[1];
+    };
+    const atLimit = await run(30, 30); // 3/30 vs 15/30: z = 3.3806, p = 0.00072323
+    assert.ok(atLimit.pValue !== null, "30 exposures in each variant is enough");
+    assert.ok(Math.abs(atLimit.pValue - 0.0007232327) < 1e-4, `pValue ${atLimit.pValue}`);
+    assert.equal(atLimit.significant, true);
+    assert.equal((await run(30, 29)).pValue, null, "29 in the treatment is too few");
+    assert.equal((await run(29, 30)).pValue, null, "29 in the control is too few");
+  });
+
   test("two-proportion z-test: 20/200 vs 40/200 (BR-42)", async () => {
     const goal = uniqueKey("goal");
     const f = await abFlag();

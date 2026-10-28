@@ -323,11 +323,28 @@ describe("read and list (BR-05, BR-50)", () => {
     assert.ok(res.body.items.length <= 20);
   });
 
-  for (const q of ["limit=0", "limit=101", "limit=-1", "limit=abc", "limit=1.5", "offset=-1", "offset=abc"]) {
+  for (const q of ["limit=0", "limit=101", "limit=-1", "limit=abc", "limit=1.5", "offset=-1", "offset=abc", "limit=", "limit=+5", "limit=1e1", "limit=%D9%A5"]) {
     test(`bad paging parameter ${q} -> 400 VALIDATION_ERROR`, async () => {
       assertError(await get(`/v1/flags?${q}`), 400, "VALIDATION_ERROR");
     });
   }
+
+  test("a repeated parameter uses its first value (BR-50)", async () => {
+    await Promise.all([fx.create(), fx.create()]);
+    const one = await get("/v1/flags?limit=1&limit=100");
+    assert.equal(one.status, 200, one.text);
+    assert.equal(one.body.items.length, 1, "limit=1&limit=100 must behave like limit=1");
+    assertError(await get("/v1/flags?limit=0&limit=5"), 400, "VALIDATION_ERROR");
+    const past = await get("/v1/flags?offset=1000000&offset=0");
+    assert.deepEqual(past.body.items, [], "offset=1000000&offset=0 must behave like offset=1000000");
+  });
+
+  test("a leading-zero limit is the same number", async () => {
+    await fx.create();
+    const res = await get("/v1/flags?limit=001");
+    assert.equal(res.status, 200, res.text);
+    assert.equal(res.body.items.length, 1);
+  });
 });
 
 describe("update (BR-03, BR-05, BR-09)", () => {
@@ -441,6 +458,15 @@ describe("audit log (BR-07)", () => {
     await put(`/v1/flags/${f.key}`, { key: uniqueKey() }); // 400 KEY_IMMUTABLE
     await del(`/v1/flags/${uniqueKey("none")}`); // 404
     assert.equal((await get(`/v1/audit-logs?flagKey=${f.key}`)).body.total, before);
+  });
+
+  test("a repeated flagKey filter uses the first value (BR-50)", async () => {
+    const a = await fx.create();
+    const b = await fx.create();
+    const res = await get(`/v1/audit-logs?flagKey=${a.key}&flagKey=${b.key}`);
+    assert.equal(res.status, 200, res.text);
+    assert.ok(res.body.items.length >= 1);
+    assert.ok(res.body.items.every((e) => e.flagKey === a.key), "only the first flagKey may be used");
   });
 
   test("filter by flagKey only returns that flag", async () => {
