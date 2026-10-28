@@ -375,7 +375,7 @@ http
     route(req, res).catch((err) => {
       if (err instanceof HttpError) return send(res, err.status, { error: { code: err.code, message: err.message } });
       console.error(err);
-      send(res, 500, { error: { code: "VALIDATION_ERROR", message: "internal error" } });
+      send(res, 500, { error: { code: "INTERNAL_ERROR", message: "internal error" } });
     });
   })
   .listen(PORT, () => console.log(`mock contract server on :${PORT}${BUG ? ` (MOCK_BUG=${BUG})` : ""}`));

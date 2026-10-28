@@ -85,4 +85,6 @@
 { "error": { "code": "INVALID_KEY", "message": "key must match ^[a-z0-9][a-z0-9_-]{0,63}$" } }
 ```
 
+ความผิดพลาดที่ไม่คาดคิดของ server ตอบ 500 `INTERNAL_ERROR` (ข้อความต้องไม่เปิดเผยรายละเอียดภายใน) กรณีนี้ไม่มี contract test เพราะสั่งให้เกิดผ่าน HTTP ไม่ได้
+
 contract test ตรวจ **status code และ `error.code`** เท่านั้น ไม่ตรวจข้อความ `message` (แต่ต้องเป็น string)

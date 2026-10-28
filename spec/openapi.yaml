@@ -313,6 +313,7 @@ components:
                 - KEY_IMMUTABLE
                 - INVALID_VARIANTS
                 - VALIDATION_ERROR
+                - INTERNAL_ERROR
             message: { type: string }
 
     Scalar:
