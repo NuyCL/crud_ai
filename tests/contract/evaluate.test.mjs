@@ -86,6 +86,19 @@ describe("results", () => {
     assert.deepEqual(Object.keys(res.body.results), [a.key]);
   });
 
+  test("flag names that coincide with Object.prototype members are ordinary keys of the results (BR-21)", async () => {
+    // In JavaScript, results["__proto__"] = x on a plain object replaces its prototype instead of
+    // adding an entry, so such a key would silently vanish from the response.
+    const names = ["__proto__", "constructor", "toString", "hasOwnProperty", "valueOf"];
+    const res = await evaluate({ flags: names });
+    assert.equal(res.status, 200);
+    assert.deepEqual(Object.keys(res.body.results).sort(), [...names].sort());
+    for (const name of names) {
+      assert.ok(Object.hasOwn(res.body.results, name), name);
+      assert.deepEqual(res.body.results[name], { enabled: false, variant: null, reason: "FLAG_NOT_FOUND" }, name);
+    }
+  });
+
   test("`flags: []` evaluates nothing (BR-23)", async () => {
     await fx.create({ enabled: true });
     const res = await evaluate({ flags: [] });

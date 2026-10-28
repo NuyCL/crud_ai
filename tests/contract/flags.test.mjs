@@ -258,6 +258,16 @@ describe("read and list (BR-05, BR-50)", () => {
     assertError(await get(`/v1/flags/${uniqueKey("none")}`), 404, "FLAG_NOT_FOUND");
   });
 
+  test("a key longer than any real key is simply not found, however long (BR-05)", async () => {
+    // Some routers answer 400 once a path parameter passes a length limit (Fastify: 100 characters).
+    for (const length of [65, 101, 300, 5000]) {
+      const key = "k".repeat(length);
+      assertError(await get(`/v1/flags/${key}`), 404, "FLAG_NOT_FOUND");
+      assertError(await del(`/v1/flags/${key}`), 404, "FLAG_NOT_FOUND");
+      assertError(await get(`/v1/flags/${key}/results?goal=g`), 404, "FLAG_NOT_FOUND");
+    }
+  });
+
   test("list has items and total, sorted by key ascending", async () => {
     await Promise.all([fx.create(), fx.create(), fx.create()]);
     const res = await get("/v1/flags?limit=100");

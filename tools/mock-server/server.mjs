@@ -305,7 +305,9 @@ async function route(req, res) {
   if (parts[1] === "evaluate" && parts.length === 2 && m === "POST") {
     authorize(req, { adminOnly: false });
     const { keys, ctx } = parseEvaluate(await readJson(req));
-    const out = {};
+    // No prototype: the client chooses these names, and out["__proto__"] = x on a plain object would
+    // replace its prototype instead of adding an entry.
+    const out = Object.create(null);
     for (const k of keys ?? [...flags.keys()]) out[k] = evaluate(flags.get(k), ctx);
     return send(res, 200, { results: out });
   }
