@@ -28,7 +28,7 @@ node --test --test-concurrency=1 "tests/contract/*.test.mjs"
 | `ADMIN_KEY` / `CLIENT_KEY` | คีย์ที่ test ส่งไป | ดูตารางบน |
 | `CONTRACT_MVP` | `1` = ทดสอบเฉพาะ MVP1 (on/off), `2` = ทั้งหมด | `2` |
 
-`--test-concurrency=1` แนะนำสำหรับผลที่อ่านง่าย แต่ไม่จำเป็น: test ทุกข้อใช้ key ที่ไม่ซ้ำและรันซ้ำบน server เดิมได้ (ผ่านทั้งแบบขนานและแบบเรียง)
+test ทุกข้อใช้ key ที่ไม่ซ้ำและรันซ้ำบน server เดิมได้ แนะนำให้ใช้ `--test-concurrency=1` เพื่อผลที่แน่นอน: ถ้ารันขนาน ไฟล์อื่นสร้าง/ลบ flag ตลอดเวลา จนข้อทดสอบการแบ่งหน้า ("limit and offset page through the same ordering") หา snapshot ที่นิ่งไม่ได้ ข้อนั้นจะถูกรายงานเป็น **skipped** (ไม่ใช่ pass หรือ fail) ส่วนโหมดเรียงรันครบทุกข้อ
 
 `CONTRACT_MVP=1` ข้าม test ของ variants, targeting rules, rollout, events (ใช้ตอนทำ MVP1 อยู่) vector ที่เป็น flag แบบ on/off ธรรมดายังรันอยู่
 
@@ -76,5 +76,6 @@ node --test --test-concurrency=1 "tests/contract/*.test.mjs"     # ต้อง�
 | `exposure-last-wins` | exposure หลังทับ exposure แรก | dedupe BR-40 |
 | `weights-not-checked` | ไม่ตรวจผลรวม weight | INVALID_VARIANTS |
 | `client-gets-401` | client key เรียก admin API ได้ 401 แทน 403 | auth BR-12 |
+| `offset-ignored` | list ไม่สนใจ `offset` | paging (BR-50) |
 
 เมื่อมี `go/` แล้ว ให้ใช้ Go เป็น golden implementation และเก็บ mock ไว้เป็นตัวอ้างอิงตอนสงสัยว่า test หรือ implementation ผิด

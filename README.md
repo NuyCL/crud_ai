@@ -11,6 +11,7 @@
 | [`spec/business-rules.md`](spec/business-rules.md) | กฎ BR-xx และรูปแบบ error |
 | [`tests/vectors/`](tests/vectors/README.md) | ข้อมูลทดสอบกลาง (fnv1a32 / bucketing / evaluation) |
 | [`tests/contract/`](tests/contract/README.md) | contract test ผ่าน HTTP (258 ข้อ) ใช้กับทุกภาษา |
+| [`docs/workshop/`](docs/workshop/README.md) | **คู่มือ workshop แบบ step-by-step** (ภาพรวม + เอกสารละเอียด 13 step) |
 | [`CONVENTIONS.md`](CONVENTIONS.md) | โครงสร้าง layer, library ต่อภาษา, กับดักต่อภาษา |
 
 ## วัตถุประสงค์
@@ -98,7 +99,7 @@ bucket = fnv1a32(flagKey + ":" + salt + ":" + userId) mod 10000    // salt = "ro
 **Phase B: แปลเป็นภาษาอื่น (ทำทีละภาษา)**
 1. วิเคราะห์ก่อนแปล: AI รายงานจุดที่แปลตรงๆ ไม่ได้ (error handling, concurrency, null, integer, JSON, DB driver)
 2. คนอนุมัติแผน library และโครงสร้าง
-3. แปลทีละ layer: model → repository → service → handler → main (compile ผ่านก่อนไป layer ถัดไป)
+3. แปลทีละ layer: model → evaluation → repository → service → handler → main (compile ผ่านก่อนไป layer ถัดไป)
 4. Quality gates: build, lint/format, unit test, **contract test + vectors ชุดเดียวกับ Go**
 5. ไม่ผ่าน: ส่งผล test กลับให้ AI แก้ (จำกัดจำนวนรอบ แล้วให้คนเข้ามา)
 6. Idiomatic pass: รีแฟกเตอร์ให้เป็นสไตล์ภาษานั้น แล้วรัน test ซ้ำ
@@ -116,7 +117,7 @@ Rules:
 - Use only libraries listed in CONVENTIONS.md.
 - Idiomatic <TARGET>, not line-by-line translation.
 - Do not modify spec/ or tests/contract/ or tests/vectors/.
-Done when: `make build-<lang>` passes and no new lint warnings.
+Done when: the build, lint and test commands for <lang> in CONVENTIONS.md pass with no new warnings.
 Output: the code, plus a list of behavior differences or assumptions.
 ```
 
@@ -138,6 +139,7 @@ Output: the code, plus a list of behavior differences or assumptions.
 ## โครงสร้างโปรเจกต์ (planned)
 
 ```
+docs/workshop/   คู่มือ workshop: README.md (ภาพรวม) + steps/NN-*.md (ละเอียด) ✅
 spec/            openapi.yaml, evaluation.md, business-rules.md          ✅
 tests/
   contract/      black-box HTTP tests (Node, ไม่ต้องติดตั้งอะไร)         ✅
@@ -146,6 +148,7 @@ tools/
   genvectors/    Go generator ของ vectors                               ✅
   verify-vectors/ ตัวตรวจอิสระด้วย Node                                  ✅
   mock-server/   mock ในหน่วยความจำ ไว้พิสูจน์ว่า contract test ถูก     ✅
+  check-openapi/ ตัวตรวจโครงสร้าง openapi.yaml (Python)                  ✅
 go/              original implementation
 typescript/      port
 rust/            port

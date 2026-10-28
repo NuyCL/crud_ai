@@ -11,6 +11,7 @@
 //   exposure-last-wins  later exposures overwrite earlier ones
 //   weights-not-checked accept variants whose weights do not sum to 100
 //   client-gets-401     client key on admin API answers 401 instead of 403
+//   offset-ignored      list endpoints ignore `offset`
 import http from "node:http";
 
 const PORT = Number(process.env.PORT ?? 8080);
@@ -83,7 +84,8 @@ function page(url) {
     if (n < min || n > max) throw bad("VALIDATION_ERROR", `${name} out of range`);
     return n;
   };
-  return { limit: num("limit", 20, 1, 100), offset: num("offset", 0, 0, Infinity) };
+  const offset = num("offset", 0, 0, Infinity);
+  return { limit: num("limit", 20, 1, 100), offset: BUG === "offset-ignored" ? 0 : offset };
 }
 
 // ----------------------------------------------------------- validation

@@ -24,7 +24,7 @@ describe("rolloutPercent (BR-30)", mvp2, () => {
   }
 });
 
-describe("variants (BR-31..34)", mvp2, () => {
+describe("variants (BR-31, BR-32, BR-33, BR-34)", mvp2, () => {
   test("a valid split is stored in the order given", async () => {
     const variants = [v("blue", 50), v("green", 30), v("red", 20)];
     const f = await fx.create({ variants });

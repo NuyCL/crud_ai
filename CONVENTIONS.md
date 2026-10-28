@@ -57,19 +57,34 @@ model       Flag, Rule, Variant, Context, EvaluationResult
 
 เปรียบเทียบค่าใน rule ต้องตรวจ **ชนิดก่อนค่า** (`"1" != 1`, `true != "true"`): ระวัง Python ที่ `True == 1`, และ JS ที่ `==`
 
-## คำสั่งมาตรฐาน (Makefile ที่จะเพิ่มทีหลัง)
+## คำสั่ง gate ต่อภาษา
 
+> **สถานะ:** ข้อเสนอเริ่มต้น ยังไม่ได้ทดสอบกับโค้ดจริง (ยังไม่มี implementation) เมื่อมีโค้ดแล้ว ให้แก้ตารางนี้ให้ตรงกับของจริง skill และเอกสาร workshop อ้างอิงตารางนี้ที่เดียว
+
+รันในโฟลเดอร์ของภาษานั้น (`go/`, `typescript/`, ...) ถ้าทำงานทีละ layer ให้กรอง test ด้วย package/path ของ layer นั้น
+
+| ภาษา | build | lint / format | unit test (รวม vectors) | เริ่ม server |
+|---|---|---|---|---|
+| Go | `go build ./...` | `go vet ./... && test -z "$(gofmt -l .)"` | `go test ./...` | `go run ./cmd/server` |
+| TypeScript | `npm run build` | `npm run lint` | `npm test` | `node dist/server.js` |
+| Python | `python -m compileall -q .` | `ruff check . && ruff format --check .` | `pytest` | `uvicorn app.main:app --port 8080` |
+| Java | `mvn -q -DskipTests package` | `mvn -q checkstyle:check` | `mvn -q test` | `java -jar target/*.jar` |
+| Rust | `cargo build` | `cargo fmt --check && cargo clippy -- -D warnings` | `cargo test` | `cargo run --release` |
+
+**Contract test** (ทุกภาษาเหมือนกัน): เริ่ม server ด้วย `ADMIN_KEY=test-admin-key CLIENT_KEY=test-client-key PORT=8080 DB_PATH=<ไฟล์ชั่วคราว>` แล้วรัน
+
+```bash
+node --test --test-concurrency=1 "tests/contract/*.test.mjs"
 ```
-make build-<lang>      compile/type-check
-make lint-<lang>       format + lint
-make test-<lang>       unit test + vectors
-make contract-<lang>   เปิด service แล้วรัน tests/contract/ ผ่าน HTTP
-```
+
+ปิด server ด้วย PID ของโปรเซสที่เปิดเอง (ห้าม `pkill` / `killall`)
+
+> Makefile (`make build-<lang>`, `make test-<lang>`, `make contract-<lang>`) เป็นแผนในอนาคตเพื่อห่อคำสั่งข้างบน
 
 ทุก task ถือว่า "เสร็จ" เมื่อ build + lint + test + contract ผ่านครบ และไม่มี warning ใหม่
 
 ## การทำงานร่วมกับ AI
 
-- แปลทีละ layer ตามลำดับ model → repository → service → handler → main
+- แปลทีละ layer ตามลำดับ model → evaluation → repository → service → handler → main (evaluation มาก่อนเพราะเป็น pure function ที่ `tests/vectors/` ตัดสินได้ทันที)
 - AI ต้องรายงาน **ความต่างของพฤติกรรมและข้อสมมติ** ทุกครั้งที่ส่งงาน
 - บันทึกบทเรียนต่อภาษาใน `lessons/<lang>.md` (AI พลาดอะไร, prompt แบบไหนได้ผล)

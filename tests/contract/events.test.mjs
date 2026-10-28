@@ -24,7 +24,7 @@ async function sendAll(events) {
   }
 }
 
-describe("POST /v1/events", mvp2, () => {
+describe("POST /v1/events (BR-11, BR-43, BR-44)", mvp2, () => {
   test("auth: no key / wrong key -> 401, client and admin keys accepted (BR-11)", async () => {
     const e = [exposure("f", "u1", "a")];
     assertError(await send(e, "none"), 401, "UNAUTHORIZED");
