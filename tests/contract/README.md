@@ -36,7 +36,7 @@ test ทุกข้อใช้ key ที่ไม่ซ้ำและรั�
 
 | ไฟล์ | ทดสอบอะไร | กฎที่ครอบคลุม |
 |---|---|---|
-| `flags.test.mjs` | auth, CRUD, validation, pagination, audit log, `description` นับเป็น code point | BR-01..13, 50..52 |
+| `flags.test.mjs` | auth, CRUD, validation, pagination, audit log, `description` นับเป็น code point | BR-01..13, 50..53 |
 | `evaluate.test.mjs` | auth, validation ของ request, รูปแบบผล, ไม่มี side effect, **เล่นซ้ำ `tests/vectors/evaluation.json` ทั้ง 51 case ผ่าน HTTP** | BR-11, 20..23 |
 | `variants.test.mjs` | validation ของ `rolloutPercent`, `variants`, `rules` (MVP2) | BR-30..35 |
 | `events.test.mjs` | exposure/conversion, dedupe, รายงานผลและ z-test (MVP2) | BR-40..46 |
@@ -52,6 +52,11 @@ Contract test **ตรวจ status code และ `error.code` เท่าน�
 - Error ทุกตัวเป็น `application/json` ในรูป `{"error":{"code","message"}}`
 - ทุก write ที่สำเร็จเขียน audit log; request ที่ถูกปฏิเสธไม่เขียน
 - Events: batch เป็น all-or-nothing, อ่านผลได้ทันทีหลังได้ 202
+- **ไม่ตรวจ `Content-Type`**: body ถูกอ่านเป็น JSON เสมอ (form / text/plain / ไม่มีเลย ก็ต้องใช้ได้) และใหญ่ได้ไม่เกิน 1 MiB พอดี; เกินแล้วเป็น 400 (ไม่ใช่ 413) (BR-52)
+- `timestamp` ของ event ต้องเป็น RFC 3339 ที่ถูกต้องตามปฏิทินทุกตัวอักษร: `Date.parse` ของ JavaScript และ `time.Parse` ของ Go ผ่อนปรนเกินไป (BR-43)
+- `10.0` นับเป็นจำนวนเต็ม; ชื่อ attribute/flag อย่าง `constructor` และ `__proto__` เป็นชื่อธรรมดา (BR-30, evaluation.md 3.1)
+- route/method ที่ไม่มีตอบ 404 รูปแบบ error ของเรา โดยไม่ต้อง auth; key ยาวเท่าไรก็ 404 ไม่ใช่ 400 (BR-53, BR-05)
+- พารามิเตอร์ query ที่ซ้ำใช้ค่าแรก (BR-50); เกณฑ์ตัวอย่างขั้นต่ำของ p-value คือ 30 พอดี (BR-42)
 - ค่า `pValue` ต้องตรงกับสูตรใน BR-42 (ทดสอบที่ความคลาดเคลื่อน 1e-4 จึงใช้ `erfc` ของภาษาหรือ approximation ที่แม่นระดับ 1e-7 ได้)
 
 ## ทดสอบตัว test เอง
@@ -80,4 +85,4 @@ node --test --test-concurrency=1 "tests/contract/*.test.mjs"     # ต้อง�
 
 ## รันกับ implementation จริง
 
-`go/` ผ่านชุดนี้ทั้งหมด (ทั้งแบบเรียง แบบขนาน และ build ด้วย `-race`) วิธีรัน: [`../../go/README.md`](../../go/README.md) หรือหัวข้อ "Getting started" ใน [`README.md`](../../README.md) เก็บ mock ไว้เป็นตัวอ้างอิงตอนสงสัยว่า test หรือ implementation ผิด: ถ้า mock ผ่านแต่ implementation ไม่ผ่าน มักผิดที่ implementation; ถ้าทั้งคู่ไม่ผ่าน มักผิดที่ test หรือสเปก
+`go/` และ `typescript/` ผ่านชุดนี้ทั้งหมด (313 ข้อ ทั้งแบบเรียง แบบขนาน และ Go build ด้วย `-race`) วิธีรัน: [`../../go/README.md`](../../go/README.md), [`../../typescript/README.md`](../../typescript/README.md) หรือหัวข้อ "Getting started" ใน [`README.md`](../../README.md) เก็บ mock ไว้เป็นตัวอ้างอิงตอนสงสัยว่า test หรือ implementation ผิด: ถ้า mock ผ่านแต่ implementation ไม่ผ่าน มักผิดที่ implementation; ถ้าทั้งคู่ไม่ผ่าน มักผิดที่ test หรือสเปก

@@ -11,7 +11,7 @@
 
 ## สถานะของแต่ละ step
 
-- ✅ **ทดสอบแล้ว** คำสั่งตรวจในเอกสารรันได้จริงและให้ผลตามที่เขียน (step 2–6 มีไฟล์เฉลยในรีโปให้เปรียบเทียบ ส่วน step 0–1 เป็นการเตรียมงานและการวางแผน ไม่มีไฟล์เฉลย: เนื้อหา `CLAUDE.md` อยู่ในเอกสาร step 0 เอง และผลของการวางแผนสะท้อนอยู่ใน [`README.md`](../../README.md) ของรีโป)
+- ✅ **ทดสอบแล้ว** คำสั่งตรวจในเอกสารรันได้จริงและให้ผลตามที่เขียน (step 2–9 มีไฟล์เฉลยในรีโปให้เปรียบเทียบ ส่วน step 0–1 เป็นการเตรียมงานและการวางแผน ไม่มีไฟล์เฉลย: เนื้อหา `CLAUDE.md` อยู่ในเอกสาร step 0 เอง และผลของการวางแผนสะท้อนอยู่ใน [`README.md`](../../README.md) ของรีโป)
 - ⏳ **ยังไม่มีเฉลย** เอกสารเขียนจากแผนและยังไม่ได้ทดสอบกับโค้ดจริง คำสั่งและ prompt เป็นแนวทางเริ่มต้นที่ต้องปรับตามผลจริง (จะอัปเดตเมื่อมีโค้ด)
 
 ## ภาพรวม: ทำอะไรตามลำดับ
@@ -41,12 +41,14 @@ flowchart LR
 | 4 | [Test vectors](steps/04-test-vectors.md) | รีวิว, ทำ mutation check | เขียน generator + ตัวตรวจอิสระ | `tests/vectors/*.json` | 40 น. | ✅ |
 | 5 | [Contract tests](steps/05-contract-tests.md) | รีวิว, สั่งใส่ bug ทดสอบ | เขียน test + mock server | `tests/contract/` | 45 น. | ✅ |
 | 6 | [Go ต้นฉบับ](steps/06-golden-go.md) | อนุมัติทีละ layer | เขียนโค้ด Go จน test ผ่าน | `go/` (golden) | 60–90 น. | ✅ |
-| 7 | [สร้าง Skill](steps/07-skills.md) | เขียนกติกาการแปลเป็น skill | — | `.claude/skills/` | 20 น. | ⏳ |
-| 8 | [วิเคราะห์ก่อนแปล](steps/08-pre-port-analysis.md) | อนุมัติแผนภาษาปลายทาง | รายงานจุดที่แปลตรงๆ ไม่ได้ | `docs/porting/<lang>-analysis.md` | 20 น. | ⏳ |
-| 9 | [แปลเป็น TypeScript](steps/09-port-typescript.md) | อนุมัติทีละ layer, อ่านโค้ด | แปล, รัน gates, แก้ | `typescript/` | 60 น. | ⏳ |
+| 7 | [สร้าง Skill](steps/07-skills.md) | เขียนกติกาการแปลเป็น skill | — | `.claude/skills/`, `CLAUDE.md` | 20 น. | ✅ ¹ |
+| 8 | [วิเคราะห์ก่อนแปล](steps/08-pre-port-analysis.md) | อนุมัติแผนภาษาปลายทาง | รายงานจุดที่แปลตรงๆ ไม่ได้ | `docs/porting/<lang>-analysis.md` | 20 น. | ✅ (TypeScript) |
+| 9 | [แปลเป็น TypeScript](steps/09-port-typescript.md) | อนุมัติทีละ layer, อ่านโค้ด | แปล, รัน gates, แก้ | `typescript/` | 60 น. | ✅ |
 | 10 | [Python / Java / Rust](steps/10-port-other-languages.md) | เหมือน step 9 | เหมือน step 9 | `python/` `java/` `rust/` | 45 น./ภาษา | ⏳ |
 | 11 | [JS SDK (MVP3)](steps/11-js-sdk.md) | รีวิว API ของ SDK | สร้างจาก OpenAPI | `sdk-js/` | 45 น. | ⏳ |
-| 12 | [สรุปบทเรียน](steps/12-retrospective.md) | สรุปว่าอะไรได้ผล | ช่วยสรุปจาก log | `lessons/*.md`, prompts ที่ปรับแล้ว | 20 น. | ⏳ |
+| 12 | [สรุปบทเรียน](steps/12-retrospective.md) | สรุปว่าอะไรได้ผล | ช่วยสรุปจาก log | `lessons/*.md`, prompts ที่ปรับแล้ว | 20 น. | ⏳ (มีตัวอย่าง `lessons/typescript.md`) |
+
+¹ สร้างและตรวจโครงสร้างแล้ว แต่ยังไม่เคยเรียกผ่าน `/ชื่อ` จริง: session ที่สร้าง skill เรียกมันไม่ได้ ดูหมายเหตุใน step 7
 
 ## วงจรที่ใช้ซ้ำในทุก step
 
@@ -98,3 +100,6 @@ flowchart LR
 | เฉลย step 4 | [`tests/vectors/`](../../tests/vectors/README.md), [`tools/genvectors/`](../../tools/genvectors), [`tools/verify-vectors/`](../../tools/verify-vectors) |
 | เฉลย step 5 | [`tests/contract/`](../../tests/contract/README.md), [`tools/mock-server/`](../../tools/mock-server) |
 | เฉลย step 6 | [`go/`](../../go/README.md) |
+| เฉลย step 7 | [`CLAUDE.md`](../../CLAUDE.md), [`.claude/skills/`](../../.claude/skills) |
+| เฉลย step 8 | [`docs/porting/typescript-analysis.md`](../porting/typescript-analysis.md) |
+| เฉลย step 9 | [`typescript/`](../../typescript/README.md), [`lessons/typescript.md`](../../lessons/typescript.md), [`tools/diff-servers/`](../../tools/diff-servers/diff.mjs), [`tools/mutation-check/`](../../tools/mutation-check/ts.sh) |

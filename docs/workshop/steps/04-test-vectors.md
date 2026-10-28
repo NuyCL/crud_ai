@@ -45,7 +45,7 @@ bucketing.json และ evaluation.json ตาม spec/evaluation.md
 cd tools/genvectors && go run . ../../tests/vectors
 ```
 
-ผลที่ถูกต้อง: `wrote 51 evaluation cases` (จำนวนอาจต่างตามที่ AI ออกแบบ) และมี 3 ไฟล์ใน `tests/vectors/`
+ผลที่ถูกต้อง: `wrote 57 evaluation cases` (จำนวนอาจต่างตามที่ AI ออกแบบ; เฉลยมี 51 ตอนจบ step 4 และเพิ่มเป็น 57 ใน step 8 เมื่อพบว่าต้องมี case ของชื่อ attribute ที่ชนกับ `Object.prototype`) และมี 3 ไฟล์ใน `tests/vectors/` (ไฟล์ที่ 4 `erfc.json` เพิ่มใน step 8 เมื่อรู้ว่า JavaScript กับ Rust ไม่มี `erfc` ในตัว ดู [`tests/vectors/README.md`](../../../tests/vectors/README.md))
 
 > **บทเรียนจากการทำจริง:** ตอนรันครั้งแรก generator หยุดด้วย `panic: case rollout-unicode-user: intended ON/"", computed {Enabled:false Variant:<nil> Reason:NOT_IN_ROLLOUT}` ผมเดาผลของ userId ภาษาไทยผิด ถ้าไม่มีกติกาข้อ 2 ค่าที่ผิดจะถูกบันทึกเป็น "คำตอบที่ถูก" เงียบๆ และทุกภาษาจะถูกบังคับให้ผิดตาม การแก้ที่ถูกคือแก้ **ค่าคาดหวังให้ตรงสเปก** ไม่ใช่ปรับ generator ให้ตามผล
 
@@ -65,7 +65,7 @@ cd tools/genvectors && go run . ../../tests/vectors
 node tools/verify-vectors/verify.mjs
 ```
 
-ผลที่ถูกต้อง: `fnv1a32: 11, bucketing: 300, evaluation: 51, failures: 0`
+ผลที่ถูกต้อง: `fnv1a32: 11, bucketing: 300, evaluation: 57, failures: 0` (เฉลยตอนจบ step 4 คือ `evaluation: 51`)
 
 ถ้าตัวตรวจอิสระกับ generator ไม่ตรงกัน แปลว่า **สเปกกำกวม** หรือฝั่งใดฝั่งหนึ่งผิด กลับไปอ่านสเปกก่อนแก้โค้ดทั้งสองฝั่ง
 

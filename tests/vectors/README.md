@@ -25,7 +25,7 @@
 
 ## วิธีใช้ใน implementation
 
-1. Unit test ของแต่ละภาษาอ่าน JSON ทั้ง 3 ไฟล์แล้ววนทุก case
+1. Unit test ของแต่ละภาษาอ่าน JSON ทั้ง 4 ไฟล์แล้ววนทุก case
 2. ทำให้ `fnv1a32.json` ผ่านก่อน, ต่อด้วย `bucketing.json`, แล้วค่อย `evaluation.json` (เรียงตามความลึกของ bug)
 3. ถ้าแถวใดไม่ผ่าน ให้ดู `input` กับ `debug` เทียบกับค่าที่ implementation คำนวณได้
 

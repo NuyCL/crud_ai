@@ -2,17 +2,20 @@
 
 โปรเจกต์ฝึกเขียนโค้ดหลายภาษาและฝึกใช้ AI แปลโค้ดอย่างมีขั้นตอน โดยใช้โจทย์เป็น **microservice สำหรับ feature flag** ที่ต่อยอดไปเป็น **A/B testing** ได้
 
-> **สถานะ:** มีสเปกและ test vectors แล้ว ยังไม่มี implementation (`go/` เป็นขั้นถัดไป) หัวข้อที่ระบุ **TODO** จะเติมเมื่อมีโค้ด
+> **สถานะ:** มีสเปก, test vectors, contract test (313 ข้อ) และ implementation 2 ภาษา: **Go** (ต้นฉบับ) กับ **TypeScript** ผ่านชุด test เดียวกัน และเทียบกันด้วย differential test แล้ว ยังไม่ได้ทำ: Python, Java, Rust, JS SDK (MVP3) ผลของแต่ละ step ที่ยังเป็น ⏳ อยู่ในคู่มือ workshop
 
 | เอกสาร | เนื้อหา |
 |---|---|
 | [`spec/openapi.yaml`](spec/openapi.yaml) | สัญญา API (admin, evaluate, events) |
 | [`spec/evaluation.md`](spec/evaluation.md) | ลำดับและอัลกอริทึมการประเมิน flag รวม bucketing |
 | [`spec/business-rules.md`](spec/business-rules.md) | กฎ BR-xx และรูปแบบ error |
-| [`tests/vectors/`](tests/vectors/README.md) | ข้อมูลทดสอบกลาง (fnv1a32 / bucketing / evaluation) |
-| [`tests/contract/`](tests/contract/README.md) | contract test ผ่าน HTTP (260 ข้อ) ใช้กับทุกภาษา |
+| [`tests/vectors/`](tests/vectors/README.md) | ข้อมูลทดสอบกลาง (fnv1a32 / bucketing / evaluation / erfc) |
+| [`tests/contract/`](tests/contract/README.md) | contract test ผ่าน HTTP (313 ข้อ) ใช้กับทุกภาษา |
 | [`docs/workshop/`](docs/workshop/README.md) | **คู่มือ workshop แบบ step-by-step** (ภาพรวม + เอกสารละเอียด 13 step) |
-| [`CONVENTIONS.md`](CONVENTIONS.md) | โครงสร้าง layer, library ต่อภาษา, กับดักต่อภาษา |
+| [`CONVENTIONS.md`](CONVENTIONS.md) | โครงสร้าง layer, library ต่อภาษา, กับดักต่อภาษา, คำสั่ง gate |
+| [`docs/porting/`](docs/porting/typescript-analysis.md) | รายงานวิเคราะห์ก่อนแปล (TypeScript) |
+| [`lessons/`](lessons/typescript.md) | บทเรียนหลังแปลแต่ละภาษา |
+| [`CLAUDE.md`](CLAUDE.md), [`.claude/skills/`](.claude/skills) | กติกาและ skill ที่ AI ใช้ทำงานในรีโปนี้ |
 
 ## วัตถุประสงค์
 
@@ -24,8 +27,8 @@
 
 | MVP | ขอบเขต | สถานะ |
 |---|---|---|
-| MVP1 | Feature flag เปิด/ปิด (on/off) | ✅ Go (ฝั่ง server) |
-| MVP2 | A/B testing: variants, targeting, rollout %, exposure/conversion | ✅ Go (ฝั่ง server) |
+| MVP1 | Feature flag เปิด/ปิด (on/off) | ✅ Go, ✅ TypeScript (ฝั่ง server) |
+| MVP2 | A/B testing: variants, targeting, rollout %, exposure/conversion | ✅ Go, ✅ TypeScript (ฝั่ง server) |
 | MVP3 | JavaScript/TypeScript library สำหรับ web | Planned |
 
 ### MVP1: On/Off
@@ -136,27 +139,31 @@ Output: the code, plus a list of behavior differences or assumptions.
 | 3 | MVP2 → Rust | ภาษาที่ห่างจาก Go สุด |
 | 4 | MVP3 JS lib จาก OpenAPI | AI สร้างจากสัญญา ไม่ใช่การแปล |
 
-## โครงสร้างโปรเจกต์ (planned)
+## โครงสร้างโปรเจกต์
 
 ```
 docs/workshop/   คู่มือ workshop: README.md (ภาพรวม) + steps/NN-*.md (ละเอียด) ✅
 spec/            openapi.yaml, evaluation.md, business-rules.md          ✅
 tests/
   contract/      black-box HTTP tests (Node, ไม่ต้องติดตั้งอะไร)         ✅
-  vectors/       fnv1a32.json, bucketing.json, evaluation.json          ✅
+  vectors/       fnv1a32.json, bucketing.json, evaluation.json, erfc.json ✅
 tools/
   genvectors/    Go generator ของ vectors                               ✅
   verify-vectors/ ตัวตรวจอิสระด้วย Node                                  ✅
   mock-server/   mock ในหน่วยความจำ ไว้พิสูจน์ว่า contract test ถูก     ✅
   check-openapi/ ตัวตรวจโครงสร้าง openapi.yaml (Python)                  ✅
+  diff-servers/  เทียบ response ของสอง service ด้วย request สุ่มชุดเดียวกัน ✅
+  mutation-check/ ใส่ bug ในสำเนาของโค้ด TypeScript แล้วดูว่า test จับไหม ✅
 go/              original implementation (golden) ✅  ดู go/README.md
-typescript/      port
+typescript/      port ✅  ดู typescript/README.md
 rust/            port
 java/            port
 python/          port
 sdk-js/          MVP3 JavaScript library
 prompts/         prompt templates
-lessons/         บทเรียนต่อภาษา
+lessons/         บทเรียนต่อภาษา (typescript.md ✅)
+docs/porting/    รายงานวิเคราะห์ก่อนแปลต่อภาษา (typescript ✅)
+CLAUDE.md        กติกาของโปรเจกต์สำหรับ AI ✅   .claude/skills/ ✅
 CONVENTIONS.md   โครงสร้างและ library ที่ใช้ต่อภาษา
 Makefile         make test-<lang>, make build-<lang>
 ```
@@ -183,7 +190,11 @@ rm -f go/contract.db go/contract.db-shm go/contract.db-wal go/ffservice
 
 หรือรันกับ mock ที่ทำตามสเปก (ใช้พิสูจน์ตัว test ไม่ต้องมี Go): `PORT=8080 node tools/mock-server/server.mjs &`
 
-ตรวจคุณภาพโค้ด Go: `cd go && go build ./... && go vet ./... && test -z "$(gofmt -l .)" && go test -race ./...`
+ตรวจคุณภาพโค้ด Go: `cd go && go build ./... && go vet ./... && test -z "$(gofmt -l .)" && go test -count=1 -race ./...`
+
+รัน TypeScript (build, lint แบบ strict, test และ contract test กับ server): ดู [`typescript/README.md`](typescript/README.md) และ step 9 ของคู่มือ workshop
+
+เทียบ Go กับ TypeScript ด้วยคำขอสุ่ม: [`docs/workshop/steps/09-port-typescript.md`](docs/workshop/steps/09-port-typescript.md) หัวข้อ 9.7
 
 รายละเอียดและตัวแปรที่ปรับได้อยู่ใน [`tests/contract/README.md`](tests/contract/README.md)
 
@@ -193,8 +204,8 @@ rm -f go/contract.db go/contract.db-shm go/contract.db-wal go/ffservice
 
 1. ~~เขียน `spec/`, test vectors และ contract test~~ เสร็จแล้ว
 2. ~~MVP1 ใน Go~~ เสร็จแล้ว (รวมฝั่ง server ของ MVP2: variants, rollout, events, รายงานผล)
-3. แปล MVP1 เป็น TypeScript และบันทึกบทเรียน
-4. MVP2 ใน Go (variants, bucketing, events) แล้วแปลเป็น Python, Java, Rust
+3. ~~แปลเป็น TypeScript และบันทึกบทเรียน~~ เสร็จแล้ว (`typescript/`, `lessons/typescript.md`)
+4. แปลเป็น Python, Java, Rust (ทีละภาษา ตามบทเรียนของภาษาก่อนหน้า; Rust ต้องเขียน `erfc` เอง ใช้ `tests/vectors/erfc.json`)
 5. MVP3 JavaScript library
 6. จัดทำเอกสารและสไลด์ workshop
 

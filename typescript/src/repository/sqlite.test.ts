@@ -147,19 +147,22 @@ describe("audit log", () => {
 
     const all = repo.listAudit(undefined, 10, 0);
     assert.equal(all.total, 3);
-    assert.ok(all.items[0]!.id > all.items[1]!.id && all.items[1]!.id > all.items[2]!.id, "ids must decrease down the list");
+    const ids = all.items.map((e) => e.id);
+    assert.deepEqual(ids, [...ids].sort((a, b) => b - a), "ids must decrease down the list");
+    assert.equal(new Set(ids).size, 3, "ids must be distinct");
 
     const xs = repo.listAudit("x", 10, 0);
     assert.deepEqual(xs.items.map((e) => e.action), ["delete", "create"]);
     assert.equal(xs.total, 2);
-    assert.deepEqual(xs.items[0]!.before, f);
-    assert.equal(xs.items[0]!.after, null);
-    assert.equal(xs.items[1]!.before, null);
-    assert.equal(JSON.parse(JSON.stringify(xs.items[0])).after, null, "a missing 'after' must serialise as null");
+    const [deleted, created] = xs.items;
+    assert.deepEqual(deleted?.before, f);
+    assert.equal(deleted?.after, null);
+    assert.equal(created?.before, null);
+    assert.equal((JSON.parse(JSON.stringify(deleted)) as { after: unknown }).after, null, "a missing 'after' must serialise as null");
 
     assert.deepEqual(repo.listAudit("nobody", 10, 0), { items: [], total: 0 });
     const page = repo.listAudit(undefined, 1, 2);
-    assert.deepEqual([page.total, page.items.length, page.items[0]!.action, page.items[0]!.flagKey], [3, 1, "create", "x"]);
+    assert.deepEqual([page.total, page.items.length, page.items[0]?.action, page.items[0]?.flagKey], [3, 1, "create", "x"]);
   });
 });
 

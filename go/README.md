@@ -39,7 +39,7 @@ curl -s -XPOST localhost:8080/v1/evaluate -H 'X-Client-Key: test-client-key' -d 
 
 ```bash
 cd go
-go build ./... && go vet ./... && test -z "$(gofmt -l .)" && go test -race ./...
+go build ./... && go vet ./... && test -z "$(gofmt -l .)" && go test -count=1 -race ./...
 ```
 
 Contract test ต้องเปิด server ก่อน ดู [`../tests/contract/README.md`](../tests/contract/README.md)

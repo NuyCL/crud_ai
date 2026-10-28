@@ -34,6 +34,17 @@
 
 หมายเหตุสำหรับทุกภาษา: ให้ AI **ยืนยันด้วยโค้ด** ว่า framework ทำอะไรให้เองบ้างตั้งแต่ step 8 (เขียน test เล็กๆ ที่ส่ง `"50"` ให้ฟิลด์ตัวเลข) ไม่ใช่เดาจากความจำ
 
+## สิ่งที่เรียนรู้แล้วจากการแปล TypeScript (ใช้ได้กับภาษาถัดไป)
+
+ดูละเอียดใน [`lessons/typescript.md`](../../../lessons/typescript.md) ที่เกี่ยวกับภาษาข้างบนโดยตรง:
+
+- **ทุกภาษา:** ทำ step 8 ให้ครบก่อนแปล โดยเฉพาะ "เติม test ก่อนแปล" และ **ทดลอง framework กับ route ที่มี parameter, ที่ไม่มี และที่ว่าง**; รัน `tools/diff-servers` เทียบกับ Go ตอนจบ (ต้องมี scenario ที่เข้าถึงสถิติ) และเทคนิค mutation check ของ [`tools/mutation-check/ts.sh`](../../../tools/mutation-check/ts.sh) เขียนเทียบเคียงได้ในทุกภาษา
+- **Python:** `$` ในรูปแบบของ `re` ตรงก่อน `\n` ท้ายสุดได้ (ใช้ `re.fullmatch` หรือ `\Z`) และ `\d` ตรงกับเลข Unicode (ใช้ `[0-9]`): contract test มีกรณี `abc\n` กับ `limit=%D9%A5` แล้ว; `math.erfc` มีในตัว; `datetime.fromisoformat` รับรูปแบบที่ RFC 3339 ไม่รับ (ตรวจเอง)
+- **Rust:** ไม่มี `erfc` ใน std ต้องเขียนเองให้ผ่าน `tests/vectors/erfc.json` (การประมาณแบบตำราผิดที่ ~1e-7 และไม่ผ่าน; ดูวิธีใน `typescript/src/service/erfc.ts`)
+- **Java:** `String.matches` ต้องตรงทั้งสตริงแต่ `Matcher.find()` กับ `$` ยอมรับ `\n` ท้ายสุด; ตรวจ framework (Spring) ว่ารับ Content-Type อื่น, ขนาด body, และ route ที่ไม่มีตามสเปกหรือไม่
+
+(รายการนี้มาจากความรู้ของภาษาเหล่านั้น ยังไม่ได้ทดลองกับโค้ดจริง ให้ยืนยันใน step 8 ของแต่ละภาษา)
+
 ## คำสั่ง gate (ข้อเสนอเริ่มต้น เก็บจริงที่ [`CONVENTIONS.md`](../../../CONVENTIONS.md))
 
 | ภาษา | build / lint / unit test | เริ่ม server |

@@ -130,7 +130,7 @@ kill $SVC_PID
 rm -f go/contract.db go/contract.db-shm go/contract.db-wal go/ffservice
 ```
 
-ผลที่ถูกต้อง: `# pass 260`, `# fail 0`, `# skipped 0` เหมือนที่ mock ผ่าน (เฉลยผ่านตั้งแต่รันครั้งแรกกับ Go ตอนที่ชุด test ยังมี 258 ข้อ ต่อมาเพิ่มอีก 2 ข้อ ดูหัวข้อ "บทเรียน")
+ผลที่ถูกต้อง: `# pass 313`, `# fail 0`, `# skipped 0` เหมือนที่ mock ผ่าน (เฉลยผ่านตั้งแต่รันครั้งแรกกับ Go ตอนที่ชุด test ยังมี 258 ข้อ ต่อมาชุดโตเป็น 313 ระหว่าง step 8–9 โดยที่ Go ต้องถูกแก้ 1 จุด: ดู [`lessons/typescript.md`](../../../lessons/typescript.md) ข้อ 2)
 
 ถ้า fail ให้ส่งชื่อ test และข้อความ error กลับให้ AI **ไม่เกิน 3 รอบ** แล้วคนเข้ามาอ่านเอง:
 
@@ -144,10 +144,10 @@ test เหล่านี้ fail กับ Go server: <วางชื่อ t
 
 | ตรวจอะไร | วิธี | ผล |
 |---|---|---|
-| data race | build ด้วย `go build -race` แล้วรัน contract test ทั้งแบบเรียงและขนาน | 0 race, 260/260 |
-| ใช้ database ซ้ำ | รัน contract test ซ้ำรอบที่สองบน server เดิม | 260/260 |
+| data race | build ด้วย `go build -race` แล้วรัน contract test ทั้งแบบเรียงและขนาน | 0 race; เรียง 313/313, ขนาน 312 ผ่าน + 1 skipped (ข้อแบ่งหน้า) |
+| ใช้ database ซ้ำ | รัน contract test ซ้ำรอบที่สองบน server เดิม | 313/313 |
 | ข้อมูลอยู่รอดหลังรีสตาร์ท | สร้าง flag (description ไทย+emoji) → ปิด → เปิดใหม่ → อ่าน | ข้อมูลและ UTF-8 ครบ |
-| โหมด MVP1 | `CONTRACT_MVP=1` | 125 ผ่าน, 46 ข้าม |
+| โหมด MVP1 | `CONTRACT_MVP=1` | 154 ผ่าน, 52 ข้าม |
 | mutation ระดับ HTTP | ใส่ bug ในโค้ด Go แล้ว build ใหม่ รัน contract test | 6/6 ถูกจับ: นับ description เป็นไบต์, client key ได้ 401 แทน 403, list ไม่สนใจ offset, ไม่ใช้ `UseNumber`, PUT รีเซ็ต `createdAt`, exposure หลังทับแรก |
 
 ### 6.7 รีวิว แล้ว commit
@@ -164,7 +164,7 @@ review go/ ทั้งหมดเทียบกับ spec/ ในฐาน�
 2. **path ของ database ที่มี `?` `#` `%`** ถูกตีความเป็นส่วนของ URI ไฟล์ถูกสร้างผิดที่เงียบๆ test แรกที่ผมเขียนผ่านทั้งที่มี bug เพราะเปิดซ้ำด้วย path เดิมก็เจอไฟล์ผิดที่เดิม ต้อง `os.Stat` ที่ path ที่ขอจริง บทเรียน: test ที่ "ผ่าน" ต้องถามว่า **มันจะล้มไหมถ้าโค้ดผิด**
 
 ```bash
-cd go && go build ./... && go vet ./... && test -z "$(gofmt -l .)" && go test -race ./...
+cd go && go build ./... && go vet ./... && test -z "$(gofmt -l .)" && go test -count=1 -race ./...
 cd .. && git add -A && git commit -m "Add Go golden implementation" && git tag golden-v1
 ```
 
@@ -180,7 +180,9 @@ cd .. && git add -A && git commit -m "Add Go golden implementation" && git tag g
 | เครื่องหมาย z | ไม่มี test ที่ treatment แย่กว่า control | เพิ่ม test two-sided |
 | 500 ไม่มี error code | สเปกลืม | เพิ่ม `INTERNAL_ERROR` |
 | Tx panic, URI path | เจอตอนรีวิว | test ที่ล้มก่อนแก้ |
-| กับดัก `$` ของ regex มีแค่ใน unit test ของ Go | ภาษาอื่นไม่ถูกบังคับ | เพิ่ม contract test 2 ข้อ (ชุดจึงเป็น 260) ใช้ได้ทั้ง mock และ Go |
+| กับดัก `$` ของ regex มีแค่ใน unit test ของ Go | ภาษาอื่นไม่ถูกบังคับ | เพิ่ม contract test 2 ข้อ ใช้ได้ทั้ง mock และ Go |
+| `go test` แสดง `(cached)` หลัง vectors เปลี่ยน | vectors อยู่นอกโมดูล Go จึงไม่ถูกนับเป็นอินพุตของ cache | ใช้ `go test -count=1` ใน gate (แก้ใน CONVENTIONS แล้ว) |
+| Go ผ่อนปรนกว่าสเปกเรื่อง timestamp | `time.Parse` รับชั่วโมงหลักเดียว, `,` ก่อนเศษวินาที, offset `+24:00` ซึ่ง RFC 3339 ไม่รับ | เจอตอนเทียบกับ TypeScript (step 9) แก้ Go + เพิ่ม contract test: **ต้นฉบับ "ผ่านทุก test" ไม่ได้แปลว่าถูกตามสเปก** |
 
 ## สิ่งที่ทำให้ Go ผ่านรอบแรก (และควรระวังตอนแปลภาษาอื่น)
 

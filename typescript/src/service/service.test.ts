@@ -320,7 +320,17 @@ describe("BR-43 .. BR-46: events and results", () => {
   const exposures = (flag: string, prefix: string, variant: string, n: number) =>
     Array.from({ length: n }, (_, i) => `{"type":"exposure","userId":"${prefix}${i}","flagKey":"${flag}","variant":"${variant}"}`);
   const conversions = (goal: string, prefix: string, n: number) => Array.from({ length: n }, (_, i) => conversion(`${prefix}${i}`, goal));
-  const row = (r: Results, i: number) => r.variants[i]!;
+  const row = (r: Results, i: number) => {
+    const found = r.variants[i];
+    assert.ok(found, `the report has no variant at index ${i}`);
+    return found;
+  };
+  /** The p-value of a row, which the test has established must exist. */
+  const pValueOf = (r: Results, i: number): number => {
+    const { pValue } = row(r, i);
+    assert.notEqual(pValue, null, `variant ${i} has no p-value`);
+    return pValue as number;
+  };
 
   test("BR-43: event validation", (t) => {
     const { svc } = newService(t);
@@ -409,14 +419,14 @@ describe("BR-43 .. BR-46: events and results", () => {
     assert.deepEqual([row(res, 0).pValue, row(res, 0).significant], [null, false], "the control has nothing to compare with");
     assert.ok(Math.abs(row(res, 0).rate - 0.1) < 1e-12 && Math.abs(row(res, 1).rate - 0.2) < 1e-12);
     // pooled p = 0.15, se = 0.035707, z = 2.80056, erfc(z / sqrt 2) = 0.005101399646004991 (from Go's math.Erfc)
-    assert.ok(Math.abs(row(res, 1).pValue! - 0.005101399646004991) < 1e-12, String(row(res, 1).pValue));
+    assert.ok(Math.abs(pValueOf(res, 1) - 0.005101399646004991) < 1e-12, String(row(res, 1).pValue));
     assert.equal(row(res, 1).significant, true);
 
     // the mirror image: the treatment is worse, the p-value is the same
     create(svc, ab.replace('"f"', '"g2"'));
     record(svc, ...exposures("g2", "c", "control", 200), ...exposures("g2", "t", "treatment", 200), ...conversions("lose", "c", 40), ...conversions("lose", "t", 20));
     const lose = svc.results("g2", "lose");
-    assert.ok(Math.abs(row(lose, 1).pValue! - 0.005101399646004991) < 1e-12);
+    assert.ok(Math.abs(pValueOf(lose, 1) - 0.005101399646004991) < 1e-12);
     assert.equal(row(lose, 1).significant, true);
   });
 
