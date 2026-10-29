@@ -32,6 +32,7 @@ Usage: `/port-layer <language> <layer>`
    with tools/mutation-check/<script> (one per behaviour: boundary, type comparison, ordering,
    error precedence, resource cleanup) and show the results. A surviving mutation is a missing test:
    add the test, or explain why the mutation changes nothing. Do not hand-wave "equivalent".
+   (<script> is ts.sh, py.sh, java.sh or rust.sh; read its header for the usage.)
 
 ## Report (always, in this shape)
 - Files created or changed

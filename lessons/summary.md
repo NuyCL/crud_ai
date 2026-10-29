@@ -92,3 +92,17 @@
 - **contract (ข้อ 11): 333 → 354 ข้อ** เพิ่ม: key ที่เข้ารหัสแล้วเจอ flag จริง (GET/PUT/DELETE/results), `%2F` เป็นส่วนของ key, `%zz` → 400 (ตรวจเฉพาะสถานะ เพราะ Go ตอบ `text/plain`), `OPTIONS` และ `/error` `/docs` `/openapi.json` `/actuator/health` → 404, `PATCH`/`POST`/`PUT` ที่ path ซึ่งมี method อื่น → 404 ไม่แก้อะไร, `NaN`/`Infinity` ในฟิลด์ที่ไม่รู้จัก → 400, ขอบ `significant` (p = 0.099 / 0.0552 → false, 0.0405 → true), goal ใน query ถูก percent-decode
 - **ไม่ได้เพิ่ม (และเหตุผล):** 500 ไม่รั่วรายละเอียด (black-box บังคับให้เกิด 500 ไม่ได้ — ยังอยู่ใน unit test ต่อภาษา), `TRACE` (`fetch` ส่งไม่ได้), `;` และ `+` ใน query (สเปกไม่ได้กำหนด เป็นพฤติกรรมของ `net/url` ของ Go — ถ้าต้องการให้เป็นกติกาต้องเขียนลงสเปกก่อน)
 - **ผล:** ผ่าน 354/354 กับ mock, Go, TypeScript, Python, Java, Rust (รัน Go/TS/Python/Java/Rust ด้วยโค้ดที่ commit อยู่ ไม่ต้องแก้ implementation) mock ต้องแก้ 1 จุด: ตอบ 400 กับ `%zz`
+
+## ความคืบหน้า: ข้อเสนอ 1–7 ทำแล้ว (ได้รับอนุมัติ)
+
+| ข้อ | ที่แก้ |
+|---|---|
+| 1 ทดลอง framework ก่อนเขียน handler | `CONVENTIONS.md` หัวข้อ "ก่อนเขียน handler: ทดลอง framework (บังคับ)" พร้อมรายการ input ขั้นต่ำ |
+| 2 ห้าม `A && B &` | `CLAUDE.md` หมวด "ห้าม" (พร้อมข้อห้ามใหม่เรื่อง test ที่ใช้ตรรกะเดียวกับโค้ด = ข้อเสนอ 8) |
+| 3 dependency ที่ framework พ่วงมา | `CLAUDE.md` หมวด "Dependency" + `CONVENTIONS.md` หลักการข้อ 3 |
+| 4 devDependencies ของ `typescript/` และ `sdk-js/` | อนุมัติใน `CONVENTIONS.md` |
+| 5 `spec-ambiguity-check` | เพิ่มคำถามบังคับเรื่อง path ที่เข้ารหัส, unknown route, body, header |
+| 6 `port-layer` | ขั้น "ทดลอง framework" ก่อน handler, กฎ test, และ mutation check หลัง layer ผ่าน |
+| 7 `verify-gates` | เพิ่ม differential และ mutation เป็นขั้นท้าย |
+
+หมายเหตุ: skill ที่แก้กลางบทสนทนา**ยังไม่ถูกโหลดใน session นี้** (โหลดตอนเริ่ม session) ต้องเริ่ม session ใหม่จึงจะทดสอบว่าเรียกผ่าน `/port-layer` ได้จริง ข้อ 9 (แยกผู้เขียน/ผู้รีวิว) และ CORS ยังไม่ได้ทำ

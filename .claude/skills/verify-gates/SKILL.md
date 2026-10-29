@@ -17,9 +17,10 @@ Usage: `/verify-gates <language>`
    - Differential test: start Go (reference) and this language on two ports with fresh databases and
      run `node tools/diff-servers/diff.mjs <urlA> <urlB> --seed=N --requests=3000` for at least 3 seeds;
      report the number of differing responses.
-   - Mutation check: run tools/mutation-check/<language>.sh with at least 5 mutations covering
+   - Mutation check: run tools/mutation-check/<script> (ts.sh, py.sh, java.sh or rust.sh; usage in its header) with at least 5 mutations covering
      boundaries, type comparison, error precedence and transactions; report killed and survived.
-7. Report a table of gate and result (build, lint, unit, contract, differential, mutation). Group contract failures by the BR-xx in the test name.
+7. Report a table of gate and result (build, lint, unit, contract, differential, mutation).
+   Group contract failures by the BR-xx in the test name.
    For each failure or surviving mutation say whether you think the fault is in the code, the test or
    the spec, with evidence.
 8. Do not change any file.
