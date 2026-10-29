@@ -81,6 +81,8 @@ describe("POST /v1/events (BR-11, BR-43, BR-44)", mvp2, () => {
     ["timestamp minute 60", [{ ...conversion("u1", "g"), timestamp: "2026-01-31T08:60:00Z" }]],
     ["timestamp with a date only", [{ ...conversion("u1", "g"), timestamp: "2026-01-31" }]],
     ["timestamp without a time zone", [{ ...conversion("u1", "g"), timestamp: "2026-01-31T08:00:00" }]],
+    ["timestamp in Arabic-Indic digits", [{ ...conversion("u1", "g"), timestamp: "\u0662\u0660\u0662\u0666-\u0660\u0661-\u0663\u0661T\u0660\u0668:\u0660\u0660:\u0660\u0660Z" }]],
+    ["timestamp in full-width digits", [{ ...conversion("u1", "g"), timestamp: "\uff12\uff10\uff12\uff16-01-31T08:00:00Z" }]],
     ["timestamp offset without a colon", [{ ...conversion("u1", "g"), timestamp: "2026-01-31T08:00:00+0700" }]],
     // Found by differential testing: Go's time.Parse accepts all four of these, RFC 3339 does not.
     ["timestamp with a one-digit hour", [{ ...conversion("u1", "g"), timestamp: "2026-01-31T8:00:00Z" }]],

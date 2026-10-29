@@ -135,6 +135,67 @@ describe("results", () => {
   });
 });
 
+describe("numbers and booleans in rules (evaluation.md 3.1)", () => {
+  const rawEvaluate = (flagKey, attributesJson) =>
+    call("POST", "/v1/evaluate", { rawBody: `{"flags":["${flagKey}"],"context":{"userId":"u","attributes":${attributesJson}}}`, auth: "client" });
+  const reasonOf = (res, key) => res.body.results[key].reason;
+
+  test("1, 1.0 and 1e0 are the same number; true is not a number", async () => {
+    const f = await fx.create({ enabled: true, rules: [{ attribute: "n", operator: "eq", value: 1 }] });
+    for (const literal of ["1", "1.0", "1e0", "1E+0", "0.1e1", "10e-1"]) assert.equal(reasonOf(await rawEvaluate(f.key, `{"n":${literal}}`), f.key), "ON", literal);
+    for (const literal of ["true", "false", '"1"', "2", "0"]) assert.equal(reasonOf(await rawEvaluate(f.key, `{"n":${literal}}`), f.key), "TARGETING_MISS", literal);
+  });
+
+  test("numbers are compared as doubles: 2^53 + 1 equals 2^53, and -0 equals 0", async () => {
+    const big = await fx.create({ enabled: true, rules: [{ attribute: "n", operator: "eq", value: 9007199254740992 }] });
+    assert.equal(reasonOf(await rawEvaluate(big.key, '{"n":9007199254740993}'), big.key), "ON");
+    const zero = await fx.create({ enabled: true, rules: [{ attribute: "n", operator: "eq", value: 0 }] });
+    assert.equal(reasonOf(await rawEvaluate(zero.key, '{"n":-0}'), zero.key), "ON");
+    assert.equal(reasonOf(await rawEvaluate(zero.key, '{"n":false}'), zero.key), "TARGETING_MISS");
+  });
+
+  test("in / not_in use the same equality (an int and a float are one type, a bool is another)", async () => {
+    const f = await fx.create({ enabled: true, rules: [{ attribute: "n", operator: "in", value: [1, 2, 3] }] });
+    assert.equal(reasonOf(await rawEvaluate(f.key, '{"n":2.0}'), f.key), "ON");
+    assert.equal(reasonOf(await rawEvaluate(f.key, '{"n":true}'), f.key), "TARGETING_MISS");
+    const g = await fx.create({ enabled: true, rules: [{ attribute: "n", operator: "not_in", value: [1, 2, 3] }] });
+    assert.equal(reasonOf(await rawEvaluate(g.key, '{"n":true}'), g.key), "ON", "true is not in [1,2,3]");
+    assert.equal(reasonOf(await rawEvaluate(g.key, '{"n":3.0}'), g.key), "TARGETING_MISS");
+  });
+});
+
+describe("lone surrogates never cause a server error (BR-54)", () => {
+  test("a userId with a lone surrogate gets the answer of U+FFFD, or a 400, never a 5xx", async () => {
+    const f = await fx.create({ enabled: true, variants: [{ key: "a", weight: 50 }, { key: "b", weight: 50 }] });
+    const run = (userId) => call("POST", "/v1/evaluate", { rawBody: `{"flags":["${f.key}"],"context":{"userId":"${userId}"}}`, auth: "client" });
+    const replacement = await run("\\ufffd");
+    assert.equal(replacement.status, 200);
+    for (const lone of ["\\ud800", "\\udc00", "\\ud83d", "x\\ud800y"]) {
+      const res = await run(lone);
+      assert.ok(res.status < 500, `${lone}: ${res.status} ${res.text}`);
+      if (res.status === 200 && lone !== "x\\ud800y") assert.deepEqual(res.body.results[f.key], replacement.body.results[f.key], lone);
+    }
+  });
+
+  test("lone surrogates in other strings are not a 5xx either", async () => {
+    const key = uniqueKey();
+    const created = await call("POST", "/v1/flags", { rawBody: `{"key":"${key}","description":"\\ud800","enabled":true,"rules":[{"attribute":"\\udc00","operator":"eq","value":"\\ud800"}]}` });
+    fx.track(key);
+    assert.ok(created.status < 500, created.text);
+    for (const [path, rawBody] of [
+      ["/v1/evaluate", `{"flags":["\\ud800"],"context":{"userId":"u","attributes":{"\\ud800":"\\udc00"}}}`],
+      ["/v1/events", '{"events":[{"type":"conversion","userId":"\\ud800","goal":"\\udc00"}]}'],
+      ["/v1/events", '{"events":[{"type":"exposure","userId":"\\ud800","flagKey":"\\ud800","variant":"\\udc00"}]}'],
+    ]) {
+      const res = await call("POST", path, { rawBody, auth: "client" });
+      assert.ok(res.status < 500, `${path}: ${res.status} ${res.text}`);
+    }
+    const read = await get(`/v1/flags/${key}`);
+    assert.ok(read.status < 500, read.text);
+    assert.ok((await get("/v1/flags?limit=100")).status < 500, "the list must still work after a lone surrogate was stored");
+  });
+});
+
 describe("no side effects (BR-22)", () => {
   test("evaluating changes neither the flag nor the audit log", async () => {
     const f = await fx.create({ enabled: true });

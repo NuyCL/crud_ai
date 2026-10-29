@@ -66,6 +66,15 @@ function authorize(req, { adminOnly }) {
   if (!client) throw new HttpError(401, "UNAUTHORIZED", "missing or invalid key");
 }
 
+// BR-55: a path key that is not valid UTF-8 can never name a flag, so it is "not found", not an error.
+function decodeKey(raw) {
+  try {
+    return decodeURIComponent(raw);
+  } catch {
+    return "\u0000invalid";
+  }
+}
+
 // BR-52: any Content-Type, one JSON value, at most 1 MiB. The whole body is read before
 // answering so that a client still uploading does not see a reset connection.
 async function readJson(req) {
@@ -77,7 +86,8 @@ async function readJson(req) {
   }
   if (size > MAX_BODY_BYTES) throw bad("VALIDATION_ERROR", "body is larger than 1 MiB");
   try {
-    return JSON.parse(Buffer.concat(chunks).toString("utf8"));
+    // fatal: invalid UTF-8 is an error, not U+FFFD; ignoreBOM keeps a BOM so JSON.parse rejects it
+    return JSON.parse(new TextDecoder("utf-8", { fatal: true, ignoreBOM: true }).decode(Buffer.concat(chunks)));
   } catch {
     throw bad("VALIDATION_ERROR", "body is not valid JSON");
   }
@@ -366,13 +376,13 @@ async function route(req, res) {
   if (parts[1] === "flags" && parts[3] === "results" && parts.length === 4 && m === "GET") {
     const goal = url.searchParams.get("goal");
     if (!nonEmpty(goal)) throw bad("VALIDATION_ERROR", "goal is required");
-    const flag = flags.get(parts[2]);
+    const flag = flags.get(decodeKey(parts[2]));
     if (!flag) throw new HttpError(404, "FLAG_NOT_FOUND", "flag not found");
     return send(res, 200, results(flag, goal));
   }
 
   if (parts[1] === "flags" && parts.length === 3) {
-    const key = decodeURIComponent(parts[2]);
+    const key = decodeKey(parts[2]);
     if (m === "GET") {
       const f = flags.get(key);
       if (!f) throw new HttpError(404, "FLAG_NOT_FOUND", "flag not found");

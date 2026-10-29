@@ -23,9 +23,10 @@ const AUTH = {
  * Send a request. `body` is JSON-encoded; `rawBody` is sent as-is (for malformed JSON).
  * `auth` is one of admin (default) | client | none | bad-admin | bad-client.
  * `contentType` defaults to application/json; the service must not depend on it (BR-52).
+ * `rawBody` may be a string or a Buffer (for bytes that are not valid UTF-8); `headers` adds or overrides headers.
  */
-export async function call(method, path, { body, rawBody, auth = "admin", contentType = "application/json" } = {}) {
-  const headers = { ...AUTH[auth] };
+export async function call(method, path, { body, rawBody, auth = "admin", contentType = "application/json", headers: extraHeaders = {} } = {}) {
+  const headers = { ...AUTH[auth], ...extraHeaders };
   let payload;
   if (rawBody !== undefined) payload = rawBody;
   else if (body !== undefined) payload = JSON.stringify(body);

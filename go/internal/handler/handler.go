@@ -4,12 +4,14 @@
 package handler
 
 import (
+	"bytes"
 	"crypto/subtle"
 	"encoding/json"
 	"errors"
 	"io"
 	"log"
 	"net/http"
+	"unicode/utf8"
 
 	"ffservice/internal/service"
 )
@@ -153,8 +155,15 @@ func (a *api) fail(w http.ResponseWriter, r *http.Request, err error) {
 // the service can tell 10 from 10.5 (BR-30). Anything that is not a single,
 // complete JSON document is a validation error (BR-52).
 func decodeBody(w http.ResponseWriter, r *http.Request) (any, error) {
-	r.Body = http.MaxBytesReader(w, r.Body, maxBodyBytes)
-	dec := json.NewDecoder(r.Body)
+	raw, err := io.ReadAll(http.MaxBytesReader(w, r.Body, maxBodyBytes))
+	if err != nil {
+		return nil, &service.Error{Code: service.CodeValidation, Message: "request body could not be read or is larger than 1 MiB"}
+	}
+	// encoding/json silently turns invalid UTF-8 into U+FFFD; the spec says reject it (BR-52).
+	if !utf8.Valid(raw) {
+		return nil, &service.Error{Code: service.CodeValidation, Message: "request body must be valid UTF-8"}
+	}
+	dec := json.NewDecoder(bytes.NewReader(raw))
 	dec.UseNumber()
 	var v any
 	if err := dec.Decode(&v); err != nil {

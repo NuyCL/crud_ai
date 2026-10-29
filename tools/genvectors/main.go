@@ -332,6 +332,13 @@ func genEvaluation(dir string) {
 	add("target-eq-type-string-vs-number", `"1" does not equal 1`, mk("f", true, []Rule{{"level", "eq", 1}}, 100, nil), "f", Context{Attributes: attrs("level", "1")}, "TARGETING_MISS", "")
 	add("target-eq-number", "number equals number", mk("f", true, []Rule{{"age", "eq", 18}}, 100, nil), "f", Context{Attributes: attrs("age", 18)}, "ON", "")
 	add("target-eq-bool", "bool equals bool", mk("f", true, []Rule{{"beta", "eq", true}}, 100, nil), "f", Context{Attributes: attrs("beta", true)}, "ON", "")
+	// Python and similar languages treat bool as a kind of int, so True == 1; the spec says they are different types.
+	add("target-eq-number-vs-bool", "number 1 does not equal true", mk("f", true, []Rule{{"x", "eq", 1}}, 100, nil), "f", Context{Attributes: attrs("x", true)}, "TARGETING_MISS", "")
+	add("target-eq-bool-vs-number", "true does not equal number 1", mk("f", true, []Rule{{"x", "eq", true}}, 100, nil), "f", Context{Attributes: attrs("x", 1)}, "TARGETING_MISS", "")
+	add("target-eq-zero-vs-false", "number 0 does not equal false", mk("f", true, []Rule{{"x", "eq", 0}}, 100, nil), "f", Context{Attributes: attrs("x", false)}, "TARGETING_MISS", "")
+	add("target-eq-false-vs-zero", "false does not equal number 0", mk("f", true, []Rule{{"x", "eq", false}}, 100, nil), "f", Context{Attributes: attrs("x", 0)}, "TARGETING_MISS", "")
+	add("target-in-numbers-vs-bool", "true is not a member of [1, 2]", mk("f", true, []Rule{{"x", "in", arr(1, 2)}}, 100, nil), "f", Context{Attributes: attrs("x", true)}, "TARGETING_MISS", "")
+	add("target-neq-number-vs-bool", "different types are not equal, so neq passes", mk("f", true, []Rule{{"x", "neq", 1}}, 100, nil), "f", Context{Attributes: attrs("x", true)}, "ON", "")
 	add("target-eq-bool-vs-string", `true does not equal "true"`, mk("f", true, []Rule{{"beta", "eq", true}}, 100, nil), "f", Context{Attributes: attrs("beta", "true")}, "TARGETING_MISS", "")
 	add("target-neq-pass", "neq differs", mk("f", true, ukRule("neq", "TH"), 100, nil), "f", Context{Attributes: attrs("country", "US")}, "ON", "")
 	add("target-neq-fail", "neq equal", mk("f", true, ukRule("neq", "TH"), 100, nil), "f", Context{Attributes: attrs("country", "TH")}, "TARGETING_MISS", "")

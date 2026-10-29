@@ -47,6 +47,14 @@ describe("auth on the admin API (BR-10, BR-12)", () => {
     assertError(await call("POST", "/v1/events", { rawBody: "{oops", auth: "bad-client" }), 401, "UNAUTHORIZED");
   });
 
+  test("a key header with characters outside ASCII is just a wrong key (BR-55)", async () => {
+    // hmac.compare_digest(str, str) raises on non-ASCII text; a 500 here would be an easy denial of service
+    for (const value of ["caf\u00e9", "\u00ff\u00fe", "a".repeat(5000), "a b"]) {
+      assertError(await get("/v1/flags", { auth: "none", headers: { "x-admin-key": value } }), 401, "UNAUTHORIZED");
+    }
+    assertError(await post("/v1/evaluate", {}, { auth: "none", headers: { "x-client-key": "caf\u00e9" } }), 401, "UNAUTHORIZED");
+  });
+
   test("a rejected create leaves no flag behind", async () => {
     await post("/v1/flags", { key }, { auth: "client" });
     assertError(await get(`/v1/flags/${key}`), 404, "FLAG_NOT_FOUND");
@@ -212,6 +220,59 @@ describe("request body handling (BR-52)", () => {
     assert.equal(res.status, 201);
   });
 
+  test("things that are not standard JSON are rejected (NaN, leading zeros, comments, ...)", async () => {
+    // Python's json.loads accepts NaN and Infinity; JSON5 and JavaScript literals accept the rest.
+    const bodies = [
+      '{"key":"nojson","rolloutPercent":NaN}', '{"key":"nojson","rolloutPercent":Infinity}', '{"key":"nojson","rolloutPercent":-Infinity}',
+      '{"key":"nojson","rolloutPercent":01}', '{"key":"nojson","rolloutPercent":.5}', '{"key":"nojson","rolloutPercent":1.}',
+      '{"key":"nojson","rolloutPercent":+1}', '{"key":"nojson","rolloutPercent":0x10}', '{"key":"nojson",}', "[1,]", "{'key':'nojson'}",
+      '/*c*/{"key":"nojson"}', '{"key":"nojson"} // c', '{"key":"no\njson"}', '{"key":"nojson","description":"a\tb"}',
+      '{"key":"nojson","description":"\\x41"}', '{"key":"nojson","description":"\\u12"}', '\uFEFF{"key":"nojson"}', '{"key":"nojson"}\u0000', "{key:\"nojson\"}",
+    ];
+    for (const rawBody of bodies) assertError(await call("POST", "/v1/flags", { rawBody }), 400, "VALIDATION_ERROR");
+    assertError(await get("/v1/flags/nojson"), 404, "FLAG_NOT_FOUND");
+  });
+
+  test("numbers JSON allows but a careless parser might not: -0, 1E2, 1e+2 for rolloutPercent", async () => {
+    for (const [literal, want] of [["-0", 0], ["1E2", 100], ["1e+2", 100], ["0e0", 0], ["5.0E0", 5]]) {
+      const key = uniqueKey();
+      const res = await call("POST", "/v1/flags", { rawBody: `{"key":"${key}","rolloutPercent":${literal}}` });
+      fx.track(key);
+      assert.equal(res.status, 201, `${literal}: ${res.text}`);
+      assert.equal(res.body.rolloutPercent, want, literal);
+    }
+  });
+
+  test("invalid UTF-8, UTF-16 and other encodings are rejected, not repaired (BR-52)", async () => {
+    const utf16 = (s, bom) => Buffer.concat([bom ? Buffer.from([0xff, 0xfe]) : Buffer.alloc(0), Buffer.from(s, "utf16le")]);
+    const bodies = {
+      "a 0xFF byte inside a string": Buffer.concat([Buffer.from('{"key":"u8","description":"'), Buffer.from([0xff]), Buffer.from('"}')]),
+      "a truncated multi-byte sequence": Buffer.concat([Buffer.from('{"key":"u8","description":"'), Buffer.from([0xc3, 0x28]), Buffer.from('"}')]),
+      "a surrogate encoded as UTF-8 (CESU-8)": Buffer.concat([Buffer.from('{"key":"u8","description":"'), Buffer.from([0xed, 0xa0, 0x80]), Buffer.from('"}')]),
+      "an overlong encoding of '/'": Buffer.concat([Buffer.from('{"key":"u8","description":"'), Buffer.from([0xc0, 0xaf]), Buffer.from('"}')]),
+      "UTF-16LE with a BOM": utf16('{"key":"u8"}', true),
+      "UTF-16LE without a BOM": utf16('{"key":"u8"}', false),
+    };
+    for (const [name, rawBody] of Object.entries(bodies)) assertError(await call("POST", "/v1/flags", { rawBody }), 400, "VALIDATION_ERROR");
+    assertError(await get("/v1/flags/u8"), 404, "FLAG_NOT_FOUND");
+  });
+
+  test("absurdly deep nesting is a 400, not a crash (BR-52)", async () => {
+    for (const rawBody of ["[".repeat(100000), '{"a":'.repeat(50000), `{"key":"deep","description":${"[".repeat(20000)}${"]".repeat(20000)}}`]) {
+      assertError(await call("POST", "/v1/flags", { rawBody }), 400, "VALIDATION_ERROR");
+    }
+    assertError(await get("/v1/flags/deep"), 404, "FLAG_NOT_FOUND");
+  });
+
+  test("a repeated key in a JSON object: the last value wins (BR-52)", async () => {
+    const [first, second] = [uniqueKey(), uniqueKey()];
+    const res = await call("POST", "/v1/flags", { rawBody: `{"key":"${first}","key":"${second}"}` });
+    fx.track(second);
+    assert.equal(res.status, 201, res.text);
+    assert.equal(res.body.key, second);
+    assertError(await get(`/v1/flags/${first}`), 404, "FLAG_NOT_FOUND");
+  });
+
   const MIB = 1024 * 1024;
   test("a body of exactly 1 MiB is accepted", async () => {
     const key = uniqueKey();
@@ -256,6 +317,14 @@ describe("description length counts Unicode code points (BR-04)", () => {
 describe("read and list (BR-05, BR-50)", () => {
   test("unknown flag -> 404 FLAG_NOT_FOUND", async () => {
     assertError(await get(`/v1/flags/${uniqueKey("none")}`), 404, "FLAG_NOT_FOUND");
+  });
+
+  test("a key that cannot be decoded as UTF-8 is just a flag that does not exist (BR-55)", async () => {
+    for (const encoded of ["%FF", "%C3%28", "%ED%A0%80", "%C0%AF", "%00", "%7F", "a%FFb", "%F0%9F%98"]) {
+      assertError(await get(`/v1/flags/${encoded}`), 404, "FLAG_NOT_FOUND");
+      assertError(await del(`/v1/flags/${encoded}`), 404, "FLAG_NOT_FOUND");
+      assertError(await get(`/v1/flags/${encoded}/results?goal=g`), 404, "FLAG_NOT_FOUND");
+    }
   });
 
   test("a key longer than any real key is simply not found, however long (BR-05)", async () => {

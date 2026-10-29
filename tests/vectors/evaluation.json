@@ -267,6 +267,177 @@
       }
     },
     {
+      "id": "target-eq-number-vs-bool",
+      "description": "number 1 does not equal true",
+      "flagKey": "f",
+      "flag": {
+        "key": "f",
+        "enabled": true,
+        "rules": [
+          {
+            "attribute": "x",
+            "operator": "eq",
+            "value": 1
+          }
+        ],
+        "rolloutPercent": 100,
+        "variants": []
+      },
+      "context": {
+        "attributes": {
+          "x": true
+        }
+      },
+      "expected": {
+        "enabled": false,
+        "variant": null,
+        "reason": "TARGETING_MISS"
+      }
+    },
+    {
+      "id": "target-eq-bool-vs-number",
+      "description": "true does not equal number 1",
+      "flagKey": "f",
+      "flag": {
+        "key": "f",
+        "enabled": true,
+        "rules": [
+          {
+            "attribute": "x",
+            "operator": "eq",
+            "value": true
+          }
+        ],
+        "rolloutPercent": 100,
+        "variants": []
+      },
+      "context": {
+        "attributes": {
+          "x": 1
+        }
+      },
+      "expected": {
+        "enabled": false,
+        "variant": null,
+        "reason": "TARGETING_MISS"
+      }
+    },
+    {
+      "id": "target-eq-zero-vs-false",
+      "description": "number 0 does not equal false",
+      "flagKey": "f",
+      "flag": {
+        "key": "f",
+        "enabled": true,
+        "rules": [
+          {
+            "attribute": "x",
+            "operator": "eq",
+            "value": 0
+          }
+        ],
+        "rolloutPercent": 100,
+        "variants": []
+      },
+      "context": {
+        "attributes": {
+          "x": false
+        }
+      },
+      "expected": {
+        "enabled": false,
+        "variant": null,
+        "reason": "TARGETING_MISS"
+      }
+    },
+    {
+      "id": "target-eq-false-vs-zero",
+      "description": "false does not equal number 0",
+      "flagKey": "f",
+      "flag": {
+        "key": "f",
+        "enabled": true,
+        "rules": [
+          {
+            "attribute": "x",
+            "operator": "eq",
+            "value": false
+          }
+        ],
+        "rolloutPercent": 100,
+        "variants": []
+      },
+      "context": {
+        "attributes": {
+          "x": 0
+        }
+      },
+      "expected": {
+        "enabled": false,
+        "variant": null,
+        "reason": "TARGETING_MISS"
+      }
+    },
+    {
+      "id": "target-in-numbers-vs-bool",
+      "description": "true is not a member of [1, 2]",
+      "flagKey": "f",
+      "flag": {
+        "key": "f",
+        "enabled": true,
+        "rules": [
+          {
+            "attribute": "x",
+            "operator": "in",
+            "value": [
+              1,
+              2
+            ]
+          }
+        ],
+        "rolloutPercent": 100,
+        "variants": []
+      },
+      "context": {
+        "attributes": {
+          "x": true
+        }
+      },
+      "expected": {
+        "enabled": false,
+        "variant": null,
+        "reason": "TARGETING_MISS"
+      }
+    },
+    {
+      "id": "target-neq-number-vs-bool",
+      "description": "different types are not equal, so neq passes",
+      "flagKey": "f",
+      "flag": {
+        "key": "f",
+        "enabled": true,
+        "rules": [
+          {
+            "attribute": "x",
+            "operator": "neq",
+            "value": 1
+          }
+        ],
+        "rolloutPercent": 100,
+        "variants": []
+      },
+      "context": {
+        "attributes": {
+          "x": true
+        }
+      },
+      "expected": {
+        "enabled": true,
+        "variant": null,
+        "reason": "ON"
+      }
+    },
+    {
       "id": "target-eq-bool-vs-string",
       "description": "true does not equal \"true\"",
       "flagKey": "f",

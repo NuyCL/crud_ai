@@ -60,6 +60,7 @@
 
 - **attribute ที่ไม่มีใน context = rule ไม่ผ่าน** ทุก operator (รวม `neq` และ `not_in`)
 - เทียบเท่ากันต้อง **ชนิดเดียวกัน**: `"1"` (string) ไม่เท่ากับ `1` (number) ไม่มีการแปลงชนิด
+- ชนิดมี 3 อย่างคือ string, number, boolean: **boolean ไม่ใช่ number** (`true` ไม่เท่ากับ `1`, `false` ไม่เท่ากับ `0` แม้ในภาษาที่ boolean เป็นชนิดย่อยของ integer เช่น Python) ส่วน number ทุกค่าเทียบกันแบบ IEEE 754 double: `1` เท่ากับ `1.0` และ `9007199254740993` เท่ากับ `9007199254740992`
 - string เทียบแบบ case-sensitive เทียบ byte ต่อ byte (ไม่ normalize Unicode)
 - `userId` **ไม่ใช่** attribute (ใช้ rule กับ userId ไม่ได้)
 - ชื่อ attribute เป็น string ธรรมดาทุกชื่อ ชื่อที่ตรงกับสมาชิกสำเร็จรูปของ object ในบางภาษา (`constructor`, `toString`, `__proto__`) ก็ไม่ใช่ข้อยกเว้น: ถ้า context ไม่ได้ส่งมาจริง ถือว่า **ไม่มี** (rule ไม่ผ่าน) และถ้าส่งมา ก็เทียบค่าตามปกติ

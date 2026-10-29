@@ -58,16 +58,24 @@ export function buildApp(svc: Service, cfg: HandlerConfig): FastifyInstance {
     // Errors Fastify raises before routing (for example a malformed percent-escape in the URL) would
     // otherwise bypass setErrorHandler and use Fastify's own response shape.
     // (The cast: the reply type of this callback is a generic that does not accept a plain status code.)
-    frameworkErrors: (_error, _request, reply) => (reply as FastifyReply).code(400).send(errorBody("VALIDATION_ERROR", "malformed request")),
+    frameworkErrors: (_error, request, reply) => {
+      // BR-55: "%FF" is a well-formed escape that decodes to bytes which are not UTF-8: no flag has
+      // such a key, so it is a 404. A broken escape such as "%zz" or a trailing "%" is a 400.
+      const path = request.url.split("?")[0] ?? "";
+      if (!/%(?![0-9A-Fa-f]{2})/.test(path)) return (reply as FastifyReply).code(404).send(errorBody("FLAG_NOT_FOUND", "flag not found"));
+      return (reply as FastifyReply).code(400).send(errorBody("VALIDATION_ERROR", "malformed request"));
+    },
   });
 
   // BR-52: the body is always read as JSON, whatever the Content-Type says. By default Fastify
   // answers 415 for form content types or a missing one, hands text/plain through as a raw string,
   // and rejects any body containing a "__proto__" key. Our own parser has none of those behaviours.
   app.removeAllContentTypeParsers();
-  app.addContentTypeParser("*", { parseAs: "string" }, (_request, body, done) => {
+  // fatal: invalid UTF-8 is an error, not U+FFFD. ignoreBOM: keep a BOM so that JSON.parse rejects it.
+  const utf8 = new TextDecoder("utf-8", { fatal: true, ignoreBOM: true });
+  app.addContentTypeParser("*", { parseAs: "buffer" }, (_request, body, done) => {
     try {
-      done(null, JSON.parse(body as string)); // JSON.parse rejects anything after the first value
+      done(null, JSON.parse(utf8.decode(body as Buffer))); // JSON.parse rejects anything after the first value
     } catch {
       done(validationError("request body must be valid JSON"));
     }
