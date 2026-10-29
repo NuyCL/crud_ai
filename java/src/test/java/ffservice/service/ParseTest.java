@@ -40,7 +40,7 @@ class ParseTest {
 
   @ParameterizedTest
   @ValueSource(strings = {
-      "caf\u00e9", "\u0e01", "-a", "_a", "A", "a b", "a.b", "a/b", "a\n", "\n", "a\u0000", "\u0663", "", " "})
+      "caf\u00e9", "\u0e01", "-a", "_a", "A", "aB", "Ab", "a-B", "a b", "a.b", "a/b", "a\n", "\n", "a\u0000", "\u0663", "", " "})
   void br01InvalidKeys(String key) {
     // "a\n" is accepted by a regex that ends in `$`; "\u0663" (Arabic-Indic three) by one that uses \d
     assertEquals("INVALID_KEY", flagCode("{\"key\":" + ffservice.model.Json.stringify(key) + "}"), key);
@@ -134,6 +134,10 @@ class ParseTest {
         .mapToObj(i -> "{\"key\":\"v" + i + "\",\"weight\":10}").toList());
     assertEquals("", variantsCode("[" + many + "]"));
     assertEquals("INVALID_VARIANTS", variantsCode("[" + many + ",{\"key\":\"x\",\"weight\":1}]"));
+    // 11 variants whose weights do add up to 100: only the count can reject them
+    String eleven = String.join(",", java.util.stream.IntStream.range(0, 11)
+        .mapToObj(i -> "{\"key\":\"v" + i + "\",\"weight\":" + (i == 0 ? 10 : 9) + "}").toList());
+    assertEquals("INVALID_VARIANTS", variantsCode("[" + eleven + "]"));
     assertEquals("INVALID_VARIANTS", variantsCode("[" + a + ",[]," + b + "]"));
   }
 

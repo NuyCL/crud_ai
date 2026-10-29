@@ -329,6 +329,17 @@ class ApiTest {
   }
 
   @Test
+  void aPercentEncodedPathKeyIsDecodedBeforeTheLookup() throws IOException {
+    send("POST", "/v1/flags", "{\"key\":\"a-b\",\"enabled\":true}", "admin");
+    for (String target : List.of("/v1/flags/a%2Db", "/v1/flags/%61-%62", "/v1/flags/a-b")) {
+      assertEquals("a-b", ((Map<?, ?>) send("GET", target, "", "admin").json()).get("key"), target);
+    }
+    assertEquals(200, send("GET", "/v1/flags/a%2Db/results?goal=g", "", "admin").status());
+    assertEquals(200, send("PUT", "/v1/flags/%61%2Db", "{\"key\":\"a-b\",\"description\":\"d\"}", "admin").status());
+    assertEquals(204, send("DELETE", "/v1/flags/a%2db", "", "admin").status());
+  }
+
+  @Test
   void aSemicolonInAPathKeyIsPartOfTheKeyNotAMatrixParameter() throws IOException {
     send("POST", "/v1/flags", "{\"key\":\"a\"}", "admin");
     assertError(send("GET", "/v1/flags/a;b", "", "admin"), 404, "FLAG_NOT_FOUND"); // not flag "a"

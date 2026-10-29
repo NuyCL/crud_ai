@@ -59,7 +59,7 @@ model       Flag, Rule, Variant, Context, EvaluationResult
 
 ## คำสั่ง gate ต่อภาษา
 
-> **สถานะ:** แถว **Go, TypeScript, Python และ Java ทดสอบกับโค้ดจริงแล้ว** (build/lint/test รันผ่าน) แถวอื่นเป็นข้อเสนอเริ่มต้นที่ยังไม่ได้ทดสอบ (ยังไม่มี implementation) เมื่อมีโค้ดของภาษานั้นให้แก้ให้ตรงกับของจริง skill และเอกสาร workshop อ้างอิงตารางนี้ที่เดียว
+> **สถานะ:** แถว **ทั้งห้าภาษา (Go, TypeScript, Python, Java, Rust) ทดสอบกับโค้ดจริงแล้ว** (build/lint/test รันผ่าน) skill และเอกสาร workshop อ้างอิงตารางนี้ที่เดียว
 
 รันในโฟลเดอร์ของภาษานั้น (`go/`, `typescript/`, ...) ถ้าทำงานทีละ layer ให้กรอง test ด้วย package/path ของ layer นั้น
 
@@ -69,13 +69,15 @@ model       Flag, Rule, Variant, Context, EvaluationResult
 | TypeScript | `npm run build` | `npm run lint` (typescript-eslint **strict + stylistic**) | `npm test` | `node dist/server.js` |
 | Python | `python -m compileall -q app tests` ² | `ruff check . && ruff format --check .` | `pytest` | `python -m app.main` (อ่าน `PORT`) หรือ `uvicorn app.main:app --port 8080` |
 | Java | `mvn -q -DskipTests package` | `mvn -q checkstyle:check` ³ | `mvn -q test` | `java -jar target/ffservice.jar` |
-| Rust | `cargo build` | `cargo fmt --check && cargo clippy -- -D warnings` | `cargo test` | `cargo run --release` |
+| Rust | `cargo build` | `cargo fmt --check && cargo clippy --all-targets -- -D warnings` ⁴ | `cargo test` | `cargo run --release` |
 
 ¹ `-count=1` จำเป็น: vectors อยู่นอกโมดูล Go จึงไม่ถูกนับเป็นอินพุตของ cache และ `go test` จะแสดง `(cached)` ทั้งที่ไฟล์เปลี่ยนไปแล้ว
 
 ² ไม่ใช้ `.` เพราะ `python/.venv` อยู่ในโฟลเดอร์เดียวกัน (compileall จะเดินเข้าไปคอมไพล์ทุก package ที่ติดตั้ง) ต้องสร้าง venv ก่อน: `python3 -m venv .venv && .venv/bin/pip install -r requirements-dev.txt` และรันคำสั่งผ่าน `.venv/bin/…`
 
 ³ ต้องมี `java/checkstyle.xml` (อยู่ในโปรเจกต์) และ `mvn` ต้องดาวน์โหลด plugin ครั้งแรก; JVM ที่อยู่ใน locale POSIX สร้างชื่อไฟล์ non-ASCII ไม่ได้ (กระทบ `DB_PATH` เท่านั้น)
+
+⁴ ต้องมี `rust/rustfmt.toml` (`max_width = 120`) และ C compiler (SQLite ถูกคอมไพล์รวม); `tokio`, `serde_json`, `http-body-util` เป็น dependency ที่ axum ใช้อยู่ — ข้อสมมติที่ต้องยืนยัน
 
 **Contract test** (ทุกภาษาเหมือนกัน): เริ่ม server ด้วย `ADMIN_KEY=test-admin-key CLIENT_KEY=test-client-key PORT=8080 DB_PATH=<ไฟล์ชั่วคราว>` แล้วรัน
 

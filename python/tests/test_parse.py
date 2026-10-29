@@ -41,6 +41,9 @@ def flag_code(text: str) -> str:
         ("-a", False),
         ("_a", False),
         ("A", False),
+        ("aB", False),
+        ("Ab", False),
+        ("a-B", False),
         ("a b", False),
         ("a.b", False),
         ("a/b", False),
@@ -150,6 +153,9 @@ def test_br31_to_br34_variants() -> None:
     many = ",".join(f'{{"key":"v{i}","weight":10}}' for i in range(10))
     assert v(f"[{many}]") == ""
     assert v(f'[{many},{{"key":"x","weight":1}}]') == "INVALID_VARIANTS"
+    # 11 variants whose weights do add up to 100: only the count can reject them
+    eleven = ",".join(f'{{"key":"v{i}","weight":{10 if i == 0 else 9}}}' for i in range(11))
+    assert v(f"[{eleven}]") == "INVALID_VARIANTS"
     assert v(f"[{a},[],{b}]") == "INVALID_VARIANTS"
 
 

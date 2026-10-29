@@ -260,6 +260,15 @@ def test_br55_a_path_key_that_is_not_utf8_is_just_not_found(app, key: str) -> No
     assert send(app, "GET", f"/v1/flags/{key}/results?goal=g").code == "FLAG_NOT_FOUND"
 
 
+def test_a_percent_encoded_path_key_is_decoded_before_the_lookup(app) -> None:
+    send(app, "POST", "/v1/flags", '{"key":"a-b","enabled":true}')
+    for target in ("/v1/flags/a%2Db", "/v1/flags/%61-%62", "/v1/flags/a-b"):
+        assert send(app, "GET", target).json["key"] == "a-b", target
+    assert send(app, "GET", "/v1/flags/a%2Db/results?goal=g").status == 200
+    assert send(app, "PUT", "/v1/flags/%61%2Db", '{"key":"a-b","description":"d"}').status == 200
+    assert send(app, "DELETE", "/v1/flags/a%2db").status == 204
+
+
 def test_a_broken_percent_escape_is_a_400_not_a_404(app) -> None:
     for target in ("/v1/flags/%zz", "/v1/flags/a%", "/v1/flags/%4"):
         r = send(app, "GET", target)
