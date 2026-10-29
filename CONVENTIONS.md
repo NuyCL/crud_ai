@@ -91,6 +91,16 @@ node --test --test-concurrency=1 "tests/contract/*.test.mjs"
 
 ทุก task ถือว่า "เสร็จ" เมื่อ build + lint + test + contract ผ่านครบ และไม่มี warning ใหม่
 
+## SDK ฝั่ง web (`sdk-js/`)
+
+ไม่ใช่การแปลจาก Go แต่สร้างจาก `spec/openapi.yaml` จึงไม่ใช้ contract test; ตัดสินด้วย unit (fake fetch), spec test และ integration กับ service จริง
+
+| build | lint | test | ขนาด |
+|---|---|---|---|
+| `npm run build` | `npm run lint` (typescript-eslint strict + stylistic) | `npm test` (build + unit + spec + integration; เปิด `tools/mock-server` เอง หรือใช้ `FF_BASE_URL`) | `npm run size` (gzip < 5120 ไบต์) |
+
+dev dependencies (`esbuild`, `typescript`, `eslint`, `typescript-eslint`, `@types/node`) ไม่อยู่ในตาราง library ด้านบน — **ข้อสมมติที่ต้องยืนยัน** (เหมือน `typescript/`); runtime dependency: ไม่มี
+
 ## การทำงานร่วมกับ AI
 
 - แปลทีละ layer ตามลำดับ model → evaluation → repository → service → handler → main (evaluation มาก่อนเพราะเป็น pure function ที่ `tests/vectors/` ตัดสินได้ทันที)

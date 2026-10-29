@@ -130,7 +130,7 @@ kill $SVC_PID
 rm -f go/contract.db go/contract.db-shm go/contract.db-wal go/ffservice
 ```
 
-ผลที่ถูกต้อง: `# pass 313`, `# fail 0`, `# skipped 0` เหมือนที่ mock ผ่าน (เฉลยผ่านตั้งแต่รันครั้งแรกกับ Go ตอนที่ชุด test ยังมี 258 ข้อ ต่อมาชุดโตเป็น 313 ระหว่าง step 8–9 โดยที่ Go ต้องถูกแก้ 1 จุด: ดู [`lessons/typescript.md`](../../../lessons/typescript.md) ข้อ 2)
+ผลที่ถูกต้อง: `# pass 333`, `# fail 0`, `# skipped 0` เหมือนที่ mock ผ่าน (เฉลยผ่านตั้งแต่รันครั้งแรกกับ Go ตอนที่ชุด test ยังมี 258 ข้อ ต่อมาชุดโตเป็น 313 ระหว่าง step 8–9 โดยที่ Go ต้องถูกแก้ 1 จุด: ดู [`lessons/typescript.md`](../../../lessons/typescript.md) ข้อ 2 และเป็น 333 ใน step 10 โดย Go ต้องถูกแก้อีก 1 จุด: อ่านทั้งก้อนแล้วตรวจ UTF-8, ดู [`lessons/python.md`](../../../lessons/python.md))
 
 ถ้า fail ให้ส่งชื่อ test และข้อความ error กลับให้ AI **ไม่เกิน 3 รอบ** แล้วคนเข้ามาอ่านเอง:
 
@@ -144,8 +144,8 @@ test เหล่านี้ fail กับ Go server: <วางชื่อ t
 
 | ตรวจอะไร | วิธี | ผล |
 |---|---|---|
-| data race | build ด้วย `go build -race` แล้วรัน contract test ทั้งแบบเรียงและขนาน | 0 race; เรียง 313/313, ขนาน 312 ผ่าน + 1 skipped (ข้อแบ่งหน้า) |
-| ใช้ database ซ้ำ | รัน contract test ซ้ำรอบที่สองบน server เดิม | 313/313 |
+| data race | build ด้วย `go build -race` แล้วรัน contract test ทั้งแบบเรียงและขนาน | 0 race; เรียง 313/313, ขนาน 312 ผ่าน + 1 skipped (ข้อแบ่งหน้า) (ตรวจตอนชุดมี 313 ข้อ) |
+| ใช้ database ซ้ำ | รัน contract test ซ้ำรอบที่สองบน server เดิม | 313/313 (ตอนชุดมี 313 ข้อ) |
 | ข้อมูลอยู่รอดหลังรีสตาร์ท | สร้าง flag (description ไทย+emoji) → ปิด → เปิดใหม่ → อ่าน | ข้อมูลและ UTF-8 ครบ |
 | โหมด MVP1 | `CONTRACT_MVP=1` | 154 ผ่าน, 52 ข้าม |
 | mutation ระดับ HTTP | ใส่ bug ในโค้ด Go แล้ว build ใหม่ รัน contract test | 6/6 ถูกจับ: นับ description เป็นไบต์, client key ได้ 401 แทน 403, list ไม่สนใจ offset, ไม่ใช้ `UseNumber`, PUT รีเซ็ต `createdAt`, exposure หลังทับแรก |

@@ -11,7 +11,7 @@
 | ตรวจอะไร | ผล |
 |---|---|
 | `npm run build && npm run lint && npm test` | ผ่าน: unit test 161 ข้อ (รวม vectors ทั้ง 4 ไฟล์), lint แบบ **strict + stylistic** |
-| contract test กับ server จริง | **313/313** ผ่านรอบแรก ทั้งแบบเรียง ขนาน และรันซ้ำบน database เดิม |
+| contract test กับ server จริง | **313/313** ผ่านรอบแรก ทั้งแบบเรียง ขนาน และรันซ้ำบน database เดิม (ชุดต่อมาเป็น 333 ข้อ ใน step 10: TypeScript ผ่านหลังแก้ parser และ frameworkErrors) |
 | mutation check | unit: evaluation 7/7, repository 9/9, service 19/19; HTTP: handler 9/9 (หลังเติม test 1 ข้อ) |
 | differential test กับ Go | 0 ความต่างใน seed 1–9 (ก่อนเพิ่ม scenario สถิติ) และ 11–14 (หลังเพิ่ม) |
 
@@ -125,7 +125,7 @@ kill $SVC_PID
 rm -f typescript/contract.db typescript/contract.db-shm typescript/contract.db-wal
 ```
 
-ผลที่ถูกต้อง: `# pass 313`, `# fail 0`, `# skipped 0`
+ผลที่ถูกต้อง: `# pass 333`, `# fail 0`, `# skipped 0`
 
 หรือใช้ `/verify-gates typescript` (step 7) ถ้า fail ส่งผลกลับให้ AI ด้วยรูปแบบเดียวกับ step 6.6 (วิเคราะห์ก่อนว่าโค้ด/test/สเปกผิด) ไม่เกิน 3 รอบต่อกลุ่มปัญหา
 
@@ -196,7 +196,7 @@ git add -A && git commit -m "TypeScript port: idiomatic pass and review"
 | คำสั่ง | ผลที่ถูกต้อง |
 |---|---|
 | `cd typescript && npm run build && npm run lint && npm test` | ผ่านทั้งหมด รวม vectors ทุกแถว |
-| contract test กับ TypeScript server (9.4) | `pass 313 / fail 0` เหมือน Go |
+| contract test กับ TypeScript server (9.4) | `pass 333 / fail 0` เหมือน Go |
 | `git diff --stat <commit ก่อนแปล> -- tests/contract tests/vectors spec` | มีเฉพาะที่เติมโดยตั้งใจ (step 8 และ 9.6–9.7) ไม่มีการแก้ test ที่เคยมีเพื่อให้ผ่าน |
 | differential test (9.7) | `0 differing responses` และ p-value ถูกคำนวณอย่างน้อย 1 ครั้ง |
 

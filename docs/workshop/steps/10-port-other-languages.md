@@ -1,72 +1,60 @@
 # Step 10: แปลเป็น Python, Java และ Rust
 
-> ⏳ **ฉบับร่าง:** ตาราง "กับดัก" และคำสั่งเป็นการคาดการณ์จากธรรมชาติของแต่ละภาษา ยังไม่ได้ยืนยันด้วยการแปลจริง ให้ตรวจกับรายงานของ step 8 และอัปเดตเอกสารนี้หลังทำจริง
+> ✅ **ทดสอบแล้ว:** ทำจริงครบทั้งสามภาษา ตัวเลขและบทเรียนอยู่ใน [`lessons/python.md`](../../../lessons/python.md), [`lessons/java.md`](../../../lessons/java.md), [`lessons/rust.md`](../../../lessons/rust.md) และตารางเปรียบเทียบใน [`lessons/comparison.md`](../../../lessons/comparison.md) (ข้อจำกัด: AI ตัวเดียวกันเขียนทั้งรายงานก่อนแปล โค้ด และ test ในบทสนทนาเดียว ไม่ได้ให้คนอื่นลองทำตามเอกสาร และไม่ได้บันทึกเวลา)
 
 **เป้าหมาย:** ใช้วงจรเดียวกับ [Step 9](09-port-typescript.md) กับอีกสามภาษา และเปรียบเทียบว่าภาษาไหนยากตรงไหน
-**เวลา:** 45 นาทีต่อภาษา · **ก่อนหน้า:** [Step 9](09-port-typescript.md) · **ถัดไป:** [Step 11](11-js-sdk.md)
+**เวลา:** 45 นาทีต่อภาษา (ตัวเลขเดิม ยังไม่ได้วัดจริง) · **ก่อนหน้า:** [Step 9](09-port-typescript.md) · **ถัดไป:** [Step 11](11-js-sdk.md)
 
-## ลำดับที่แนะนำ
+## ลำดับที่ทำ
 
-| ลำดับ | ภาษา | เหตุผล |
-|---|---|---|
-| 1 | **Python** | แปลง่ายสุดหลัง TypeScript แต่มีกับดักเรื่อง `bool` กับ `int` ที่สอนได้ดี |
-| 2 | **Java** | โครงสร้างชัด ต่างจาก Go ตรง exception และ framework ที่ทำเยอะเอง |
-| 3 | **Rust** | ห่างจาก Go สุด (ownership, ไม่มี exception, wrap integer ต้องบอกเอง) ทำท้ายสุดเพื่อให้บทเรียนจากสามภาษาแรกพร้อมแล้ว |
+| ลำดับ | ภาษา | เหตุผล | ผล |
+|---|---|---|---|
+| 0 | (ก่อนแปล) | รัน `spec-ambiguity-check python` แล้วเติมสเปกและ test **ก่อนเขียนโค้ดภาษาใหม่** | แก้สเปก BR-52/54/55 + `evaluation.md` 3.1, เพิ่ม contract 20 ข้อ (313 → 333) และ vectors 6 แถว; Go, TypeScript และ mock ล้มตามที่คาดและถูกแก้ |
+| 1 | **Python** | กับดัก `bool` กับ `int`, `NaN`, lone surrogate, `compare_digest` | contract 333/333 รอบแรก; differential พบ `%2F` (ข้อเดียวที่ contract ไม่มี) |
+| 2 | **Java** | โครงสร้างชัด framework ทำเยอะ | **ทดลอง HTTP server ก่อนเขียน handler → เปลี่ยน Tomcat เป็น Undertow และเลิกใช้ Spring MVC controller**; contract 333/333 รอบแรก |
+| 3 | **Rust** | ห่างจาก Go สุด | compile ผ่านรอบแรก ไม่มี borrow checker ปัญหา; contract 333/333 รอบแรก; ห้ามใช้ extractor `Path` ของ axum |
 
-**ทำทีละภาษาเท่านั้น** (ไม่ขนานกัน) เพราะบทเรียนและ prompt ที่ปรับแล้วจาก `lessons/<ภาษาก่อนหน้า>.md` ต้องเอาไปใช้กับภาษาถัดไป
+**ทำทีละภาษา** เพราะบทเรียนจากภาษาก่อนหน้าถูกใช้กับภาษาถัดไปจริง (เช่น Java และ Rust ทดลอง `%FF`/`%2F`/`;`/`%zz`/OPTIONS ก่อนเขียน handler เพราะ TypeScript และ Python เจอมาแล้ว)
 
 ## ขั้นตอนต่อภาษา (เหมือน step 9)
 
-1. [Step 8](08-pre-port-analysis.md): รายงานก่อนแปล แล้วคุณอนุมัติ
-2. สร้างโครงโปรเจกต์ (build, lint, test ผ่านโดยยังไม่มีโค้ด)
-3. `/port-layer <lang> <layer>` ทีละ layer ตามลำดับ `model → evaluation → repository → service → handler → main`
-4. รัน `/verify-gates <lang>`
-5. Idiomatic pass → diff review เทียบกับ Go และกับภาษาก่อนหน้า
-6. เขียน `lessons/<lang>.md` แล้ว **ปรับ** `CONVENTIONS.md`, skill และ prompt ก่อนเริ่มภาษาถัดไป
+1. [Step 8](08-pre-port-analysis.md): รายงานก่อนแปลใน `docs/porting/<lang>-analysis.md` — **ทดลอง framework กับ input ตรงขอบเสมอ** (ไม่เดาจากความจำ)
+2. สร้างโครงโปรเจกต์ที่ build/lint/test ผ่านก่อนมีโค้ด
+3. แปลทีละ layer `model → evaluation → repository → service → handler → main` (ตัวอย่างข้างล่างทำโดยบอก AI เป็นรอบเดียวต่อภาษา เพราะ layer เล็กและมี vectors ตัดสิน)
+4. รันทั้งชุด gate ([`CONVENTIONS.md`](../../../CONVENTIONS.md)) แล้ว **contract test กับ server จริง ทีละตัว**
+5. **mutation check** ([`tools/mutation-check/`](../../../tools/mutation-check)): ใส่ bug ทีละจุดแล้วดูว่า test จับไหม; mutation ที่รอด = test ขาด (หรือ mutation ซ้ำซ้อน: ตรวจให้แน่ใจก่อนว่าเปลี่ยนพฤติกรรมจริง)
+6. **differential test** vs Go (`tools/diff-servers`) หลาย seed
+7. เขียน `lessons/<lang>.md` แล้วปรับ `CONVENTIONS.md`
 
-## สิ่งที่คาดว่าจะพลาดแยกตามภาษา (คาดการณ์)
+## คำสั่ง gate ที่ทดสอบจริงแล้ว
 
-| ภาษา | กับดักตัวเลข/ข้อความ | สิ่งที่ framework ทำเองและขัดสเปก | ตัวจับ |
+| ภาษา | build | lint | unit test | เริ่ม server |
+|---|---|---|---|---|
+| Python | `python -m compileall -q app tests` | `ruff check . && ruff format --check .` | `pytest` | `python -m app.main` |
+| Java | `mvn -q -DskipTests package` | `mvn -q checkstyle:check` | `mvn -q test` | `java -jar target/ffservice.jar` |
+| Rust | `cargo build` | `cargo fmt --check && cargo clippy --all-targets -- -D warnings` | `cargo test` | `cargo run --release` |
+
+อ่านรายละเอียด (ติดตั้ง venv, ข้อสมมติเรื่อง dependency) ใน README ของแต่ละโฟลเดอร์และ [`CONVENTIONS.md`](../../../CONVENTIONS.md)
+
+## สิ่งที่พลาดจริง แยกตามภาษา (ตรงกับที่คาดไว้ใน step 8 / ไม่ตรง)
+
+| ภาษา | กับดักตัวเลข/ข้อความที่เจอ | สิ่งที่ framework ทำเองและขัดสเปก | ตัวจับ |
 |---|---|---|---|
-| **Python** | `(h * 16777619) & 0xFFFFFFFF` ต้อง mask เอง (int ไม่ล้น); `s.encode("utf-8")`; **`True == 1`** (bool เป็น subclass ของ int) ทำให้ `true` เท่ากับ `1` ใน rule | pydantic แปลง `"50"` เป็น `50` ได้เอง; FastAPI ตอบ 422 ตอน validation ผิด | `target-eq-bool-vs-string`, `rolloutPercent` เป็น string |
-| **Java** | `int` มีเครื่องหมาย ใช้ `Integer.toUnsignedLong` ก่อน `% 10000`; `String.length()` นับ UTF-16 ใช้ `codePointCount`; `getBytes(UTF_8)` | Jackson แปลง `"true"` เป็น boolean และเลขทศนิยมเป็น int ได้ตามตั้งค่า; Spring ตอบรูปแบบ error ของตัวเอง | bucketing, test "500 emoji", validation tests |
-| **Rust** | `h.wrapping_mul(16777619)` ไม่งั้น panic ใน debug; `s.as_bytes()` เป็น UTF-8 อยู่แล้ว; `chars().count()` สำหรับ code point; ตัวเลข JSON เป็น `i64/u64/f64` (10 กับ 10.0) | axum ปฏิเสธ body ผิดด้วยข้อความ/รูปแบบของตัวเอง ต้องทำ error handler เอง; `rusqlite::Connection` ไม่ `Sync` ต้องออกแบบการแชร์ | ทั้ง vectors และ validation |
+| **Python** | `& 0xFFFFFFFF` ต้อง mask เอง; **`True == 1`**; `json.loads` รับ `NaN`; lone surrogate (`"\ud800"`) ทำให้ encode ไม่ได้; `hmac.compare_digest(str)` crash กับ non-ASCII; `$`/`\d` ของ `re` | Starlette: `query_params.get` คืน**ค่าสุดท้าย**, redirect `/x/` → 307, `/docs` เปิดอยู่, handler ของ `Exception` ส่ง response แล้ว **raise ซ้ำ**, **ถอดรหัส `%2F` ก่อน routing** | vectors, contract, differential (`%2F`) |
+| **Java** | `byte` มีเครื่องหมายใน FNV; `String.getBytes` แทน lone surrogate ด้วย `?`; `Double.equals` (0.0 ≠ -0.0); `1e999999999999` โยน `NumberFormatException`; Jackson อ่าน `byte[]` แล้ว**เดา UTF-16** และไม่ปฏิเสธข้อมูลท้ายโดยปริยาย | **Tomcat/Jetty ตอบ 400 (HTML) กับ `%FF`, `%00`, `%2F` ก่อนโค้ดเรา**; Spring MVC ตัด `;param`, ตอบ `OPTIONS` 200 เอง, `GET /error` เป็น JSON ของ Boot | การทดลองก่อนเขียน handler, contract, mutation |
+| **Rust** | `*` panic ใน debug / wrap ใน release → `wrapping_mul`; `u16::from_str("+80")`; `HashMap` ลำดับไม่คงที่ | extractor `Path`/`RawPathParams` ของ axum **ตอบ 400 กับ `%FF` เอง**; 405 ต้องแปลงเป็น 404; panic ใน handler ปิด connection เงียบๆ | การทดลอง `rustprobe`, contract, mutation |
 
-หมายเหตุสำหรับทุกภาษา: ให้ AI **ยืนยันด้วยโค้ด** ว่า framework ทำอะไรให้เองบ้างตั้งแต่ step 8 (เขียน test เล็กๆ ที่ส่ง `"50"` ให้ฟิลด์ตัวเลข) ไม่ใช่เดาจากความจำ
+หมายเหตุ: **ผลสุดท้ายต่างจากที่ร่างไว้ก่อนทำ**: ร่างเดิมคาดว่า pydantic/Jackson จะแปลง `"50"` เป็น `50` และ Rust จะมีปัญหา borrow checker ซึ่งไม่ใช่ทั้งสองข้อ (เราไม่ใช้ pydantic รับ body; โครงสร้าง generic + closure ที่ยืม `&dyn Tx` ไม่ต้อง `.clone()` เพื่อเลี่ยง borrow) ปัญหาจริงคือ **HTTP stack ถอดรหัส path ก่อนถึงโค้ด**
 
-## สิ่งที่เรียนรู้แล้วจากการแปล TypeScript (ใช้ได้กับภาษาถัดไป)
+## บทเรียนที่ส่งต่อภาษาถัดไปได้ (สรุปจากสามภาษา)
 
-ดูละเอียดใน [`lessons/typescript.md`](../../../lessons/typescript.md) ที่เกี่ยวกับภาษาข้างบนโดยตรง:
-
-- **ทุกภาษา:** ทำ step 8 ให้ครบก่อนแปล โดยเฉพาะ "เติม test ก่อนแปล" และ **ทดลอง framework กับ route ที่มี parameter, ที่ไม่มี และที่ว่าง**; รัน `tools/diff-servers` เทียบกับ Go ตอนจบ (ต้องมี scenario ที่เข้าถึงสถิติ) และเทคนิค mutation check ของ [`tools/mutation-check/ts.sh`](../../../tools/mutation-check/ts.sh) เขียนเทียบเคียงได้ในทุกภาษา
-- **Python:** `$` ในรูปแบบของ `re` ตรงก่อน `\n` ท้ายสุดได้ (ใช้ `re.fullmatch` หรือ `\Z`) และ `\d` ตรงกับเลข Unicode (ใช้ `[0-9]`): contract test มีกรณี `abc\n` กับ `limit=%D9%A5` แล้ว; `math.erfc` มีในตัว; `datetime.fromisoformat` รับรูปแบบที่ RFC 3339 ไม่รับ (ตรวจเอง)
-- **Rust:** ไม่มี `erfc` ใน std ต้องเขียนเองให้ผ่าน `tests/vectors/erfc.json` (การประมาณแบบตำราผิดที่ ~1e-7 และไม่ผ่าน; ดูวิธีใน `typescript/src/service/erfc.ts`)
-- **Java:** `String.matches` ต้องตรงทั้งสตริงแต่ `Matcher.find()` กับ `$` ยอมรับ `\n` ท้ายสุด; ตรวจ framework (Spring) ว่ารับ Content-Type อื่น, ขนาด body, และ route ที่ไม่มีตามสเปกหรือไม่
-
-(รายการนี้มาจากความรู้ของภาษาเหล่านั้น ยังไม่ได้ทดลองกับโค้ดจริง ให้ยืนยันใน step 8 ของแต่ละภาษา)
-
-## คำสั่ง gate (ข้อเสนอเริ่มต้น เก็บจริงที่ [`CONVENTIONS.md`](../../../CONVENTIONS.md))
-
-| ภาษา | build / lint / unit test | เริ่ม server |
-|---|---|---|
-| Python | `ruff check . && ruff format --check . && pytest` | `uvicorn app.main:app --port 8080` |
-| Java | `mvn -q verify` | `java -jar target/*.jar` |
-| Rust | `cargo fmt --check && cargo clippy -- -D warnings && cargo test` | `cargo run --release` |
-
-## เปรียบเทียบหลังเสร็จทุกภาษา
-
-เก็บตารางนี้ไว้ใน `lessons/comparison.md`:
-
-| | Go | TypeScript | Python | Java | Rust |
-|---|---|---|---|---|---|
-| รอบแก้ถึงผ่าน gate (รวมทุก layer) | — | | | | |
-| gate ที่จับ bug ได้บ่อยสุด | — | | | | |
-| บรรทัดโค้ด (ไม่รวม test) | | | | | |
-| bug ที่ AI สร้างซ้ำในหลายภาษา | | | | | |
-| เวลารวม | | | | | |
+- **ทดลอง framework ก่อนเลือกโครงสร้าง**: ส่ง `%FF`, `%00`, `%2F`, `;`, `%zz`, `PATCH`/`OPTIONS`/`TRACE`/`HEAD`, header ไบต์ Latin-1, body UTF-16/invalid UTF-8/NaN/ซ้อนลึก/เลขยาวมาก, panic ใน handler ถ้า framework ทำให้ไม่ได้ ให้เปลี่ยน server หรือ routing เอง (Java)
+- **test ที่ผ่านรอบแรกยังไม่ใช่ test ที่ดี**: mutation check พบ test ที่ผมเขียนผิด 3 แบบซ้ำใน 3 ภาษา — oracle ที่ใช้ตรรกะเดียวกับโค้ด, กรณี "ล้ม" ที่ล้มด้วยเหตุผลอื่น (11 variants ที่น้ำหนักรวมเกิน 100 ถูกปฏิเสธเพราะผลรวม), กรณีที่ไม่ครอบคลุมตัวพิมพ์ใหญ่ปนกลาง
+- **differential test กับต้นฉบับยังจำเป็น** แม้ contract 333 ข้อผ่าน (Python: `%2F`) และ **ไม่พบอะไรเลยก็เป็นข้อมูล**: Java และ Rust 0 ความต่างเพราะการทดลองก่อนเขียนครอบคลุมแล้ว
+- รายงานช่องว่างของ vectors/contract ที่พบ แต่ **อย่าแก้ `tests/` เอง** ถ้ากติกาโปรเจกต์ห้าม: ดู `lessons/comparison.md` ข้อ 4
 
 ## ข้อควรระวัง
 
-- ถ้า **bug เดียวกันเกิดในทุกภาษา** ให้สงสัยสเปกหรือ test ก่อนสงสัย AI (เช่น สเปกไม่ได้บอกลำดับการตรวจ)
-- Rust: ถ้า AI แก้ borrow checker ด้วยการ `.clone()` หรือ `Arc<Mutex<...>>` ทุกที่ ให้ถามว่า "ออกแบบ ownership ให้ไม่ต้องใช้ได้ไหม" ใน idiomatic pass แต่ **หลังจาก** test ผ่านแล้วเท่านั้น
+- ถ้า **bug เดียวกันเกิดในทุกภาษา** ให้สงสัยสเปกหรือ test ก่อนสงสัย AI
+- Rust: ถ้า AI แก้ borrow checker ด้วย `.clone()` หรือ `Arc<Mutex<...>>` ทุกที่ ให้ถามว่า "ออกแบบ ownership ให้ไม่ต้องใช้ได้ไหม" ใน idiomatic pass แต่ **หลังจาก** test ผ่านแล้วเท่านั้น (รอบนี้ไม่เกิดขึ้น)
 - อย่าเปรียบเทียบความเร็วของภาษาด้วยโค้ดชุดนี้ มันไม่ได้ออกแบบมาเพื่อวัด performance
