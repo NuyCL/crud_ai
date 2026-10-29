@@ -70,6 +70,12 @@ describe("routes that do not exist (BR-53)", () => {
     ["PATCH", "/v1/flags"],
     ["POST", "/healthz"],
     ["DELETE", "/v1/evaluate"],
+    ["OPTIONS", "/v1/flags"],
+    ["OPTIONS", "/v1/evaluate"],
+    ["GET", "/error"],
+    ["GET", "/docs"],
+    ["GET", "/openapi.json"],
+    ["GET", "/actuator/health"],
   ];
   for (const [method, path] of routes) {
     for (const auth of ["admin", "none"]) {
@@ -78,6 +84,47 @@ describe("routes that do not exist (BR-53)", () => {
       });
     }
   }
+});
+
+describe("a method with no route for a path is 404 even when another method has one (BR-53)", () => {
+  test("PATCH, POST on /v1/flags/{key}, PUT on /v1/flags and POST on /results change nothing", async () => {
+    const f = await fx.create({ description: "before" });
+    assertError(await call("PATCH", `/v1/flags/${f.key}`, { body: { key: f.key, description: "after" } }), 404, "FLAG_NOT_FOUND");
+    assertError(await call("POST", `/v1/flags/${f.key}`, { body: { key: f.key } }), 404, "FLAG_NOT_FOUND");
+    assertError(await call("PUT", "/v1/flags", { body: { key: f.key } }), 404, "FLAG_NOT_FOUND");
+    assertError(await call("POST", `/v1/flags/${f.key}/results?goal=g`), 404, "FLAG_NOT_FOUND");
+    assert.equal((await get(`/v1/flags/${f.key}`)).body.description, "before");
+  });
+});
+
+describe("percent-encoded path keys (BR-55)", () => {
+  test("an encoded key is decoded before the lookup: it finds the flag it spells", async () => {
+    const key = uniqueKey("enc");
+    fx.track(key);
+    assert.equal((await post("/v1/flags", { key })).status, 201);
+    const encoded = key.replace("-", "%2D").replace("enc", "%65nc");
+    assert.notEqual(encoded, key);
+    for (const path of [`/v1/flags/${encoded}`, `/v1/flags/${key.replace("-", "%2d")}`]) {
+      const res = await get(path);
+      assert.equal(res.status, 200, path);
+      assert.equal(res.body.key, key);
+    }
+    assert.equal((await get(`/v1/flags/${encoded}/results?goal=g`)).status, 200);
+    assert.equal((await put(`/v1/flags/${encoded}`, { key, description: "d" })).status, 200);
+    assert.equal((await del(`/v1/flags/${encoded}`)).status, 204);
+  });
+
+  test("a slash in the key is part of the key: it is not another path segment", async () => {
+    assertError(await get("/v1/flags/a%2Fb"), 404, "FLAG_NOT_FOUND");
+    assertError(await put("/v1/flags/a%2Fb", { key: "a/b" }), 400, "INVALID_KEY");
+    assertError(await put("/v1/flags/a%2Fb", { key: "ab" }), 400, "KEY_IMMUTABLE");
+  });
+
+  test("a broken escape is a 400, whatever the body", async () => {
+    for (const path of ["/v1/flags/%zz", "/v1/flags/a%", "/v1/flags/%4"]) {
+      assert.equal((await get(path)).status, 400, path);
+    }
+  });
 });
 
 describe("create (BR-01, BR-02, BR-08)", () => {
@@ -231,6 +278,12 @@ describe("request body handling (BR-52)", () => {
     ];
     for (const rawBody of bodies) assertError(await call("POST", "/v1/flags", { rawBody }), 400, "VALIDATION_ERROR");
     assertError(await get("/v1/flags/nojson"), 404, "FLAG_NOT_FOUND");
+  });
+
+  test("NaN and Infinity are refused even in a field the service ignores", async () => {
+    for (const literal of ["NaN", "Infinity", "-Infinity"]) {
+      assertError(await call("POST", "/v1/flags", { rawBody: `{"key":"${uniqueKey()}","unknown":${literal}}` }), 400, "VALIDATION_ERROR");
+    }
   });
 
   test("numbers JSON allows but a careless parser might not: -0, 1E2, 1e+2 for rolloutPercent", async () => {

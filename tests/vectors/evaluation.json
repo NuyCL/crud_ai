@@ -1279,6 +1279,71 @@
       }
     },
     {
+      "id": "rollout-targeting-hit-no-user",
+      "description": "rules match but a rollout needs a userId: the check also runs when rules exist",
+      "flagKey": "rollout-flag",
+      "flag": {
+        "key": "rollout-flag",
+        "enabled": true,
+        "rules": [
+          {
+            "attribute": "country",
+            "operator": "eq",
+            "value": "TH"
+          }
+        ],
+        "rolloutPercent": 10,
+        "variants": []
+      },
+      "context": {
+        "attributes": {
+          "country": "TH"
+        }
+      },
+      "expected": {
+        "enabled": false,
+        "variant": null,
+        "reason": "MISSING_USER_ID"
+      }
+    },
+    {
+      "id": "variant-targeting-hit-no-user",
+      "description": "rules match but variants need a userId",
+      "flagKey": "checkout-button",
+      "flag": {
+        "key": "checkout-button",
+        "enabled": true,
+        "rules": [
+          {
+            "attribute": "country",
+            "operator": "eq",
+            "value": "TH"
+          }
+        ],
+        "rolloutPercent": 100,
+        "variants": [
+          {
+            "key": "blue",
+            "weight": 50
+          },
+          {
+            "key": "green",
+            "weight": 50
+          }
+        ]
+      },
+      "context": {
+        "attributes": {
+          "country": "TH"
+        }
+      },
+      "expected": {
+        "enabled": false,
+        "variant": null,
+        "reason": "MISSING_USER_ID"
+      }
+    },
+    {
       "id": "rollout-unicode-user",
       "description": "non-ASCII userId is accepted and bucketed (hash correctness is checked in bucketing.json)",
       "flagKey": "rollout-flag",

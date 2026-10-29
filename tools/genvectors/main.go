@@ -380,6 +380,8 @@ func genEvaluation(dir string) {
 	add("rollout-99-boundary-in", "bucket 9899 inside 99%", mk("rollout-flag", true, nil, 99, nil), "rollout-flag", Context{UserID: findUser("e99", "rollout-flag", "rollout", 9899)}, "ON", "")
 	add("rollout-99-boundary-out", "bucket 9900 outside 99%", mk("rollout-flag", true, nil, 99, nil), "rollout-flag", Context{UserID: findUser("e99", "rollout-flag", "rollout", 9900)}, "NOT_IN_ROLLOUT", "")
 	add("rollout-targeting-miss-no-user", "targeting runs before the userId check", mk("rollout-flag", true, ukRule("eq", "TH"), 10, nil), "rollout-flag", Context{Attributes: attrs("country", "US")}, "TARGETING_MISS", "")
+	add("rollout-targeting-hit-no-user", "rules match but a rollout needs a userId: the check also runs when rules exist", mk("rollout-flag", true, ukRule("eq", "TH"), 10, nil), "rollout-flag", Context{Attributes: attrs("country", "TH")}, "MISSING_USER_ID", "")
+	add("variant-targeting-hit-no-user", "rules match but variants need a userId", mk("checkout-button", true, ukRule("eq", "TH"), 100, []Variant{{"blue", 50}, {"green", 50}}), "checkout-button", Context{Attributes: attrs("country", "TH")}, "MISSING_USER_ID", "")
 	add("rollout-unicode-user", "non-ASCII userId is accepted and bucketed (hash correctness is checked in bucketing.json)", mk("rollout-flag", true, nil, 50, nil), "rollout-flag", Context{UserID: "ผู้ใช้-1"}, "NOT_IN_ROLLOUT", "")
 
 	// ---- variants

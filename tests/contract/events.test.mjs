@@ -267,6 +267,28 @@ describe("GET /v1/flags/{key}/results", mvp2, () => {
     assert.equal(t.significant, true);
   });
 
+  test("significant means pValue < 0.05: 33/200 vs 20/200 is not, 34/200 is (BR-42)", async () => {
+    for (const [treatment, p, significant] of [[33, 0.0552107, false], [34, 0.0405170, true], [31, 0.0991443, false]]) {
+      const goal = uniqueKey("goal");
+      const f = await abFlag();
+      const events = [];
+      for (let i = 0; i < 200; i++) events.push(exposure(f.key, `c${i}`, "control"), exposure(f.key, `t${i}`, "treatment"));
+      for (let i = 0; i < 20; i++) events.push(conversion(`c${i}`, goal));
+      for (let i = 0; i < treatment; i++) events.push(conversion(`t${i}`, goal));
+      await sendAll(events);
+      const [, t] = (await results(f.key, goal)).body.variants;
+      assert.ok(Math.abs(t.pValue - p) < 1e-5, `${treatment}/200: pValue ${t.pValue}`);
+      assert.equal(t.significant, significant, `${treatment}/200`);
+    }
+  });
+
+  test("a goal is percent-decoded", async () => {
+    const f = await abFlag();
+    for (const [raw, want] of [["buy%20now", "buy now"], ["a%2Bb", "a+b"], ["%E0%B8%81", "\u0e01"]]) {
+      assert.equal((await get(`/v1/flags/${f.key}/results?goal=${raw}`)).body.goal, want, raw);
+    }
+  });
+
   test("identical rates are not significant", async () => {
     const goal = uniqueKey("goal");
     const f = await abFlag();

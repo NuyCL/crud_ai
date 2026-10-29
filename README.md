@@ -2,7 +2,7 @@
 
 โปรเจกต์ฝึกเขียนโค้ดหลายภาษาและฝึกใช้ AI แปลโค้ดอย่างมีขั้นตอน โดยใช้โจทย์เป็น **microservice สำหรับ feature flag** ที่ต่อยอดไปเป็น **A/B testing** ได้
 
-> **สถานะ:** มีสเปก, test vectors, contract test (333 ข้อ), implementation 5 ภาษา — **Go** (ต้นฉบับ), **TypeScript**, **Python**, **Java**, **Rust** — ผ่านชุด test เดียวกัน และเทียบกับ Go ด้วย differential test แล้ว (0 ความต่างที่เหลือ) กับ **JS SDK** (MVP3, `sdk-js/`) สรุปรวมอยู่ที่ [`lessons/summary.md`](lessons/summary.md) เรื่องที่รอตัดสินใจ — ดู [`lessons/comparison.md`](lessons/comparison.md) ข้อ 4 (ช่องว่างของ test กลาง) และ [`sdk-js/README.md`](sdk-js/README.md) (CORS)
+> **สถานะ:** มีสเปก, test vectors, contract test (354 ข้อ), implementation 5 ภาษา — **Go** (ต้นฉบับ), **TypeScript**, **Python**, **Java**, **Rust** — ผ่านชุด test เดียวกัน และเทียบกับ Go ด้วย differential test แล้ว (0 ความต่างที่เหลือ) กับ **JS SDK** (MVP3, `sdk-js/`) สรุปรวมอยู่ที่ [`lessons/summary.md`](lessons/summary.md) เรื่องที่รอตัดสินใจ — ดู [`lessons/comparison.md`](lessons/comparison.md) ข้อ 4 (ช่องว่างของ test กลาง) และ [`sdk-js/README.md`](sdk-js/README.md) (CORS)
 
 | เอกสาร | เนื้อหา |
 |---|---|
@@ -10,7 +10,7 @@
 | [`spec/evaluation.md`](spec/evaluation.md) | ลำดับและอัลกอริทึมการประเมิน flag รวม bucketing |
 | [`spec/business-rules.md`](spec/business-rules.md) | กฎ BR-xx และรูปแบบ error |
 | [`tests/vectors/`](tests/vectors/README.md) | ข้อมูลทดสอบกลาง (fnv1a32 / bucketing / evaluation / erfc) |
-| [`tests/contract/`](tests/contract/README.md) | contract test ผ่าน HTTP (333 ข้อ) ใช้กับทุกภาษา |
+| [`tests/contract/`](tests/contract/README.md) | contract test ผ่าน HTTP (354 ข้อ) ใช้กับทุกภาษา |
 | [`docs/workshop/`](docs/workshop/README.md) | **คู่มือ workshop แบบ step-by-step** (ภาพรวม + เอกสารละเอียด 13 step) |
 | [`CONVENTIONS.md`](CONVENTIONS.md) | โครงสร้าง layer, library ต่อภาษา, กับดักต่อภาษา, คำสั่ง gate |
 | [`docs/porting/`](docs/porting) | รายงานวิเคราะห์ก่อนแปล ([TypeScript](docs/porting/typescript-analysis.md), [Python](docs/porting/python-analysis.md), [Java](docs/porting/java-analysis.md), [Rust](docs/porting/rust-analysis.md)) |

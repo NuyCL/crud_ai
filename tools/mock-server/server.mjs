@@ -303,6 +303,8 @@ function build(input, existing) {
 async function route(req, res) {
   const url = new URL(req.url, "http://x");
   const m = req.method;
+  // "%zz" is not a path at all (a well-formed "%FF" is: it is a key nobody has, BR-55)
+  if (/%(?![0-9A-Fa-f]{2})/.test(url.pathname)) throw bad("VALIDATION_ERROR", "malformed request");
   // "/v1/flags/" is not "/v1/flags": a trailing slash makes it a different, non-existent route.
   if (url.pathname.length > 1 && url.pathname.endsWith("/")) throw new HttpError(404, "FLAG_NOT_FOUND", "no such route");
   const parts = url.pathname.split("/").filter(Boolean);
