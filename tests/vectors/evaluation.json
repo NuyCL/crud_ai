@@ -1,0 +1,1861 @@
+{
+  "cases": [
+    {
+      "id": "basic-not-found",
+      "description": "flag does not exist",
+      "flagKey": "ghost-flag",
+      "flag": null,
+      "context": {
+        "userId": "u1"
+      },
+      "expected": {
+        "enabled": false,
+        "variant": null,
+        "reason": "FLAG_NOT_FOUND"
+      }
+    },
+    {
+      "id": "basic-disabled",
+      "description": "enabled=false",
+      "flagKey": "f",
+      "flag": {
+        "key": "f",
+        "enabled": false,
+        "rules": [],
+        "rolloutPercent": 100,
+        "variants": []
+      },
+      "context": {
+        "userId": "u1"
+      },
+      "expected": {
+        "enabled": false,
+        "variant": null,
+        "reason": "DISABLED"
+      }
+    },
+    {
+      "id": "basic-on",
+      "description": "enabled boolean flag with user",
+      "flagKey": "f",
+      "flag": {
+        "key": "f",
+        "enabled": true,
+        "rules": [],
+        "rolloutPercent": 100,
+        "variants": []
+      },
+      "context": {
+        "userId": "u1"
+      },
+      "expected": {
+        "enabled": true,
+        "variant": null,
+        "reason": "ON"
+      }
+    },
+    {
+      "id": "basic-on-no-user",
+      "description": "enabled boolean flag needs no userId at 100% rollout",
+      "flagKey": "f",
+      "flag": {
+        "key": "f",
+        "enabled": true,
+        "rules": [],
+        "rolloutPercent": 100,
+        "variants": []
+      },
+      "context": {},
+      "expected": {
+        "enabled": true,
+        "variant": null,
+        "reason": "ON"
+      }
+    },
+    {
+      "id": "target-eq-pass",
+      "description": "eq matches",
+      "flagKey": "f",
+      "flag": {
+        "key": "f",
+        "enabled": true,
+        "rules": [
+          {
+            "attribute": "country",
+            "operator": "eq",
+            "value": "TH"
+          }
+        ],
+        "rolloutPercent": 100,
+        "variants": []
+      },
+      "context": {
+        "attributes": {
+          "country": "TH"
+        }
+      },
+      "expected": {
+        "enabled": true,
+        "variant": null,
+        "reason": "ON"
+      }
+    },
+    {
+      "id": "target-eq-fail",
+      "description": "eq differs",
+      "flagKey": "f",
+      "flag": {
+        "key": "f",
+        "enabled": true,
+        "rules": [
+          {
+            "attribute": "country",
+            "operator": "eq",
+            "value": "TH"
+          }
+        ],
+        "rolloutPercent": 100,
+        "variants": []
+      },
+      "context": {
+        "attributes": {
+          "country": "US"
+        }
+      },
+      "expected": {
+        "enabled": false,
+        "variant": null,
+        "reason": "TARGETING_MISS"
+      }
+    },
+    {
+      "id": "target-eq-missing",
+      "description": "eq on missing attribute fails",
+      "flagKey": "f",
+      "flag": {
+        "key": "f",
+        "enabled": true,
+        "rules": [
+          {
+            "attribute": "country",
+            "operator": "eq",
+            "value": "TH"
+          }
+        ],
+        "rolloutPercent": 100,
+        "variants": []
+      },
+      "context": {
+        "userId": "u1"
+      },
+      "expected": {
+        "enabled": false,
+        "variant": null,
+        "reason": "TARGETING_MISS"
+      }
+    },
+    {
+      "id": "target-eq-case",
+      "description": "string comparison is case-sensitive",
+      "flagKey": "f",
+      "flag": {
+        "key": "f",
+        "enabled": true,
+        "rules": [
+          {
+            "attribute": "country",
+            "operator": "eq",
+            "value": "TH"
+          }
+        ],
+        "rolloutPercent": 100,
+        "variants": []
+      },
+      "context": {
+        "attributes": {
+          "country": "th"
+        }
+      },
+      "expected": {
+        "enabled": false,
+        "variant": null,
+        "reason": "TARGETING_MISS"
+      }
+    },
+    {
+      "id": "target-eq-type-string-vs-number",
+      "description": "\"1\" does not equal 1",
+      "flagKey": "f",
+      "flag": {
+        "key": "f",
+        "enabled": true,
+        "rules": [
+          {
+            "attribute": "level",
+            "operator": "eq",
+            "value": 1
+          }
+        ],
+        "rolloutPercent": 100,
+        "variants": []
+      },
+      "context": {
+        "attributes": {
+          "level": "1"
+        }
+      },
+      "expected": {
+        "enabled": false,
+        "variant": null,
+        "reason": "TARGETING_MISS"
+      }
+    },
+    {
+      "id": "target-eq-number",
+      "description": "number equals number",
+      "flagKey": "f",
+      "flag": {
+        "key": "f",
+        "enabled": true,
+        "rules": [
+          {
+            "attribute": "age",
+            "operator": "eq",
+            "value": 18
+          }
+        ],
+        "rolloutPercent": 100,
+        "variants": []
+      },
+      "context": {
+        "attributes": {
+          "age": 18
+        }
+      },
+      "expected": {
+        "enabled": true,
+        "variant": null,
+        "reason": "ON"
+      }
+    },
+    {
+      "id": "target-eq-bool",
+      "description": "bool equals bool",
+      "flagKey": "f",
+      "flag": {
+        "key": "f",
+        "enabled": true,
+        "rules": [
+          {
+            "attribute": "beta",
+            "operator": "eq",
+            "value": true
+          }
+        ],
+        "rolloutPercent": 100,
+        "variants": []
+      },
+      "context": {
+        "attributes": {
+          "beta": true
+        }
+      },
+      "expected": {
+        "enabled": true,
+        "variant": null,
+        "reason": "ON"
+      }
+    },
+    {
+      "id": "target-eq-number-vs-bool",
+      "description": "number 1 does not equal true",
+      "flagKey": "f",
+      "flag": {
+        "key": "f",
+        "enabled": true,
+        "rules": [
+          {
+            "attribute": "x",
+            "operator": "eq",
+            "value": 1
+          }
+        ],
+        "rolloutPercent": 100,
+        "variants": []
+      },
+      "context": {
+        "attributes": {
+          "x": true
+        }
+      },
+      "expected": {
+        "enabled": false,
+        "variant": null,
+        "reason": "TARGETING_MISS"
+      }
+    },
+    {
+      "id": "target-eq-bool-vs-number",
+      "description": "true does not equal number 1",
+      "flagKey": "f",
+      "flag": {
+        "key": "f",
+        "enabled": true,
+        "rules": [
+          {
+            "attribute": "x",
+            "operator": "eq",
+            "value": true
+          }
+        ],
+        "rolloutPercent": 100,
+        "variants": []
+      },
+      "context": {
+        "attributes": {
+          "x": 1
+        }
+      },
+      "expected": {
+        "enabled": false,
+        "variant": null,
+        "reason": "TARGETING_MISS"
+      }
+    },
+    {
+      "id": "target-eq-zero-vs-false",
+      "description": "number 0 does not equal false",
+      "flagKey": "f",
+      "flag": {
+        "key": "f",
+        "enabled": true,
+        "rules": [
+          {
+            "attribute": "x",
+            "operator": "eq",
+            "value": 0
+          }
+        ],
+        "rolloutPercent": 100,
+        "variants": []
+      },
+      "context": {
+        "attributes": {
+          "x": false
+        }
+      },
+      "expected": {
+        "enabled": false,
+        "variant": null,
+        "reason": "TARGETING_MISS"
+      }
+    },
+    {
+      "id": "target-eq-false-vs-zero",
+      "description": "false does not equal number 0",
+      "flagKey": "f",
+      "flag": {
+        "key": "f",
+        "enabled": true,
+        "rules": [
+          {
+            "attribute": "x",
+            "operator": "eq",
+            "value": false
+          }
+        ],
+        "rolloutPercent": 100,
+        "variants": []
+      },
+      "context": {
+        "attributes": {
+          "x": 0
+        }
+      },
+      "expected": {
+        "enabled": false,
+        "variant": null,
+        "reason": "TARGETING_MISS"
+      }
+    },
+    {
+      "id": "target-in-numbers-vs-bool",
+      "description": "true is not a member of [1, 2]",
+      "flagKey": "f",
+      "flag": {
+        "key": "f",
+        "enabled": true,
+        "rules": [
+          {
+            "attribute": "x",
+            "operator": "in",
+            "value": [
+              1,
+              2
+            ]
+          }
+        ],
+        "rolloutPercent": 100,
+        "variants": []
+      },
+      "context": {
+        "attributes": {
+          "x": true
+        }
+      },
+      "expected": {
+        "enabled": false,
+        "variant": null,
+        "reason": "TARGETING_MISS"
+      }
+    },
+    {
+      "id": "target-neq-number-vs-bool",
+      "description": "different types are not equal, so neq passes",
+      "flagKey": "f",
+      "flag": {
+        "key": "f",
+        "enabled": true,
+        "rules": [
+          {
+            "attribute": "x",
+            "operator": "neq",
+            "value": 1
+          }
+        ],
+        "rolloutPercent": 100,
+        "variants": []
+      },
+      "context": {
+        "attributes": {
+          "x": true
+        }
+      },
+      "expected": {
+        "enabled": true,
+        "variant": null,
+        "reason": "ON"
+      }
+    },
+    {
+      "id": "target-eq-bool-vs-string",
+      "description": "true does not equal \"true\"",
+      "flagKey": "f",
+      "flag": {
+        "key": "f",
+        "enabled": true,
+        "rules": [
+          {
+            "attribute": "beta",
+            "operator": "eq",
+            "value": true
+          }
+        ],
+        "rolloutPercent": 100,
+        "variants": []
+      },
+      "context": {
+        "attributes": {
+          "beta": "true"
+        }
+      },
+      "expected": {
+        "enabled": false,
+        "variant": null,
+        "reason": "TARGETING_MISS"
+      }
+    },
+    {
+      "id": "target-neq-pass",
+      "description": "neq differs",
+      "flagKey": "f",
+      "flag": {
+        "key": "f",
+        "enabled": true,
+        "rules": [
+          {
+            "attribute": "country",
+            "operator": "neq",
+            "value": "TH"
+          }
+        ],
+        "rolloutPercent": 100,
+        "variants": []
+      },
+      "context": {
+        "attributes": {
+          "country": "US"
+        }
+      },
+      "expected": {
+        "enabled": true,
+        "variant": null,
+        "reason": "ON"
+      }
+    },
+    {
+      "id": "target-neq-fail",
+      "description": "neq equal",
+      "flagKey": "f",
+      "flag": {
+        "key": "f",
+        "enabled": true,
+        "rules": [
+          {
+            "attribute": "country",
+            "operator": "neq",
+            "value": "TH"
+          }
+        ],
+        "rolloutPercent": 100,
+        "variants": []
+      },
+      "context": {
+        "attributes": {
+          "country": "TH"
+        }
+      },
+      "expected": {
+        "enabled": false,
+        "variant": null,
+        "reason": "TARGETING_MISS"
+      }
+    },
+    {
+      "id": "target-neq-missing",
+      "description": "neq on missing attribute fails",
+      "flagKey": "f",
+      "flag": {
+        "key": "f",
+        "enabled": true,
+        "rules": [
+          {
+            "attribute": "country",
+            "operator": "neq",
+            "value": "TH"
+          }
+        ],
+        "rolloutPercent": 100,
+        "variants": []
+      },
+      "context": {
+        "userId": "u1"
+      },
+      "expected": {
+        "enabled": false,
+        "variant": null,
+        "reason": "TARGETING_MISS"
+      }
+    },
+    {
+      "id": "target-in-pass",
+      "description": "in contains",
+      "flagKey": "f",
+      "flag": {
+        "key": "f",
+        "enabled": true,
+        "rules": [
+          {
+            "attribute": "country",
+            "operator": "in",
+            "value": [
+              "TH",
+              "SG"
+            ]
+          }
+        ],
+        "rolloutPercent": 100,
+        "variants": []
+      },
+      "context": {
+        "attributes": {
+          "country": "SG"
+        }
+      },
+      "expected": {
+        "enabled": true,
+        "variant": null,
+        "reason": "ON"
+      }
+    },
+    {
+      "id": "target-in-fail",
+      "description": "in does not contain",
+      "flagKey": "f",
+      "flag": {
+        "key": "f",
+        "enabled": true,
+        "rules": [
+          {
+            "attribute": "country",
+            "operator": "in",
+            "value": [
+              "TH",
+              "SG"
+            ]
+          }
+        ],
+        "rolloutPercent": 100,
+        "variants": []
+      },
+      "context": {
+        "attributes": {
+          "country": "US"
+        }
+      },
+      "expected": {
+        "enabled": false,
+        "variant": null,
+        "reason": "TARGETING_MISS"
+      }
+    },
+    {
+      "id": "target-in-numbers",
+      "description": "in with numbers",
+      "flagKey": "f",
+      "flag": {
+        "key": "f",
+        "enabled": true,
+        "rules": [
+          {
+            "attribute": "tier",
+            "operator": "in",
+            "value": [
+              1,
+              2,
+              3
+            ]
+          }
+        ],
+        "rolloutPercent": 100,
+        "variants": []
+      },
+      "context": {
+        "attributes": {
+          "tier": 2
+        }
+      },
+      "expected": {
+        "enabled": true,
+        "variant": null,
+        "reason": "ON"
+      }
+    },
+    {
+      "id": "target-not-in-pass",
+      "description": "not_in does not contain",
+      "flagKey": "f",
+      "flag": {
+        "key": "f",
+        "enabled": true,
+        "rules": [
+          {
+            "attribute": "country",
+            "operator": "not_in",
+            "value": [
+              "TH",
+              "SG"
+            ]
+          }
+        ],
+        "rolloutPercent": 100,
+        "variants": []
+      },
+      "context": {
+        "attributes": {
+          "country": "US"
+        }
+      },
+      "expected": {
+        "enabled": true,
+        "variant": null,
+        "reason": "ON"
+      }
+    },
+    {
+      "id": "target-not-in-fail",
+      "description": "not_in contains",
+      "flagKey": "f",
+      "flag": {
+        "key": "f",
+        "enabled": true,
+        "rules": [
+          {
+            "attribute": "country",
+            "operator": "not_in",
+            "value": [
+              "TH",
+              "SG"
+            ]
+          }
+        ],
+        "rolloutPercent": 100,
+        "variants": []
+      },
+      "context": {
+        "attributes": {
+          "country": "TH"
+        }
+      },
+      "expected": {
+        "enabled": false,
+        "variant": null,
+        "reason": "TARGETING_MISS"
+      }
+    },
+    {
+      "id": "target-not-in-missing",
+      "description": "not_in on missing attribute fails",
+      "flagKey": "f",
+      "flag": {
+        "key": "f",
+        "enabled": true,
+        "rules": [
+          {
+            "attribute": "country",
+            "operator": "not_in",
+            "value": [
+              "TH"
+            ]
+          }
+        ],
+        "rolloutPercent": 100,
+        "variants": []
+      },
+      "context": {
+        "userId": "u1"
+      },
+      "expected": {
+        "enabled": false,
+        "variant": null,
+        "reason": "TARGETING_MISS"
+      }
+    },
+    {
+      "id": "target-and-both-pass",
+      "description": "all rules must pass: both do",
+      "flagKey": "f",
+      "flag": {
+        "key": "f",
+        "enabled": true,
+        "rules": [
+          {
+            "attribute": "country",
+            "operator": "eq",
+            "value": "TH"
+          },
+          {
+            "attribute": "plan",
+            "operator": "in",
+            "value": [
+              "pro",
+              "team"
+            ]
+          }
+        ],
+        "rolloutPercent": 100,
+        "variants": []
+      },
+      "context": {
+        "attributes": {
+          "country": "TH",
+          "plan": "pro"
+        }
+      },
+      "expected": {
+        "enabled": true,
+        "variant": null,
+        "reason": "ON"
+      }
+    },
+    {
+      "id": "target-and-one-fails",
+      "description": "all rules must pass: second fails",
+      "flagKey": "f",
+      "flag": {
+        "key": "f",
+        "enabled": true,
+        "rules": [
+          {
+            "attribute": "country",
+            "operator": "eq",
+            "value": "TH"
+          },
+          {
+            "attribute": "plan",
+            "operator": "in",
+            "value": [
+              "pro",
+              "team"
+            ]
+          }
+        ],
+        "rolloutPercent": 100,
+        "variants": []
+      },
+      "context": {
+        "attributes": {
+          "country": "TH",
+          "plan": "free"
+        }
+      },
+      "expected": {
+        "enabled": false,
+        "variant": null,
+        "reason": "TARGETING_MISS"
+      }
+    },
+    {
+      "id": "target-attr-constructor-missing",
+      "description": "attribute named 'constructor' that the context does not contain counts as missing (neq fails too)",
+      "flagKey": "f",
+      "flag": {
+        "key": "f",
+        "enabled": true,
+        "rules": [
+          {
+            "attribute": "constructor",
+            "operator": "neq",
+            "value": "x"
+          }
+        ],
+        "rolloutPercent": 100,
+        "variants": []
+      },
+      "context": {
+        "userId": "u1",
+        "attributes": {
+          "country": "TH"
+        }
+      },
+      "expected": {
+        "enabled": false,
+        "variant": null,
+        "reason": "TARGETING_MISS"
+      }
+    },
+    {
+      "id": "target-attr-toString-missing",
+      "description": "attribute named 'toString' that the context does not contain counts as missing (neq fails too)",
+      "flagKey": "f",
+      "flag": {
+        "key": "f",
+        "enabled": true,
+        "rules": [
+          {
+            "attribute": "toString",
+            "operator": "neq",
+            "value": "x"
+          }
+        ],
+        "rolloutPercent": 100,
+        "variants": []
+      },
+      "context": {
+        "userId": "u1",
+        "attributes": {
+          "country": "TH"
+        }
+      },
+      "expected": {
+        "enabled": false,
+        "variant": null,
+        "reason": "TARGETING_MISS"
+      }
+    },
+    {
+      "id": "target-attr-__proto__-missing",
+      "description": "attribute named '__proto__' that the context does not contain counts as missing (neq fails too)",
+      "flagKey": "f",
+      "flag": {
+        "key": "f",
+        "enabled": true,
+        "rules": [
+          {
+            "attribute": "__proto__",
+            "operator": "neq",
+            "value": "x"
+          }
+        ],
+        "rolloutPercent": 100,
+        "variants": []
+      },
+      "context": {
+        "userId": "u1",
+        "attributes": {
+          "country": "TH"
+        }
+      },
+      "expected": {
+        "enabled": false,
+        "variant": null,
+        "reason": "TARGETING_MISS"
+      }
+    },
+    {
+      "id": "target-attr-not-in-tostring-missing",
+      "description": "not_in on a missing attribute named 'toString' fails",
+      "flagKey": "f",
+      "flag": {
+        "key": "f",
+        "enabled": true,
+        "rules": [
+          {
+            "attribute": "toString",
+            "operator": "not_in",
+            "value": [
+              "x"
+            ]
+          }
+        ],
+        "rolloutPercent": 100,
+        "variants": []
+      },
+      "context": {
+        "attributes": {
+          "country": "TH"
+        }
+      },
+      "expected": {
+        "enabled": false,
+        "variant": null,
+        "reason": "TARGETING_MISS"
+      }
+    },
+    {
+      "id": "target-attr-proto-present",
+      "description": "an attribute literally named '__proto__' is compared like any other",
+      "flagKey": "f",
+      "flag": {
+        "key": "f",
+        "enabled": true,
+        "rules": [
+          {
+            "attribute": "__proto__",
+            "operator": "eq",
+            "value": "x"
+          }
+        ],
+        "rolloutPercent": 100,
+        "variants": []
+      },
+      "context": {
+        "attributes": {
+          "__proto__": "x"
+        }
+      },
+      "expected": {
+        "enabled": true,
+        "variant": null,
+        "reason": "ON"
+      }
+    },
+    {
+      "id": "target-attr-constructor-present",
+      "description": "an attribute literally named 'constructor' is compared like any other",
+      "flagKey": "f",
+      "flag": {
+        "key": "f",
+        "enabled": true,
+        "rules": [
+          {
+            "attribute": "constructor",
+            "operator": "in",
+            "value": [
+              "a",
+              "b"
+            ]
+          }
+        ],
+        "rolloutPercent": 100,
+        "variants": []
+      },
+      "context": {
+        "attributes": {
+          "constructor": "b"
+        }
+      },
+      "expected": {
+        "enabled": true,
+        "variant": null,
+        "reason": "ON"
+      }
+    },
+    {
+      "id": "target-userid-is-not-attribute",
+      "description": "userId cannot be targeted as an attribute",
+      "flagKey": "f",
+      "flag": {
+        "key": "f",
+        "enabled": true,
+        "rules": [
+          {
+            "attribute": "userId",
+            "operator": "eq",
+            "value": "u1"
+          }
+        ],
+        "rolloutPercent": 100,
+        "variants": []
+      },
+      "context": {
+        "userId": "u1"
+      },
+      "expected": {
+        "enabled": false,
+        "variant": null,
+        "reason": "TARGETING_MISS"
+      }
+    },
+    {
+      "id": "target-disabled-wins",
+      "description": "DISABLED is reported before targeting",
+      "flagKey": "f",
+      "flag": {
+        "key": "f",
+        "enabled": false,
+        "rules": [
+          {
+            "attribute": "country",
+            "operator": "eq",
+            "value": "TH"
+          }
+        ],
+        "rolloutPercent": 100,
+        "variants": []
+      },
+      "context": {
+        "attributes": {
+          "country": "US"
+        }
+      },
+      "expected": {
+        "enabled": false,
+        "variant": null,
+        "reason": "DISABLED"
+      }
+    },
+    {
+      "id": "rollout-no-user",
+      "description": "rollout\u003c100 needs userId",
+      "flagKey": "rollout-flag",
+      "flag": {
+        "key": "rollout-flag",
+        "enabled": true,
+        "rules": [],
+        "rolloutPercent": 10,
+        "variants": []
+      },
+      "context": {},
+      "expected": {
+        "enabled": false,
+        "variant": null,
+        "reason": "MISSING_USER_ID"
+      }
+    },
+    {
+      "id": "rollout-100-skips-bucketing",
+      "description": "rollout=100 never looks at the hash",
+      "flagKey": "rollout-flag",
+      "flag": {
+        "key": "rollout-flag",
+        "enabled": true,
+        "rules": [],
+        "rolloutPercent": 100,
+        "variants": []
+      },
+      "context": {},
+      "expected": {
+        "enabled": true,
+        "variant": null,
+        "reason": "ON"
+      }
+    },
+    {
+      "id": "rollout-0-nobody",
+      "description": "rollout=0 excludes everyone",
+      "flagKey": "rollout-flag",
+      "flag": {
+        "key": "rollout-flag",
+        "enabled": true,
+        "rules": [],
+        "rolloutPercent": 0,
+        "variants": []
+      },
+      "context": {
+        "userId": "alice"
+      },
+      "expected": {
+        "enabled": false,
+        "variant": null,
+        "reason": "NOT_IN_ROLLOUT"
+      },
+      "debug": {
+        "rolloutBucket": 6602
+      }
+    },
+    {
+      "id": "rollout-0-no-user",
+      "description": "rollout=0 without userId still reports MISSING_USER_ID",
+      "flagKey": "rollout-flag",
+      "flag": {
+        "key": "rollout-flag",
+        "enabled": true,
+        "rules": [],
+        "rolloutPercent": 0,
+        "variants": []
+      },
+      "context": {},
+      "expected": {
+        "enabled": false,
+        "variant": null,
+        "reason": "MISSING_USER_ID"
+      }
+    },
+    {
+      "id": "rollout-10-in-low",
+      "description": "bucket 0 is inside 10%",
+      "flagKey": "rollout-flag",
+      "flag": {
+        "key": "rollout-flag",
+        "enabled": true,
+        "rules": [],
+        "rolloutPercent": 10,
+        "variants": []
+      },
+      "context": {
+        "userId": "lo-28325"
+      },
+      "expected": {
+        "enabled": true,
+        "variant": null,
+        "reason": "ON"
+      },
+      "debug": {
+        "rolloutBucket": 0
+      }
+    },
+    {
+      "id": "rollout-10-boundary-in",
+      "description": "bucket 999 is the last bucket inside 10%",
+      "flagKey": "rollout-flag",
+      "flag": {
+        "key": "rollout-flag",
+        "enabled": true,
+        "rules": [],
+        "rolloutPercent": 10,
+        "variants": []
+      },
+      "context": {
+        "userId": "edge-5516"
+      },
+      "expected": {
+        "enabled": true,
+        "variant": null,
+        "reason": "ON"
+      },
+      "debug": {
+        "rolloutBucket": 999
+      }
+    },
+    {
+      "id": "rollout-10-boundary-out",
+      "description": "bucket 1000 is the first bucket outside 10%",
+      "flagKey": "rollout-flag",
+      "flag": {
+        "key": "rollout-flag",
+        "enabled": true,
+        "rules": [],
+        "rolloutPercent": 10,
+        "variants": []
+      },
+      "context": {
+        "userId": "edge-23597"
+      },
+      "expected": {
+        "enabled": false,
+        "variant": null,
+        "reason": "NOT_IN_ROLLOUT"
+      },
+      "debug": {
+        "rolloutBucket": 1000
+      }
+    },
+    {
+      "id": "rollout-10-out-high",
+      "description": "bucket 9999 is outside 10%",
+      "flagKey": "rollout-flag",
+      "flag": {
+        "key": "rollout-flag",
+        "enabled": true,
+        "rules": [],
+        "rolloutPercent": 10,
+        "variants": []
+      },
+      "context": {
+        "userId": "hi-9895"
+      },
+      "expected": {
+        "enabled": false,
+        "variant": null,
+        "reason": "NOT_IN_ROLLOUT"
+      },
+      "debug": {
+        "rolloutBucket": 9999
+      }
+    },
+    {
+      "id": "rollout-99-boundary-in",
+      "description": "bucket 9899 inside 99%",
+      "flagKey": "rollout-flag",
+      "flag": {
+        "key": "rollout-flag",
+        "enabled": true,
+        "rules": [],
+        "rolloutPercent": 99,
+        "variants": []
+      },
+      "context": {
+        "userId": "e99-7529"
+      },
+      "expected": {
+        "enabled": true,
+        "variant": null,
+        "reason": "ON"
+      },
+      "debug": {
+        "rolloutBucket": 9899
+      }
+    },
+    {
+      "id": "rollout-99-boundary-out",
+      "description": "bucket 9900 outside 99%",
+      "flagKey": "rollout-flag",
+      "flag": {
+        "key": "rollout-flag",
+        "enabled": true,
+        "rules": [],
+        "rolloutPercent": 99,
+        "variants": []
+      },
+      "context": {
+        "userId": "e99-8716"
+      },
+      "expected": {
+        "enabled": false,
+        "variant": null,
+        "reason": "NOT_IN_ROLLOUT"
+      },
+      "debug": {
+        "rolloutBucket": 9900
+      }
+    },
+    {
+      "id": "rollout-targeting-miss-no-user",
+      "description": "targeting runs before the userId check",
+      "flagKey": "rollout-flag",
+      "flag": {
+        "key": "rollout-flag",
+        "enabled": true,
+        "rules": [
+          {
+            "attribute": "country",
+            "operator": "eq",
+            "value": "TH"
+          }
+        ],
+        "rolloutPercent": 10,
+        "variants": []
+      },
+      "context": {
+        "attributes": {
+          "country": "US"
+        }
+      },
+      "expected": {
+        "enabled": false,
+        "variant": null,
+        "reason": "TARGETING_MISS"
+      }
+    },
+    {
+      "id": "rollout-targeting-hit-no-user",
+      "description": "rules match but a rollout needs a userId: the check also runs when rules exist",
+      "flagKey": "rollout-flag",
+      "flag": {
+        "key": "rollout-flag",
+        "enabled": true,
+        "rules": [
+          {
+            "attribute": "country",
+            "operator": "eq",
+            "value": "TH"
+          }
+        ],
+        "rolloutPercent": 10,
+        "variants": []
+      },
+      "context": {
+        "attributes": {
+          "country": "TH"
+        }
+      },
+      "expected": {
+        "enabled": false,
+        "variant": null,
+        "reason": "MISSING_USER_ID"
+      }
+    },
+    {
+      "id": "variant-targeting-hit-no-user",
+      "description": "rules match but variants need a userId",
+      "flagKey": "checkout-button",
+      "flag": {
+        "key": "checkout-button",
+        "enabled": true,
+        "rules": [
+          {
+            "attribute": "country",
+            "operator": "eq",
+            "value": "TH"
+          }
+        ],
+        "rolloutPercent": 100,
+        "variants": [
+          {
+            "key": "blue",
+            "weight": 50
+          },
+          {
+            "key": "green",
+            "weight": 50
+          }
+        ]
+      },
+      "context": {
+        "attributes": {
+          "country": "TH"
+        }
+      },
+      "expected": {
+        "enabled": false,
+        "variant": null,
+        "reason": "MISSING_USER_ID"
+      }
+    },
+    {
+      "id": "rollout-unicode-user",
+      "description": "non-ASCII userId is accepted and bucketed (hash correctness is checked in bucketing.json)",
+      "flagKey": "rollout-flag",
+      "flag": {
+        "key": "rollout-flag",
+        "enabled": true,
+        "rules": [],
+        "rolloutPercent": 50,
+        "variants": []
+      },
+      "context": {
+        "userId": "ผู้ใช้-1"
+      },
+      "expected": {
+        "enabled": false,
+        "variant": null,
+        "reason": "NOT_IN_ROLLOUT"
+      },
+      "debug": {
+        "rolloutBucket": 8289
+      }
+    },
+    {
+      "id": "variant-bucket-0",
+      "description": "first bucket belongs to the first variant",
+      "flagKey": "checkout-button",
+      "flag": {
+        "key": "checkout-button",
+        "enabled": true,
+        "rules": [],
+        "rolloutPercent": 100,
+        "variants": [
+          {
+            "key": "blue",
+            "weight": 50
+          },
+          {
+            "key": "green",
+            "weight": 30
+          },
+          {
+            "key": "red",
+            "weight": 20
+          }
+        ]
+      },
+      "context": {
+        "userId": "v-6884"
+      },
+      "expected": {
+        "enabled": true,
+        "variant": "blue",
+        "reason": "VARIANT"
+      },
+      "debug": {
+        "variantBucket": 0
+      }
+    },
+    {
+      "id": "variant-bucket-4999",
+      "description": "last bucket of blue",
+      "flagKey": "checkout-button",
+      "flag": {
+        "key": "checkout-button",
+        "enabled": true,
+        "rules": [],
+        "rolloutPercent": 100,
+        "variants": [
+          {
+            "key": "blue",
+            "weight": 50
+          },
+          {
+            "key": "green",
+            "weight": 30
+          },
+          {
+            "key": "red",
+            "weight": 20
+          }
+        ]
+      },
+      "context": {
+        "userId": "v-2791"
+      },
+      "expected": {
+        "enabled": true,
+        "variant": "blue",
+        "reason": "VARIANT"
+      },
+      "debug": {
+        "variantBucket": 4999
+      }
+    },
+    {
+      "id": "variant-bucket-5000",
+      "description": "first bucket of green",
+      "flagKey": "checkout-button",
+      "flag": {
+        "key": "checkout-button",
+        "enabled": true,
+        "rules": [],
+        "rolloutPercent": 100,
+        "variants": [
+          {
+            "key": "blue",
+            "weight": 50
+          },
+          {
+            "key": "green",
+            "weight": 30
+          },
+          {
+            "key": "red",
+            "weight": 20
+          }
+        ]
+      },
+      "context": {
+        "userId": "v-50920"
+      },
+      "expected": {
+        "enabled": true,
+        "variant": "green",
+        "reason": "VARIANT"
+      },
+      "debug": {
+        "variantBucket": 5000
+      }
+    },
+    {
+      "id": "variant-bucket-7999",
+      "description": "last bucket of green",
+      "flagKey": "checkout-button",
+      "flag": {
+        "key": "checkout-button",
+        "enabled": true,
+        "rules": [],
+        "rolloutPercent": 100,
+        "variants": [
+          {
+            "key": "blue",
+            "weight": 50
+          },
+          {
+            "key": "green",
+            "weight": 30
+          },
+          {
+            "key": "red",
+            "weight": 20
+          }
+        ]
+      },
+      "context": {
+        "userId": "v-7716"
+      },
+      "expected": {
+        "enabled": true,
+        "variant": "green",
+        "reason": "VARIANT"
+      },
+      "debug": {
+        "variantBucket": 7999
+      }
+    },
+    {
+      "id": "variant-bucket-8000",
+      "description": "first bucket of red",
+      "flagKey": "checkout-button",
+      "flag": {
+        "key": "checkout-button",
+        "enabled": true,
+        "rules": [],
+        "rolloutPercent": 100,
+        "variants": [
+          {
+            "key": "blue",
+            "weight": 50
+          },
+          {
+            "key": "green",
+            "weight": 30
+          },
+          {
+            "key": "red",
+            "weight": 20
+          }
+        ]
+      },
+      "context": {
+        "userId": "v-5258"
+      },
+      "expected": {
+        "enabled": true,
+        "variant": "red",
+        "reason": "VARIANT"
+      },
+      "debug": {
+        "variantBucket": 8000
+      }
+    },
+    {
+      "id": "variant-bucket-9999",
+      "description": "last bucket belongs to the last variant",
+      "flagKey": "checkout-button",
+      "flag": {
+        "key": "checkout-button",
+        "enabled": true,
+        "rules": [],
+        "rolloutPercent": 100,
+        "variants": [
+          {
+            "key": "blue",
+            "weight": 50
+          },
+          {
+            "key": "green",
+            "weight": 30
+          },
+          {
+            "key": "red",
+            "weight": 20
+          }
+        ]
+      },
+      "context": {
+        "userId": "v-4241"
+      },
+      "expected": {
+        "enabled": true,
+        "variant": "red",
+        "reason": "VARIANT"
+      },
+      "debug": {
+        "variantBucket": 9999
+      }
+    },
+    {
+      "id": "variant-no-user",
+      "description": "variants need userId",
+      "flagKey": "checkout-button",
+      "flag": {
+        "key": "checkout-button",
+        "enabled": true,
+        "rules": [],
+        "rolloutPercent": 100,
+        "variants": [
+          {
+            "key": "blue",
+            "weight": 50
+          },
+          {
+            "key": "green",
+            "weight": 30
+          },
+          {
+            "key": "red",
+            "weight": 20
+          }
+        ]
+      },
+      "context": {},
+      "expected": {
+        "enabled": false,
+        "variant": null,
+        "reason": "MISSING_USER_ID"
+      }
+    },
+    {
+      "id": "variant-disabled",
+      "description": "disabled flag has no variant",
+      "flagKey": "checkout-button",
+      "flag": {
+        "key": "checkout-button",
+        "enabled": false,
+        "rules": [],
+        "rolloutPercent": 100,
+        "variants": [
+          {
+            "key": "blue",
+            "weight": 50
+          },
+          {
+            "key": "green",
+            "weight": 30
+          },
+          {
+            "key": "red",
+            "weight": 20
+          }
+        ]
+      },
+      "context": {
+        "userId": "alice"
+      },
+      "expected": {
+        "enabled": false,
+        "variant": null,
+        "reason": "DISABLED"
+      },
+      "debug": {
+        "variantBucket": 6321
+      }
+    },
+    {
+      "id": "variant-order-a",
+      "description": "bucket\u003c5000 with [a 50, b 50] picks a",
+      "flagKey": "order-flag",
+      "flag": {
+        "key": "order-flag",
+        "enabled": true,
+        "rules": [],
+        "rolloutPercent": 100,
+        "variants": [
+          {
+            "key": "a",
+            "weight": 50
+          },
+          {
+            "key": "b",
+            "weight": 50
+          }
+        ]
+      },
+      "context": {
+        "userId": "ord-0"
+      },
+      "expected": {
+        "enabled": true,
+        "variant": "a",
+        "reason": "VARIANT"
+      },
+      "debug": {
+        "variantBucket": 2627
+      }
+    },
+    {
+      "id": "variant-order-b",
+      "description": "same user with [b 50, a 50] picks b: declared order decides",
+      "flagKey": "order-flag",
+      "flag": {
+        "key": "order-flag",
+        "enabled": true,
+        "rules": [],
+        "rolloutPercent": 100,
+        "variants": [
+          {
+            "key": "b",
+            "weight": 50
+          },
+          {
+            "key": "a",
+            "weight": 50
+          }
+        ]
+      },
+      "context": {
+        "userId": "ord-0"
+      },
+      "expected": {
+        "enabled": true,
+        "variant": "b",
+        "reason": "VARIANT"
+      },
+      "debug": {
+        "variantBucket": 2627
+      }
+    },
+    {
+      "id": "variant-with-rollout-in",
+      "description": "in rollout, variant chosen by the variant salt (not the rollout bucket)",
+      "flagKey": "rv-flag",
+      "flag": {
+        "key": "rv-flag",
+        "enabled": true,
+        "rules": [],
+        "rolloutPercent": 50,
+        "variants": [
+          {
+            "key": "control",
+            "weight": 50
+          },
+          {
+            "key": "treatment",
+            "weight": 50
+          }
+        ]
+      },
+      "context": {
+        "userId": "rv-1"
+      },
+      "expected": {
+        "enabled": true,
+        "variant": "treatment",
+        "reason": "VARIANT"
+      },
+      "debug": {
+        "rolloutBucket": 3083,
+        "variantBucket": 9567
+      }
+    },
+    {
+      "id": "variant-with-rollout-out",
+      "description": "outside rollout: no variant",
+      "flagKey": "rv-flag",
+      "flag": {
+        "key": "rv-flag",
+        "enabled": true,
+        "rules": [],
+        "rolloutPercent": 50,
+        "variants": [
+          {
+            "key": "control",
+            "weight": 50
+          },
+          {
+            "key": "treatment",
+            "weight": 50
+          }
+        ]
+      },
+      "context": {
+        "userId": "rv-0"
+      },
+      "expected": {
+        "enabled": false,
+        "variant": null,
+        "reason": "NOT_IN_ROLLOUT"
+      },
+      "debug": {
+        "rolloutBucket": 5464,
+        "variantBucket": 1948
+      }
+    },
+    {
+      "id": "variant-targeting-first",
+      "description": "targeting runs before userId check",
+      "flagKey": "checkout-button",
+      "flag": {
+        "key": "checkout-button",
+        "enabled": true,
+        "rules": [
+          {
+            "attribute": "country",
+            "operator": "eq",
+            "value": "TH"
+          }
+        ],
+        "rolloutPercent": 100,
+        "variants": [
+          {
+            "key": "blue",
+            "weight": 50
+          },
+          {
+            "key": "green",
+            "weight": 30
+          },
+          {
+            "key": "red",
+            "weight": 20
+          }
+        ]
+      },
+      "context": {
+        "attributes": {
+          "country": "US"
+        }
+      },
+      "expected": {
+        "enabled": false,
+        "variant": null,
+        "reason": "TARGETING_MISS"
+      }
+    },
+    {
+      "id": "variant-unicode-user",
+      "description": "non-ASCII userId",
+      "flagKey": "checkout-button",
+      "flag": {
+        "key": "checkout-button",
+        "enabled": true,
+        "rules": [],
+        "rolloutPercent": 100,
+        "variants": [
+          {
+            "key": "blue",
+            "weight": 50
+          },
+          {
+            "key": "green",
+            "weight": 30
+          },
+          {
+            "key": "red",
+            "weight": 20
+          }
+        ]
+      },
+      "context": {
+        "userId": "日本語"
+      },
+      "expected": {
+        "enabled": true,
+        "variant": "blue",
+        "reason": "VARIANT"
+      },
+      "debug": {
+        "variantBucket": 3825
+      }
+    }
+  ],
+  "description": "Each case: evaluate `flag` (null = flag absent) for `context`; result must equal `expected` exactly. `debug` is informational (bucket values)."
+}

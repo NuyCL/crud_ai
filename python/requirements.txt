@@ -1,0 +1,5 @@
+# Runtime dependencies, pinned to the versions the port was verified with (Python 3.13).
+# CONVENTIONS.md lists FastAPI and sqlite3 (standard library); uvicorn is the ASGI server FastAPI needs
+# and is named in the "start server" gate command.
+fastapi==0.162.0
+uvicorn==0.54.0

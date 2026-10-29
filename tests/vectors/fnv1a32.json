@@ -1,0 +1,60 @@
+{
+  "cases": [
+    {
+      "input": "",
+      "hash": 2166136261,
+      "hex": "0x811c9dc5"
+    },
+    {
+      "input": "a",
+      "hash": 3826002220,
+      "hex": "0xe40c292c"
+    },
+    {
+      "input": "b",
+      "hash": 3876335077,
+      "hex": "0xe70c2de5"
+    },
+    {
+      "input": "foobar",
+      "hash": 3214735720,
+      "hex": "0xbf9cf968"
+    },
+    {
+      "input": "hello",
+      "hash": 1335831723,
+      "hex": "0x4f9f2cab"
+    },
+    {
+      "input": "feature-flag",
+      "hash": 2922213282,
+      "hex": "0xae2d6fa2"
+    },
+    {
+      "input": "ผู้ใช้",
+      "hash": 2574701272,
+      "hex": "0x9976d2d8"
+    },
+    {
+      "input": "café",
+      "hash": 2821410889,
+      "hex": "0xa82b5049"
+    },
+    {
+      "input": "日本語",
+      "hash": 2153733351,
+      "hex": "0x805f5ce7"
+    },
+    {
+      "input": "😀",
+      "hash": 866293256,
+      "hex": "0x33a29608"
+    },
+    {
+      "input": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "hash": 3018110693,
+      "hex": "0xb3e4b6e5"
+    }
+  ],
+  "description": "FNV-1a 32-bit over the UTF-8 bytes of input. First rows are the published reference values."
+}

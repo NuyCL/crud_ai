@@ -1,0 +1,35 @@
+{
+  "name": "ffservice-js-sdk",
+  "version": "0.1.0",
+  "private": true,
+  "description": "JavaScript/TypeScript client for the feature flag service (MVP3), built from spec/openapi.yaml",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.umd.js"
+    }
+  },
+  "sideEffects": false,
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "node build.mjs",
+    "lint": "eslint .",
+    "test": "npm run build && node --test --test-concurrency=1 \"test/*.test.mjs\"",
+    "size": "node build.mjs --size"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "@types/node": "22.20.5",
+    "esbuild": "0.28.2",
+    "eslint": "10.13.0",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.72.1"
+  }
+}

@@ -1,0 +1,31 @@
+[package]
+name = "ffservice"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85"
+description = "Feature flag service (Rust port of the Go reference)"
+publish = false
+
+[lib]
+name = "ffservice"
+path = "src/lib.rs"
+
+[[bin]]
+name = "ffservice"
+path = "src/main.rs"
+
+[dependencies]
+# CONVENTIONS.md lists axum and rusqlite. The rest are what axum itself is built on or cannot be used without:
+# tokio (axum's runtime), serde_json (the JSON parser; axum's own `Json` extractor uses it) and http-body-util (to read
+# a request body to its end; see handler.rs). Assumption recorded in docs/porting/rust-analysis.md.
+axum = { version = "0.8.9", default-features = false, features = ["http1", "tokio"] }
+http-body-util = "0.1.5"
+rusqlite = { version = "0.41.1", features = ["bundled"] }
+serde_json = "1.0.154"
+tokio = { version = "1.54.1", features = ["rt-multi-thread", "macros", "net", "signal"] }
+
+[lints.rust]
+unsafe_code = "forbid"
+
+[profile.release]
+lto = true

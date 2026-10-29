@@ -1,0 +1,15 @@
+import js from "@eslint/js";
+import { defineConfig, globalIgnores } from "eslint/config";
+import tseslint from "typescript-eslint";
+
+export default defineConfig(
+  globalIgnores(["dist/", "node_modules/"]),
+  js.configs.recommended,
+  tseslint.configs.strict,
+  tseslint.configs.stylistic,
+  {
+    rules: {
+      eqeqeq: ["error", "always"], // "1" == 1 is exactly the kind of bug this service must not have
+    },
+  },
+);

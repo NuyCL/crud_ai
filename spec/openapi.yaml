@@ -1,0 +1,431 @@
+openapi: 3.0.3
+info:
+  title: Feature Flag Service
+  version: 0.1.0
+  description: |
+    Language-neutral contract for the feature flag service. Every implementation
+    (Go, TypeScript, Java, Python, Rust) must satisfy this spec and the black-box
+    tests in `tests/contract/`.
+
+    Evaluation semantics live in `spec/evaluation.md`; extra validation rules
+    (BR-xx) live in `spec/business-rules.md`.
+
+    Operations tagged `mvp2` are not part of MVP1.
+servers:
+  - url: http://localhost:8080
+tags:
+  - name: flags
+    description: Admin API for flag definitions (MVP1)
+  - name: evaluate
+    description: Flag evaluation for clients (MVP1; variants/rollout in MVP2)
+  - name: events
+    description: Exposure and conversion tracking (MVP2)
+  - name: ops
+    description: Operational endpoints
+
+paths:
+  /healthz:
+    get:
+      tags: [ops]
+      operationId: healthz
+      summary: Liveness probe (no auth)
+      security: []
+      responses:
+        "200":
+          description: Service is up
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [status]
+                properties:
+                  status: { type: string, enum: [ok] }
+
+  /v1/flags:
+    get:
+      tags: [flags]
+      operationId: listFlags
+      summary: List flags (ordered by key ascending)
+      security: [{ AdminKey: [] }]
+      parameters:
+        - { name: limit, in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 20 } }
+        - { name: offset, in: query, schema: { type: integer, minimum: 0, default: 0 } }
+      responses:
+        "200":
+          description: A page of flags
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items, total]
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: "#/components/schemas/Flag" }
+                  total: { type: integer, minimum: 0 }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+    post:
+      tags: [flags]
+      operationId: createFlag
+      summary: Create a flag (BR-01, BR-02, BR-08)
+      security: [{ AdminKey: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/FlagInput" }
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Flag" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "409":
+          description: Flag key already exists (FLAG_EXISTS)
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+
+  /v1/flags/{key}:
+    parameters:
+      - { $ref: "#/components/parameters/FlagKey" }
+    get:
+      tags: [flags]
+      operationId: getFlag
+      summary: Get a flag
+      security: [{ AdminKey: [] }]
+      responses:
+        "200":
+          description: The flag
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Flag" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+    put:
+      tags: [flags]
+      operationId: updateFlag
+      summary: Replace a flag (full replace, omitted fields reset to defaults; key is immutable, BR-03, BR-09)
+      security: [{ AdminKey: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/FlagInput" }
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Flag" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+    delete:
+      tags: [flags]
+      operationId: deleteFlag
+      summary: Delete a flag (BR-06)
+      security: [{ AdminKey: [] }]
+      responses:
+        "204": { description: Deleted }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /v1/audit-logs:
+    get:
+      tags: [flags]
+      operationId: listAuditLogs
+      summary: List audit log entries, newest first (BR-07)
+      security: [{ AdminKey: [] }]
+      parameters:
+        - { name: flagKey, in: query, schema: { type: string } }
+        - { name: limit, in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 20 } }
+        - { name: offset, in: query, schema: { type: integer, minimum: 0, default: 0 } }
+      responses:
+        "200":
+          description: A page of audit entries
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items, total]
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: "#/components/schemas/AuditLog" }
+                  total: { type: integer, minimum: 0 }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+
+  /v1/evaluate:
+    post:
+      tags: [evaluate]
+      operationId: evaluate
+      summary: Evaluate flags for a context (no side effects, BR-22)
+      description: Rules are defined in `spec/evaluation.md`.
+      security: [{ ClientKey: [] }, { AdminKey: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                flags:
+                  type: array
+                  description: Evaluate only these keys. Omit to evaluate every flag.
+                  items: { type: string }
+                context: { $ref: "#/components/schemas/Context" }
+      responses:
+        "200":
+          description: Result per flag key
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [results]
+                properties:
+                  results:
+                    type: object
+                    additionalProperties: { $ref: "#/components/schemas/EvaluationResult" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+
+  /v1/events:
+    post:
+      tags: [events]
+      x-mvp: 2
+      operationId: recordEvents
+      summary: Record exposure / conversion events (BR-40, BR-41)
+      security: [{ ClientKey: [] }, { AdminKey: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [events]
+              properties:
+                events:
+                  type: array
+                  minItems: 1
+                  maxItems: 100
+                  items: { $ref: "#/components/schemas/Event" }
+      responses:
+        "202":
+          description: Accepted
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [accepted]
+                properties:
+                  accepted: { type: integer, minimum: 0 }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+
+  /v1/flags/{key}/results:
+    parameters:
+      - { $ref: "#/components/parameters/FlagKey" }
+    get:
+      tags: [events]
+      x-mvp: 2
+      operationId: getResults
+      summary: Experiment results per variant (BR-42)
+      security: [{ AdminKey: [] }]
+      parameters:
+        - { name: goal, in: query, required: true, schema: { type: string } }
+      responses:
+        "200":
+          description: Results
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Results" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+components:
+  securitySchemes:
+    AdminKey:
+      type: apiKey
+      in: header
+      name: X-Admin-Key
+    ClientKey:
+      type: apiKey
+      in: header
+      name: X-Client-Key
+
+  parameters:
+    FlagKey:
+      name: key
+      in: path
+      required: true
+      schema: { type: string, pattern: "^[a-z0-9][a-z0-9_-]{0,63}$" }
+
+  responses:
+    BadRequest:
+      description: Validation failed (INVALID_KEY, KEY_IMMUTABLE, INVALID_VARIANTS, VALIDATION_ERROR)
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+    Unauthorized:
+      description: Missing or wrong key (UNAUTHORIZED)
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+    Forbidden:
+      description: Key is valid but not allowed here (FORBIDDEN, BR-12)
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+    NotFound:
+      description: Flag not found (FLAG_NOT_FOUND)
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+
+  schemas:
+    Error:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code:
+              type: string
+              enum:
+                - UNAUTHORIZED
+                - FORBIDDEN
+                - FLAG_NOT_FOUND
+                - FLAG_EXISTS
+                - INVALID_KEY
+                - KEY_IMMUTABLE
+                - INVALID_VARIANTS
+                - VALIDATION_ERROR
+                - INTERNAL_ERROR
+            message: { type: string }
+
+    Scalar:
+      description: A string, number or boolean. No implicit conversion between types.
+      oneOf:
+        - { type: string }
+        - { type: number }
+        - { type: boolean }
+
+    Rule:
+      type: object
+      required: [attribute, operator, value]
+      properties:
+        attribute: { type: string, minLength: 1 }
+        operator: { type: string, enum: [eq, neq, in, not_in] }
+        value:
+          description: Scalar for eq/neq; non-empty array of scalars for in/not_in (BR-35)
+          oneOf:
+            - { $ref: "#/components/schemas/Scalar" }
+            - type: array
+              minItems: 1
+              items: { $ref: "#/components/schemas/Scalar" }
+
+    Variant:
+      type: object
+      required: [key, weight]
+      properties:
+        key: { type: string, pattern: "^[a-z0-9][a-z0-9_-]{0,31}$" }
+        weight: { type: integer, minimum: 1, maximum: 100 }
+
+    FlagInput:
+      type: object
+      required: [key]
+      properties:
+        key: { type: string, pattern: "^[a-z0-9][a-z0-9_-]{0,63}$" }
+        description: { type: string, maxLength: 500, default: "" }
+        enabled: { type: boolean, default: false }
+        rules:
+          type: array
+          default: []
+          items: { $ref: "#/components/schemas/Rule" }
+        rolloutPercent: { type: integer, minimum: 0, maximum: 100, default: 100 }
+        variants:
+          type: array
+          default: []
+          description: Empty (boolean flag) or 2-10 entries whose weights sum to 100 (BR-31..34)
+          items: { $ref: "#/components/schemas/Variant" }
+
+    Flag:
+      allOf:
+        - $ref: "#/components/schemas/FlagInput"
+        - type: object
+          required: [key, description, enabled, rules, rolloutPercent, variants, createdAt, updatedAt]
+          properties:
+            createdAt: { type: string, format: date-time }
+            updatedAt: { type: string, format: date-time }
+
+    Context:
+      type: object
+      properties:
+        userId: { type: string }
+        attributes:
+          type: object
+          additionalProperties: { $ref: "#/components/schemas/Scalar" }
+
+    EvaluationResult:
+      type: object
+      required: [enabled, variant, reason]
+      properties:
+        enabled: { type: boolean }
+        variant: { type: string, nullable: true }
+        reason:
+          type: string
+          enum: [FLAG_NOT_FOUND, DISABLED, TARGETING_MISS, MISSING_USER_ID, NOT_IN_ROLLOUT, ON, VARIANT]
+
+    AuditLog:
+      type: object
+      required: [id, flagKey, action, createdAt]
+      properties:
+        id: { type: integer }
+        flagKey: { type: string }
+        action: { type: string, enum: [create, update, delete] }
+        before: { type: object, nullable: true }
+        after: { type: object, nullable: true }
+        createdAt: { type: string, format: date-time }
+
+    Event:
+      type: object
+      required: [type, userId]
+      properties:
+        type: { type: string, enum: [exposure, conversion] }
+        userId: { type: string, minLength: 1 }
+        flagKey: { type: string, description: Required when type is exposure }
+        variant: { type: string, description: Required when type is exposure }
+        goal: { type: string, description: Required when type is conversion }
+        timestamp: { type: string, format: date-time }
+
+    Results:
+      type: object
+      required: [flagKey, goal, variants]
+      properties:
+        flagKey: { type: string }
+        goal: { type: string }
+        variants:
+          type: array
+          items:
+            type: object
+            required: [variant, exposures, conversions, rate, significant]
+            properties:
+              variant: { type: string }
+              exposures: { type: integer, minimum: 0 }
+              conversions: { type: integer, minimum: 0 }
+              rate: { type: number, minimum: 0, maximum: 1 }
+              pValue: { type: number, nullable: true, description: vs. the first variant (control) }
+              significant: { type: boolean }
