@@ -6,7 +6,7 @@
 
 1. `spec/` และ `tests/` (contract, vectors) เป็นของกลาง **ห้ามแก้เพื่อให้โค้ดผ่าน**
 2. แปลเป็นโค้ดที่เป็น idiom ของภาษานั้น ไม่แปลทีละบรรทัด
-3. ใช้เฉพาะ library ในตารางด้านล่าง ถ้าต้องการเพิ่มให้ขออนุมัติก่อน
+3. ใช้เฉพาะ library ในตารางด้านล่าง ถ้าต้องการเพิ่มให้ขออนุมัติก่อน — ยกเว้นสิ่งที่ framework ในตารางพึ่งพาโดยตรง (ดูหัวข้อ "Dependency" ใน `CLAUDE.md`) และ devDependencies ของ `typescript/` กับ `sdk-js/` (`typescript`, `eslint`, `@eslint/js`, `typescript-eslint`, `@types/*`, `esbuild`) ซึ่งอนุมัติแล้ว
 4. ไม่มี global mutable state; ทำ dependency injection ผ่าน constructor/parameter
 
 ## โครงสร้าง layer (ทุกภาษาเหมือนกัน)
@@ -99,7 +99,21 @@ node --test --test-concurrency=1 "tests/contract/*.test.mjs"
 |---|---|---|---|
 | `npm run build` | `npm run lint` (typescript-eslint strict + stylistic) | `npm test` (build + unit + spec + integration; เปิด `tools/mock-server` เอง หรือใช้ `FF_BASE_URL`) | `npm run size` (gzip < 5120 ไบต์) |
 
-dev dependencies (`esbuild`, `typescript`, `eslint`, `typescript-eslint`, `@types/node`) ไม่อยู่ในตาราง library ด้านบน — **ข้อสมมติที่ต้องยืนยัน** (เหมือน `typescript/`); runtime dependency: ไม่มี
+dev dependencies (`esbuild`, `typescript`, `eslint`, `@eslint/js`, `typescript-eslint`, `@types/node`) **อนุมัติแล้ว** (ผู้ใช้สั่งใช้ข้อเสนอ 4 ใน `lessons/summary.md`) ใช้ร่วมกับ `typescript/`; runtime dependency: ไม่มี
+
+## ก่อนเขียน handler: ทดลอง framework (บังคับ)
+
+ทุกภาษาที่มี HTTP framework ต้องเขียนโปรแกรมทิ้งเล็กๆ แล้ว**ส่งจริง** (ไม่เดาจากความจำ) ก่อนเริ่ม layer handler และเก็บผลเป็นตารางใน `docs/porting/<lang>-analysis.md` ข้อ "การทดลอง framework" รายการขั้นต่ำ (มาจากสิ่งที่ทำนายพลาดในทั้ง 4 ภาษา: `lessons/summary.md` ข้อ 3):
+
+| กลุ่ม | input ที่ต้องลอง |
+|---|---|
+| path | `/v1/flags/%FF`, `%C3%28`, `%00`, `%7F`, `%2F` / `%2f`, `%252F`, `a;b`, `%zz`, `a%`, ว่าง (`/v1/flags/`), `//`, segment เกิน, key ยาว 5,000 ตัว, `%61` (ต้องถอดรหัสแล้วเจอ flag `a`) |
+| method | `PATCH`/`OPTIONS`/`TRACE`/`HEAD` บน path ที่มี method อื่นอยู่ และบน path ที่ไม่มี; `GET /error`, `/docs`, `/openapi.json` |
+| header | key เป็นไบต์ Latin-1 / `ff fe` / ยาว 5,000 ตัว; header ซ้ำ |
+| body | UTF-8 ผิด, UTF-16, BOM, `NaN`/`Infinity`, `01`, `.5`, comment, comma ท้าย, ค่าซ้ำหลังค่าแรก, key ซ้ำ, ซ้อนลึก 100,000 ชั้น, เลข 5,000 หลัก, `1e999`, lone surrogate `"\ud800"`, เกิน 1 MiB (framework อ่านส่วนที่เหลือก่อนตอบหรือไม่), `Content-Type` ผิดชนิด (form/text) |
+| ความล้มเหลว | panic/exception ใน handler → ลูกค้าได้ 500 JSON ทึบหรือ connection ถูกปิดเฉยๆ? |
+
+ถ้า framework ทำให้ไม่ได้ตามสเปก ให้เปลี่ยน server ตัวที่ใช้หรือทำ routing/อ่าน body เอง (Java: Undertow + servlet filter) อย่าแก้สเปกให้ตรงกับ framework
 
 ## การทำงานร่วมกับ AI
 
