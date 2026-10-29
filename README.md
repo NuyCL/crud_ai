@@ -2,7 +2,7 @@
 
 โปรเจกต์ฝึกเขียนโค้ดหลายภาษาและฝึกใช้ AI แปลโค้ดอย่างมีขั้นตอน โดยใช้โจทย์เป็น **microservice สำหรับ feature flag** ที่ต่อยอดไปเป็น **A/B testing** ได้
 
-> **สถานะ:** มีสเปก, test vectors, contract test (333 ข้อ), implementation 5 ภาษา — **Go** (ต้นฉบับ), **TypeScript**, **Python**, **Java**, **Rust** — ผ่านชุด test เดียวกัน และเทียบกับ Go ด้วย differential test แล้ว (0 ความต่างที่เหลือ) กับ **JS SDK** (MVP3, `sdk-js/`) ยังไม่ได้ทำ: step 12 ส่วนสังเคราะห์ (`lessons/summary.md`) และเรื่องที่รอตัดสินใจ — ดู [`lessons/comparison.md`](lessons/comparison.md) ข้อ 4 (ช่องว่างของ test กลาง) และ [`sdk-js/README.md`](sdk-js/README.md) (CORS)
+> **สถานะ:** มีสเปก, test vectors, contract test (333 ข้อ), implementation 5 ภาษา — **Go** (ต้นฉบับ), **TypeScript**, **Python**, **Java**, **Rust** — ผ่านชุด test เดียวกัน และเทียบกับ Go ด้วย differential test แล้ว (0 ความต่างที่เหลือ) กับ **JS SDK** (MVP3, `sdk-js/`) สรุปรวมอยู่ที่ [`lessons/summary.md`](lessons/summary.md) เรื่องที่รอตัดสินใจ — ดู [`lessons/comparison.md`](lessons/comparison.md) ข้อ 4 (ช่องว่างของ test กลาง) และ [`sdk-js/README.md`](sdk-js/README.md) (CORS)
 
 | เอกสาร | เนื้อหา |
 |---|---|
@@ -208,7 +208,7 @@ rm -f go/contract.db go/contract.db-shm go/contract.db-wal go/ffservice
 3. ~~แปลเป็น TypeScript และบันทึกบทเรียน~~ เสร็จแล้ว (`typescript/`, `lessons/typescript.md`)
 4. ~~แปลเป็น Python, Java, Rust~~ เสร็จแล้ว (`python/`, `java/`, `rust/`, `lessons/*.md`, `lessons/comparison.md`)
 5. ~~MVP3 JavaScript library~~ เสร็จแล้ว (`sdk-js/`) — เหลือตัดสินใจเรื่อง CORS
-6. สรุปบทเรียนรวม (`lessons/summary.md`, step 12) แล้วจัดทำเอกสารและสไลด์ workshop
+6. ~~สรุปบทเรียนรวม~~ เสร็จแล้ว (`lessons/summary.md`) — เหลืออนุมัติข้อเสนอในนั้น แล้วจัดทำสไลด์ workshop
 
 ## License
 
