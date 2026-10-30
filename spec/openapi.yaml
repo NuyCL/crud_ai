@@ -165,6 +165,14 @@ paths:
         "403": { $ref: "#/components/responses/Forbidden" }
 
   /v1/evaluate:
+    options:
+      tags: [evaluate]
+      operationId: evaluatePreflight
+      summary: CORS preflight (BR-56). 404 unless CORS_ORIGINS allows the request's Origin.
+      security: []
+      responses:
+        "204": { description: Preflight accepted. No body. }
+        "404": { $ref: "#/components/responses/NotFound" }
     post:
       tags: [evaluate]
       operationId: evaluate
@@ -199,6 +207,14 @@ paths:
         "401": { $ref: "#/components/responses/Unauthorized" }
 
   /v1/events:
+    options:
+      tags: [events]
+      operationId: eventsPreflight
+      summary: CORS preflight (BR-56). 404 unless CORS_ORIGINS allows the request's Origin.
+      security: []
+      responses:
+        "204": { description: Preflight accepted. No body. }
+        "404": { $ref: "#/components/responses/NotFound" }
     post:
       tags: [events]
       x-mvp: 2

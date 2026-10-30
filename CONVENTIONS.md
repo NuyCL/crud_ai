@@ -44,6 +44,7 @@ model       Flag, Rule, Variant, Context, EvaluationResult
 | `DB_PATH` | ไฟล์ SQLite | `./flags.db` |
 | `ADMIN_KEY` | admin key (**จำเป็น**) | — |
 | `CLIENT_KEY` | client key (**จำเป็น**) | — |
+| `CORS_ORIGINS` | origin ที่เบราว์เซอร์เรียก `/v1/evaluate` และ `/v1/events` ได้ คั่นด้วย `,` หรือ `*` (BR-56; ชื่อและรูปแบบเป็นข้อสมมติของเรา สเปกกำหนดแค่พฤติกรรม) | ว่าง = ปิด CORS |
 
 ## กับดักเรื่องตัวเลข/ข้อความ (ต้องผ่าน `tests/vectors/` ทุกแถว)
 
@@ -79,7 +80,7 @@ model       Flag, Rule, Variant, Context, EvaluationResult
 
 ⁴ ต้องมี `rust/rustfmt.toml` (`max_width = 120`) และ C compiler (SQLite ถูกคอมไพล์รวม); `tokio`, `serde_json`, `http-body-util` เป็น dependency ที่ axum ใช้อยู่ — ข้อสมมติที่ต้องยืนยัน
 
-**Contract test** (ทุกภาษาเหมือนกัน): เริ่ม server ด้วย `ADMIN_KEY=test-admin-key CLIENT_KEY=test-client-key PORT=8080 DB_PATH=<ไฟล์ชั่วคราว>` แล้วรัน
+**Contract test** (ทุกภาษาเหมือนกัน): เริ่ม server ด้วย `ADMIN_KEY=test-admin-key CLIENT_KEY=test-client-key CORS_ORIGINS=https://app.example.com PORT=8080 DB_PATH=<ไฟล์ชั่วคราว>` แล้วรัน (ถ้าไม่ตั้ง `CORS_ORIGINS` test CORS ส่วนที่ต้องมี origin จะถูกข้าม แต่ test ที่ว่า "ปิดแล้วต้องไม่ตอบ CORS" จะรัน)
 
 ```bash
 node --test --test-concurrency=1 "tests/contract/*.test.mjs"

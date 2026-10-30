@@ -292,25 +292,75 @@ async fn no_such_route() -> Response {
 /// shape (a well-formed escape for bytes that are not UTF-8, "%FF", is not an error: it is a key no flag has, BR-55).
 /// A panic in a handler would otherwise end the connection without an answer: the request runs in its own task, and
 /// a task that panicked becomes an opaque 500.
-async fn guard(req: Request, next: Next) -> Response {
+async fn guard(State(cors_origins): State<Arc<Vec<String>>>, req: Request, next: Next) -> Response {
     if has_broken_escape(req.uri().path()) {
         return error_response(Code::Validation, "malformed request");
     }
     let (method, path) = (req.method().clone(), req.uri().path().to_string());
-    match tokio::spawn(next.run(req)).await {
+    let cors = cors_allow(&cors_origins, &method, &path, req.headers());
+    if let (Some(allow), true) = (&cors, method == axum::http::Method::OPTIONS) {
+        // a preflight is answered here, without a key
+        let mut response = Response::new(Body::empty());
+        *response.status_mut() = StatusCode::NO_CONTENT;
+        let h = response.headers_mut();
+        add_cors_origin(h, allow);
+        h.insert("access-control-allow-methods", "POST".parse().unwrap());
+        h.insert("access-control-allow-headers", "Content-Type, X-Client-Key".parse().unwrap());
+        h.insert("access-control-max-age", "600".parse().unwrap());
+        return response;
+    }
+    let mut response = match tokio::spawn(next.run(req)).await {
         Ok(response) => response,
         Err(e) => {
             eprintln!("internal error serving {method} {path}: {e}");
             error_response(Code::Internal, "internal error")
         }
+    };
+    if let Some(allow) = &cors {
+        add_cors_origin(response.headers_mut(), allow);
+    }
+    response
+}
+
+/// BR-56: the value for Access-Control-Allow-Origin when this is a POST or preflight to a client endpoint from an
+/// allowed Origin, else None.
+fn cors_allow(origins: &[String], method: &axum::http::Method, path: &str, headers: &HeaderMap) -> Option<String> {
+    let origin = headers.get(header::ORIGIN)?.to_str().ok()?;
+    if !(path == "/v1/evaluate" || path == "/v1/events") || !(method == "POST" || method == "OPTIONS") {
+        return None;
+    }
+    if origins.iter().any(|o| o == "*") {
+        Some("*".to_string())
+    } else if origins.iter().any(|o| o == origin) {
+        Some(origin.to_string())
+    } else {
+        None
     }
 }
 
-/// Build the HTTP application. Both keys are required (BR-10).
+fn add_cors_origin(headers: &mut HeaderMap, allow: &str) {
+    // The value is a request header that parsed as text, so it is a valid header value.
+    headers.insert("access-control-allow-origin", allow.parse().unwrap());
+    if allow != "*" {
+        headers.insert(header::VARY, "Origin".parse().unwrap());
+    }
+}
+
+/// Build the HTTP application with CORS off. Both keys are required (BR-10).
 pub fn router<R: Repository + 'static>(
     service: Service<R>,
     admin_key: &str,
     client_key: &str,
+) -> Result<Router, String> {
+    router_with_cors(service, admin_key, client_key, &[])
+}
+
+/// Like [`router`], with the origins that may call evaluate and events from a browser (BR-56; "*" allows all).
+pub fn router_with_cors<R: Repository + 'static>(
+    service: Service<R>,
+    admin_key: &str,
+    client_key: &str,
+    cors_origins: &[String],
 ) -> Result<Router, String> {
     if admin_key.is_empty() || client_key.is_empty() {
         return Err("both an admin key and a client key are required".into());
@@ -327,6 +377,6 @@ pub fn router<R: Repository + 'static>(
         .route("/v1/events", post(events::<R>))
         .fallback(no_such_route)
         .method_not_allowed_fallback(no_such_route)
-        .layer(middleware::from_fn(guard))
+        .layer(middleware::from_fn_with_state(Arc::new(cors_origins.to_vec()), guard))
         .with_state(app))
 }

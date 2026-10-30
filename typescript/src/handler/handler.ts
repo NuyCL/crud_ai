@@ -19,6 +19,8 @@ type Code = ErrorCode | "INTERNAL_ERROR";
 export interface HandlerConfig {
   adminKey: string;
   clientKey: string;
+  /** BR-56: origins that may call evaluate and events from a browser; "*" allows all; none (default) turns CORS off. */
+  corsOrigins?: readonly string[];
   /** Called with unexpected failures, which are never shown to the client. Defaults to console.error. */
   logError?: (message: string, error: unknown) => void;
 }
@@ -95,6 +97,26 @@ export function buildApp(svc: Service, cfg: HandlerConfig): FastifyInstance {
 
   // BR-53: a route that does not exist answers in our error shape, not Fastify's.
   app.setNotFoundHandler((_request, reply) => reply.code(404).send(errorBody("FLAG_NOT_FOUND", "no such route")));
+
+  // BR-56: CORS only for POST /v1/evaluate and /v1/events and only for an allowed Origin. A preflight is
+  // answered here without a key; every other request goes on untouched.
+  const corsOrigins = cfg.corsOrigins ?? [];
+  app.addHook("onRequest", async (request, reply) => {
+    const origin = request.headers.origin;
+    const path = request.url.split("?")[0];
+    if (origin === undefined || (path !== "/v1/evaluate" && path !== "/v1/events")) return;
+    if (request.method !== "OPTIONS" && request.method !== "POST") return;
+    const allow = corsOrigins.includes("*") ? "*" : corsOrigins.includes(origin) ? origin : undefined;
+    if (allow === undefined) return;
+    void reply.header("access-control-allow-origin", allow);
+    if (allow !== "*") void reply.header("vary", "Origin");
+    if (request.method === "OPTIONS") {
+      void reply.header("access-control-allow-methods", "POST");
+      void reply.header("access-control-allow-headers", "Content-Type, X-Client-Key");
+      void reply.header("access-control-max-age", "600");
+      return reply.code(204).send();
+    }
+  });
 
   // ------------------------------------------------------------------ auth
 

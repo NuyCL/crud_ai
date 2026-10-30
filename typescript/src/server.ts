@@ -7,7 +7,7 @@ import { Service } from "./service/service.js";
 async function main(): Promise<void> {
   const cfg = loadConfig(process.env);
   const repo = new SqliteRepository(cfg.dbPath);
-  const app = buildApp(new Service(repo), { adminKey: cfg.adminKey, clientKey: cfg.clientKey });
+  const app = buildApp(new Service(repo), { adminKey: cfg.adminKey, clientKey: cfg.clientKey, corsOrigins: cfg.corsOrigins });
 
   let stopping = false;
   const stop = async (signal: string): Promise<void> => {

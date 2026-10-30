@@ -61,7 +61,7 @@ Integration test กับ service อื่น: เปิด service ด้ว�
 
 ## ข้อจำกัดที่ต้องรู้ก่อนใช้จริง
 
-- **CORS:** service **ยังไม่ตอบ CORS** (สเปกไม่ได้กำหนด และ `OPTIONS` ตอบ 404 ตาม BR-53) เบราว์เซอร์ที่เรียกข้าม origin จะถูก preflight (`X-Client-Key` เป็น header กำหนดเอง) บล็อก → ใช้งานได้เมื่อเว็บกับ service อยู่ origin เดียวกัน (reverse proxy path เช่น `/flags/`) จนกว่าจะมีกติกา CORS ในสเปก (**ต้องตัดสินใจ**; SDK แก้เองไม่ได้)
+- **CORS (BR-56):** เรียกข้าม origin ได้เมื่อ service เปิดด้วย `CORS_ORIGINS=https://เว็บของคุณ` (หลาย origin คั่นด้วย `,` หรือ `*`) ไม่ตั้ง = ปิด และเบราว์เซอร์จะบล็อก (`X-Client-Key` ทำให้ทุก request ต้อง preflight) CORS เปิดเฉพาะ `/v1/evaluate` กับ `/v1/events` และไม่รับ credentials/`X-Admin-Key` จากเบราว์เซอร์; ถ้าเว็บกับ service อยู่ origin เดียวกัน (reverse proxy) ไม่ต้องตั้งอะไร
 - ไม่มี retry แบบ backoff, ไม่ใช้ `sendBeacon` ตอนปิดหน้า (event ที่ค้างตอน `pagehide` อาจหาย: เรียก `flush()` ก่อนเอง), ไม่มี SSE
 - เปลี่ยน user = สร้าง `FlagClient` ใหม่ (`close()` ตัวเก่า)
 - dedupe exposure อยู่ในหน่วยความจำ: โหลดหน้าใหม่ส่ง exposure ซ้ำ แต่ server นับ (flag, user) ครั้งเดียวอยู่แล้ว (BR-40)

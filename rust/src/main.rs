@@ -32,7 +32,8 @@ async fn run() -> Result<(), String> {
     let config = Config::load(&env)?;
     let repo = SqliteRepository::open(&config.db_path)
         .map_err(|e| format!("cannot open database {}: {e:?}", config.db_path))?;
-    let app = handler::router(Service::new(repo), &config.admin_key, &config.client_key)?;
+    let app =
+        handler::router_with_cors(Service::new(repo), &config.admin_key, &config.client_key, &config.cors_origins)?;
     let listener = tokio::net::TcpListener::bind(("0.0.0.0", config.port))
         .await
         .map_err(|e| format!("cannot listen on port {}: {e}", config.port))?;

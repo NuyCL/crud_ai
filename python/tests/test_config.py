@@ -25,3 +25,17 @@ def test_both_keys_are_required(env: dict[str, str]) -> None:
 def test_port_must_be_a_number_from_1_to_65535(port: str) -> None:
     with pytest.raises(ValueError, match="PORT"):
         load_config({"ADMIN_KEY": "a", "CLIENT_KEY": "c", "PORT": port})
+
+
+@pytest.mark.parametrize(
+    ("raw", "expected"),
+    [
+        ("", ()),
+        (" , ", ()),
+        ("https://a.example", ("https://a.example",)),
+        (" https://a.example , https://b.example,", ("https://a.example", "https://b.example")),
+        ("*", ("*",)),
+    ],
+)
+def test_cors_origins_are_split_trimmed_and_empty_items_dropped(raw: str, expected: tuple[str, ...]) -> None:
+    assert load_config({"ADMIN_KEY": "a", "CLIENT_KEY": "c", "CORS_ORIGINS": raw}).cors_origins == expected

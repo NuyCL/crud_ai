@@ -69,12 +69,12 @@
 
 ### prompts / กระบวนการ
 8. prompt เขียน test: "**อย่าให้ test คำนวณคำตอบด้วยตรรกะเดียวกับโค้ด; ทุกกรณี 'ต้องล้ม' ต้องล้มด้วยเหตุผลเดียวที่ตั้งใจ**" (ข้อ 2 แถว 2)
-9. แยก "ผู้เขียน" กับ "ผู้รีวิว" อย่างน้อยใน session คนละบทสนทนา เพื่อให้ข้อสรุปข้างบนมีน้ำหนักขึ้น
+9. แยก "ผู้เขียน" กับ "ผู้รีวิว" อย่างน้อยใน session คนละบทสนทนา เพื่อให้ข้อสรุปข้างบนมีน้ำหนักขึ้น — **ทำแล้ว:** skill `.claude/skills/review-port/SKILL.md` + ข้อกำหนดใน `CLAUDE.md` (ยังไม่เคยรันจริง: ต้องเปิด session ใหม่แล้วสั่ง `/review-port <ภาษา>`)
 
 ### ชุดกลาง (ต้องสั่งแก้ไฟล์ `tests/` โดยตรง จึงยังไม่ได้ทำ)
 10. vectors: `rollout-targeting-hit-no-user`, `variant-targeting-hit-no-user`
 11. contract: key ที่เข้ารหัสแล้วเจอ flag จริง; p-value 0.05–0.5; `NaN` ในฟิลด์ที่ไม่รู้จัก; `%zz` → 400; `OPTIONS`/`TRACE`/`/error`/`/docs` → 404; 500 ไม่รั่ว; `;`/`+` ใน query; `PATCH` ที่ path ซึ่งมี `PUT`
-12. สเปก: กติกา CORS (ถ้าต้องการให้ SDK ใช้ข้าม origin)
+12. สเปก: กติกา CORS (ถ้าต้องการให้ SDK ใช้ข้าม origin) — **ทำแล้ว = BR-56** (ดูหัวข้อ "CORS" ท้ายเอกสาร)
 
 ## เกณฑ์ "strategy ได้ผล" (5 ข้อของ step 12) — ตอบด้วยข้อมูล
 
@@ -105,4 +105,12 @@
 | 6 `port-layer` | ขั้น "ทดลอง framework" ก่อน handler, กฎ test, และ mutation check หลัง layer ผ่าน |
 | 7 `verify-gates` | เพิ่ม differential และ mutation เป็นขั้นท้าย |
 
-หมายเหตุ: skill ที่แก้กลางบทสนทนา**ยังไม่ถูกโหลดใน session นี้** (โหลดตอนเริ่ม session) ต้องเริ่ม session ใหม่จึงจะทดสอบว่าเรียกผ่าน `/port-layer` ได้จริง ข้อ 9 (แยกผู้เขียน/ผู้รีวิว) และ CORS ยังไม่ได้ทำ
+หมายเหตุ: skill ที่แก้กลางบทสนทนา**ยังไม่ถูกโหลดใน session นี้** (โหลดตอนเริ่ม session) ต้องเริ่ม session ใหม่จึงจะทดสอบว่าเรียกผ่าน `/port-layer` ได้จริง ข้อ 9 และ CORS ทำแล้ว (ดูหัวข้อท้ายเอกสาร) แต่ `review-port` ก็ยังไม่ถูกโหลดใน session นี้เช่นกัน
+
+## CORS (BR-56) และการรีวิวอิสระ (ข้อ 9)
+
+- **สเปก:** BR-56 + `OPTIONS` ใน `openapi.yaml`; env `CORS_ORIGINS` (**ชื่อและรูปแบบเป็นข้อสมมติของเรา**: สเปกกำหนดแค่พฤติกรรม). ข้อสมมติอื่น: preflight จาก origin ที่ไม่อนุญาต/ไม่มี `Origin` ยังเป็น 404 ตาม BR-53; โหมด `*` ตอบ `*` โดยไม่ใส่ `Vary`; ไม่รับ credentials
+- **contract:** +10 ข้อ (`tests/contract/cors.test.mjs`) → 364 ข้อเมื่อตั้ง `CORS_ORIGINS=https://app.example.com`, 362 เมื่อ `*`, 355 เมื่อไม่ตั้ง (ข้ามข้อที่ต้องเปิด CORS และรันข้อ "ปิดแล้วต้องไม่ตอบ CORS")
+- **ผล:** ผ่านครบทั้งสามโหมดกับ mock, Go, TypeScript, Python, Java, Rust; unit test ของทุกภาษามีชุด CORS ของตัวเอง; mock bug `cors-everywhere` และ `cors-no-vary` ถูกจับ (ล้ม 2 กลุ่ม / 1 กลุ่ม)
+- **ใช้งานจริงจากเบราว์เซอร์ (gate ที่ข้อ 5 ของ step 12 บอกว่าขาด):** Chromium (Playwright) โหลดหน้าจาก `http://localhost:9001` แล้วใช้ `sdk-js/dist/index.umd.js` เรียก Go service: เปิด `CORS_ORIGINS=http://localhost:9001` → `evaluate` 200 / `events` 202 และ `isEnabled` เป็น true; ปิด CORS → request ทั้งสองถูกบล็อก (`net::ERR_FAILED`) และ `isEnabled` ได้ค่า fallback. สคริปต์ยังไม่ได้ commit เพราะ Playwright ไม่อยู่ใน `CONVENTIONS.md` (**ถามก่อนว่าจะเพิ่มเป็น devDependency/เครื่องมือ gate หรือไม่**)
+- **ข้อจำกัด:** ผู้เขียน CORS (และ test) คือ AI ตัวเดียวกันใน session เดียว; ยังไม่มีการรีวิวอิสระ → รัน `/review-port` ใน session ใหม่ก่อนถือว่าเสร็จ

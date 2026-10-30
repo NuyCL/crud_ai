@@ -18,6 +18,7 @@ const PORT = Number(process.env.PORT ?? 8080);
 const ADMIN_KEY = process.env.ADMIN_KEY ?? "test-admin-key";
 const CLIENT_KEY = process.env.CLIENT_KEY ?? "test-client-key";
 const BUG = process.env.MOCK_BUG ?? "";
+const CORS = (process.env.CORS_ORIGINS ?? "").split(",").map((o) => o.trim()).filter(Boolean);
 
 const KEY_RE = /^[a-z0-9][a-z0-9_-]{0,63}$/;
 const VARIANT_KEY_RE = /^[a-z0-9][a-z0-9_-]{0,31}$/;
@@ -413,8 +414,33 @@ async function route(req, res) {
   throw new HttpError(404, "FLAG_NOT_FOUND", "no such route");
 }
 
+// CORS (BR-56): only the two client endpoints, only for an allowed Origin; everything else is untouched.
+const CORS_PATHS = new Set(["/v1/evaluate", "/v1/events"]);
+function cors(req, res) {
+  const origin = req.headers.origin;
+  const onClientPath = CORS_PATHS.has(req.url.split("?")[0]) || (BUG === "cors-everywhere" && req.url.startsWith("/v1/"));
+  if (CORS.length === 0 || origin === undefined || !onClientPath) return false;
+  const star = CORS.includes("*");
+  if (!star && !CORS.includes(origin)) return false;
+  if (req.method === "OPTIONS") {
+    res.setHeader("access-control-allow-origin", star ? "*" : origin);
+    if (!star) res.setHeader("vary", "Origin");
+    res.setHeader("access-control-allow-methods", "POST");
+    res.setHeader("access-control-allow-headers", "Content-Type, X-Client-Key");
+    res.setHeader("access-control-max-age", "600");
+    res.writeHead(204).end();
+    return true;
+  }
+  if (req.method === "POST" || (BUG === "cors-everywhere" && req.method === "GET")) {
+    res.setHeader("access-control-allow-origin", star ? "*" : origin);
+    if (!star && BUG !== "cors-no-vary") res.setHeader("vary", "Origin");
+  }
+  return false;
+}
+
 http
   .createServer((req, res) => {
+    if (cors(req, res)) return;
     route(req, res).catch((err) => {
       if (err instanceof HttpError) return send(res, err.status, { error: { code: err.code, message: err.message } });
       console.error(err);

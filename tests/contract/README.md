@@ -13,6 +13,7 @@
    | `PORT` | `8080` |
    | `ADMIN_KEY` | `test-admin-key` |
    | `CLIENT_KEY` | `test-client-key` |
+   | `CORS_ORIGINS` | `https://app.example.com` (ถ้าไม่ตั้ง test CORS ที่ต้องเปิดจะถูกข้าม และจะตรวจว่าปิดอยู่จริง; ตั้งเป็น `*` ได้) |
 
 2. รัน test:
 
@@ -26,6 +27,7 @@ node --test --test-concurrency=1 "tests/contract/*.test.mjs"
 |---|---|---|
 | `BASE_URL` | ที่อยู่ของ service | `http://localhost:8080` |
 | `ADMIN_KEY` / `CLIENT_KEY` | คีย์ที่ test ส่งไป | ดูตารางบน |
+| `CORS_ORIGINS` | ค่าเดียวกับที่ตั้งให้ service: test อ่านเพื่อรู้ว่าต้องเจอ CORS แบบไหน (ไม่ตั้ง = ปิด, `*` = ทุก origin, รายการ = origin แรกคือ origin ที่อนุญาต) | ไม่ตั้ง |
 | `CONTRACT_MVP` | `1` = ทดสอบเฉพาะ MVP1 (on/off), `2` = ทั้งหมด | `2` |
 
 test ทุกข้อใช้ key ที่ไม่ซ้ำและรันซ้ำบน server เดิมได้ แนะนำให้ใช้ `--test-concurrency=1` เพื่อผลที่แน่นอน: ถ้ารันขนาน ไฟล์อื่นสร้าง/ลบ flag ตลอดเวลา จนข้อทดสอบการแบ่งหน้า ("limit and offset page through the same ordering") หา snapshot ที่นิ่งไม่ได้ ข้อนั้นจะถูกรายงานเป็น **skipped** (ไม่ใช่ pass หรือ fail) ส่วนโหมดเรียงรันครบทุกข้อ
@@ -82,7 +84,9 @@ node --test --test-concurrency=1 "tests/contract/*.test.mjs"     # ต้อง�
 | `weights-not-checked` | ไม่ตรวจผลรวม weight | INVALID_VARIANTS |
 | `client-gets-401` | client key เรียก admin API ได้ 401 แทน 403 | auth BR-12 |
 | `offset-ignored` | list ไม่สนใจ `offset` | paging (BR-50) |
+| `cors-everywhere` | ใส่ CORS header กับ admin API ด้วย (ต้องตั้ง `CORS_ORIGINS`) | BR-56 ไม่มี CORS นอก client endpoint |
+| `cors-no-vary` | ลืม `Vary: Origin` | BR-56 `Vary` |
 
 ## รันกับ implementation จริง
 
-ทั้งห้าภาษา (`go/`, `typescript/`, `python/`, `java/`, `rust/`) ผ่านชุดนี้ทั้งหมด (354 ข้อ แบบเรียง `--test-concurrency=1`; ตอนที่ชุดมี 313 ข้อ ตรวจแบบขนานและ Go build ด้วย `-race` ด้วย) วิธีรัน: [`../../go/README.md`](../../go/README.md), [`../../typescript/README.md`](../../typescript/README.md) หรือหัวข้อ "Getting started" ใน [`README.md`](../../README.md) เก็บ mock ไว้เป็นตัวอ้างอิงตอนสงสัยว่า test หรือ implementation ผิด: ถ้า mock ผ่านแต่ implementation ไม่ผ่าน มักผิดที่ implementation; ถ้าทั้งคู่ไม่ผ่าน มักผิดที่ test หรือสเปก
+ทั้งห้าภาษา (`go/`, `typescript/`, `python/`, `java/`, `rust/`) ผ่านชุดนี้ทั้งหมด (364 ข้อเมื่อตั้ง `CORS_ORIGINS=https://app.example.com`, 362 ข้อเมื่อ `*`, 355 ข้อเมื่อไม่ตั้ง — ที่เหลือถูกข้ามอย่างตั้งใจ ไม่ใช่ล้ม; แบบเรียง `--test-concurrency=1`; ตอนที่ชุดมี 313 ข้อ ตรวจแบบขนานและ Go build ด้วย `-race` ด้วย) วิธีรัน: [`../../go/README.md`](../../go/README.md), [`../../typescript/README.md`](../../typescript/README.md) หรือหัวข้อ "Getting started" ใน [`README.md`](../../README.md) เก็บ mock ไว้เป็นตัวอ้างอิงตอนสงสัยว่า test หรือ implementation ผิด: ถ้า mock ผ่านแต่ implementation ไม่ผ่าน มักผิดที่ implementation; ถ้าทั้งคู่ไม่ผ่าน มักผิดที่ test หรือสเปก

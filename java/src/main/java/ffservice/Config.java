@@ -4,8 +4,16 @@ import java.util.List;
 import java.util.Map;
 
 /** Configuration from environment variables only (CONVENTIONS.md). */
-public record Config(int port, String dbPath, String adminKey, String clientKey) {
-  /** Read PORT (default 8080), DB_PATH (default ./flags.db), ADMIN_KEY and CLIENT_KEY (both required). */
+public record Config(int port, String dbPath, String adminKey, String clientKey, List<String> corsOrigins) {
+  /** CORS off. */
+  public Config(int port, String dbPath, String adminKey, String clientKey) {
+    this(port, dbPath, adminKey, clientKey, List.of());
+  }
+
+  /**
+   * Read PORT (default 8080), DB_PATH (default ./flags.db), ADMIN_KEY and CLIENT_KEY (both required). CORS_ORIGINS is
+   * a comma-separated list of origins (or "*") that may call evaluate and events from a browser (BR-56).
+   */
   public static Config load(Map<String, String> env) {
     List<String> missing = List.of("ADMIN_KEY", "CLIENT_KEY").stream()
         .filter(name -> env.getOrDefault(name, "").isEmpty())
@@ -22,7 +30,11 @@ public record Config(int port, String dbPath, String adminKey, String clientKey)
       throw new IllegalArgumentException("PORT must be a number from 1 to 65535, got \"" + rawPort + "\"");
     }
     String dbPath = env.getOrDefault("DB_PATH", "");
+    List<String> origins = java.util.Arrays.stream(env.getOrDefault("CORS_ORIGINS", "").split(","))
+        .map(String::trim)
+        .filter(o -> !o.isEmpty())
+        .toList();
     return new Config(Integer.parseInt(rawPort), dbPath.isEmpty() ? "./flags.db" : dbPath, env.get("ADMIN_KEY"),
-        env.get("CLIENT_KEY"));
+        env.get("CLIENT_KEY"), origins);
   }
 }

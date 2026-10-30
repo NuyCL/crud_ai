@@ -2,7 +2,7 @@
 
 โปรเจกต์ฝึกเขียนโค้ดหลายภาษาและฝึกใช้ AI แปลโค้ดอย่างมีขั้นตอน โดยใช้โจทย์เป็น **microservice สำหรับ feature flag** ที่ต่อยอดไปเป็น **A/B testing** ได้
 
-> **สถานะ:** มีสเปก, test vectors, contract test (354 ข้อ), implementation 5 ภาษา — **Go** (ต้นฉบับ), **TypeScript**, **Python**, **Java**, **Rust** — ผ่านชุด test เดียวกัน และเทียบกับ Go ด้วย differential test แล้ว (0 ความต่างที่เหลือ) กับ **JS SDK** (MVP3, `sdk-js/`) สรุปรวมอยู่ที่ [`lessons/summary.md`](lessons/summary.md) เรื่องที่รอตัดสินใจ — ดู [`lessons/comparison.md`](lessons/comparison.md) ข้อ 4 (ช่องว่างของ test กลาง) และ [`sdk-js/README.md`](sdk-js/README.md) (CORS)
+> **สถานะ:** มีสเปก, test vectors, contract test (364 ข้อ, รวม CORS), implementation 5 ภาษา — **Go** (ต้นฉบับ), **TypeScript**, **Python**, **Java**, **Rust** — ผ่านชุด test เดียวกัน และเทียบกับ Go ด้วย differential test แล้ว (0 ความต่างที่เหลือ) กับ **JS SDK** (MVP3, `sdk-js/`) สรุปรวมอยู่ที่ [`lessons/summary.md`](lessons/summary.md) เรื่องที่รอตัดสินใจ — ดู [`lessons/comparison.md`](lessons/comparison.md) ข้อ 4 (ช่องว่างของ test กลาง) และ [`lessons/summary.md`](lessons/summary.md) (ข้อ 9 แยกผู้เขียน/ผู้รีวิว)
 
 | เอกสาร | เนื้อหา |
 |---|---|
@@ -10,7 +10,7 @@
 | [`spec/evaluation.md`](spec/evaluation.md) | ลำดับและอัลกอริทึมการประเมิน flag รวม bucketing |
 | [`spec/business-rules.md`](spec/business-rules.md) | กฎ BR-xx และรูปแบบ error |
 | [`tests/vectors/`](tests/vectors/README.md) | ข้อมูลทดสอบกลาง (fnv1a32 / bucketing / evaluation / erfc) |
-| [`tests/contract/`](tests/contract/README.md) | contract test ผ่าน HTTP (354 ข้อ) ใช้กับทุกภาษา |
+| [`tests/contract/`](tests/contract/README.md) | contract test ผ่าน HTTP (364 ข้อ) ใช้กับทุกภาษา |
 | [`docs/workshop/`](docs/workshop/README.md) | **คู่มือ workshop แบบ step-by-step** (ภาพรวม + เอกสารละเอียด 13 step) |
 | [`CONVENTIONS.md`](CONVENTIONS.md) | โครงสร้าง layer, library ต่อภาษา, กับดักต่อภาษา, คำสั่ง gate |
 | [`docs/porting/`](docs/porting) | รายงานวิเคราะห์ก่อนแปล ([TypeScript](docs/porting/typescript-analysis.md), [Python](docs/porting/python-analysis.md), [Java](docs/porting/java-analysis.md), [Rust](docs/porting/rust-analysis.md)) |
@@ -30,7 +30,7 @@
 |---|---|---|
 | MVP1 | Feature flag เปิด/ปิด (on/off) | ✅ Go, TypeScript, Python, Java, Rust (ฝั่ง server) |
 | MVP2 | A/B testing: variants, targeting, rollout %, exposure/conversion | ✅ Go, TypeScript, Python, Java, Rust (ฝั่ง server) |
-| MVP3 | JavaScript/TypeScript library สำหรับ web | ✅ `sdk-js/` (ติด CORS: ดูข้อจำกัดใน `sdk-js/README.md`) |
+| MVP3 | JavaScript/TypeScript library สำหรับ web | ✅ `sdk-js/` (ใช้ข้าม origin ได้เมื่อตั้ง `CORS_ORIGINS`, BR-56) |
 
 ### MVP1: On/Off
 - Admin API: สร้าง/แก้/ลบ/ดู flag (`key`, `enabled`, `description`)
@@ -207,7 +207,7 @@ rm -f go/contract.db go/contract.db-shm go/contract.db-wal go/ffservice
 2. ~~MVP1 ใน Go~~ เสร็จแล้ว (รวมฝั่ง server ของ MVP2: variants, rollout, events, รายงานผล)
 3. ~~แปลเป็น TypeScript และบันทึกบทเรียน~~ เสร็จแล้ว (`typescript/`, `lessons/typescript.md`)
 4. ~~แปลเป็น Python, Java, Rust~~ เสร็จแล้ว (`python/`, `java/`, `rust/`, `lessons/*.md`, `lessons/comparison.md`)
-5. ~~MVP3 JavaScript library~~ เสร็จแล้ว (`sdk-js/`) — เหลือตัดสินใจเรื่อง CORS
+5. ~~MVP3 JavaScript library~~ เสร็จแล้ว (`sdk-js/`) และ CORS เสร็จแล้ว (BR-56)
 6. ~~สรุปบทเรียนรวม~~ เสร็จแล้ว (`lessons/summary.md`) — เหลืออนุมัติข้อเสนอในนั้น แล้วจัดทำสไลด์ workshop
 
 ## License
