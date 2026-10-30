@@ -92,7 +92,7 @@ public class Api implements Filter {
     String origin = request.getHeader("Origin");
     String path = request.getRequestURI();
     String method = request.getMethod();
-    if (origin == null || !(path.equals("/v1/evaluate") || path.equals("/v1/events"))
+    if (origin == null || origin.isEmpty() || !(path.equals("/v1/evaluate") || path.equals("/v1/events"))
         || !(method.equals("POST") || method.equals("OPTIONS"))) {
       return false;
     }

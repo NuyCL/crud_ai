@@ -1,14 +1,16 @@
 // CORS for the browser SDK (BR-56). The tests read the same CORS_ORIGINS variable the service is started with:
 //   unset or empty   -> CORS is off: nothing changes (OPTIONS stays 404, no CORS headers)
 //   "*"              -> every origin is allowed
-//   "a,b,..."        -> exactly these origins; the first one is used as the allowed origin below
+//   "a,b,..."        -> exactly these origins; every one of them is tested (give two to cover the list parsing)
 import { describe, test } from "node:test";
 import assert from "node:assert/strict";
 import { call, get, post, assertError } from "./lib.mjs";
 
 const setting = (process.env.CORS_ORIGINS ?? "").trim();
 const mode = setting === "" ? "off" : setting === "*" ? "star" : "list";
-const allowed = mode === "list" ? setting.split(",")[0].trim() : "https://app.example.com";
+const listed = setting.split(",").map((o) => o.trim()).filter((o) => o !== "");
+const allowedList = mode === "list" ? listed.filter((o) => o !== "*") : [];
+const allowed = allowedList[0] ?? "https://app.example.com";
 const stranger = "https://evil.example.org";
 
 const withOrigin = (origin, extra = {}) => ({ headers: { origin }, ...extra });
@@ -47,6 +49,21 @@ describe("CORS preflight (BR-56)", { skip: mode === "off" ? "CORS_ORIGINS is not
       const res = await preflight(path);
       assertError(res, 404, "FLAG_NOT_FOUND");
       hasNoCors(res, path);
+    }
+  });
+});
+
+describe("every listed origin is allowed, not just the first (BR-56)", { skip: allowedList.length < 2 ? "needs two origins in CORS_ORIGINS" : false }, () => {
+  test("each listed origin gets its own value back, on a preflight and on a POST", async () => {
+    for (const origin of allowedList) {
+      for (const path of ["/v1/evaluate", "/v1/events"]) {
+        const pre = await preflight(path, origin);
+        assert.equal(pre.status, 204, `${origin} ${path}`);
+        assert.equal(header(pre, "access-control-allow-origin"), origin);
+      }
+      const res = await post("/v1/evaluate", { flags: [] }, { auth: "client", ...withOrigin(origin) });
+      assert.equal(header(res, "access-control-allow-origin"), origin);
+      assert.match(header(res, "vary") ?? "", /origin/i);
     }
   });
 });
@@ -93,8 +110,28 @@ describe("CORS headers on the real responses (BR-56)", { skip: mode === "off" ? 
     }
   });
 
-  test("a request with no Origin gets no CORS headers", async () => {
+  test("a request with no Origin, or an empty one, gets no CORS headers", async () => {
     hasNoCors(await post("/v1/evaluate", { flags: [] }, { auth: "client" }), "evaluate");
+    hasNoCors(await post("/v1/evaluate", { flags: [] }, { auth: "client", ...withOrigin("") }), "empty Origin");
+  });
+
+  test("a query string does not change the path; a trailing slash does (404 without CORS)", async () => {
+    const withQuery = await post("/v1/evaluate?x=1", { flags: [] }, { auth: "client", ...withOrigin(allowed) });
+    assert.equal(withQuery.status, 200);
+    assert.equal(header(withQuery, "access-control-allow-origin"), expected);
+    const pre = await preflight("/v1/events?x=1");
+    assert.equal(pre.status, 204);
+    const slash = await post("/v1/evaluate/", { flags: [] }, { auth: "client", ...withOrigin(allowed) });
+    assertError(slash, 404, "FLAG_NOT_FOUND");
+    hasNoCors(slash, "trailing slash");
+  });
+
+  test("methods other than POST and OPTIONS on a client path are 404 without CORS", async () => {
+    for (const method of ["GET", "PUT", "DELETE", "PATCH"]) {
+      const res = await call(method, "/v1/evaluate", { auth: "client", ...withOrigin(allowed) });
+      assertError(res, 404, "FLAG_NOT_FOUND");
+      hasNoCors(res, method);
+    }
   });
 
   test("the admin API, /healthz and unknown routes get no CORS headers, whatever the Origin", async () => {
@@ -111,6 +148,17 @@ describe("responses for an origin that is not allowed (BR-56)", { skip: mode !==
     assert.equal(res.status, 200);
     hasNoCors(res, "evaluate");
     hasNoCors(await post("/v1/events", { events: [{ type: "conversion", userId: "u", goal: "g" }] }, { auth: "client", ...withOrigin(stranger) }), "events");
+  });
+});
+
+describe("star mode with an origin that nobody listed (BR-56)", { skip: mode !== "star" ? "needs CORS_ORIGINS=*" : false }, () => {
+  test("every origin gets *, with no Vary", async () => {
+    const pre = await preflight("/v1/evaluate", stranger);
+    assert.equal(pre.status, 204);
+    assert.equal(header(pre, "access-control-allow-origin"), "*");
+    assert.equal(header(pre, "vary"), null);
+    const res = await post("/v1/evaluate", { flags: [] }, { auth: "client", ...withOrigin(stranger) });
+    assert.equal(header(res, "access-control-allow-origin"), "*");
   });
 });
 

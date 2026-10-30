@@ -13,7 +13,7 @@
    | `PORT` | `8080` |
    | `ADMIN_KEY` | `test-admin-key` |
    | `CLIENT_KEY` | `test-client-key` |
-   | `CORS_ORIGINS` | `https://app.example.com` (ถ้าไม่ตั้ง test CORS ที่ต้องเปิดจะถูกข้าม และจะตรวจว่าปิดอยู่จริง; ตั้งเป็น `*` ได้) |
+   | `CORS_ORIGINS` | `https://app.example.com,https://b.example.com` (ถ้าไม่ตั้ง test CORS ที่ต้องเปิดจะถูกข้าม และจะตรวจว่าปิดอยู่จริง; ตั้งเป็น `*` ได้) |
 
 2. รัน test:
 
@@ -89,4 +89,4 @@ node --test --test-concurrency=1 "tests/contract/*.test.mjs"     # ต้อง�
 
 ## รันกับ implementation จริง
 
-ทั้งห้าภาษา (`go/`, `typescript/`, `python/`, `java/`, `rust/`) ผ่านชุดนี้ทั้งหมด (364 ข้อเมื่อตั้ง `CORS_ORIGINS=https://app.example.com`, 362 ข้อเมื่อ `*`, 355 ข้อเมื่อไม่ตั้ง — ที่เหลือถูกข้ามอย่างตั้งใจ ไม่ใช่ล้ม; แบบเรียง `--test-concurrency=1`; ตอนที่ชุดมี 313 ข้อ ตรวจแบบขนานและ Go build ด้วย `-race` ด้วย) วิธีรัน: [`../../go/README.md`](../../go/README.md), [`../../typescript/README.md`](../../typescript/README.md) หรือหัวข้อ "Getting started" ใน [`README.md`](../../README.md) เก็บ mock ไว้เป็นตัวอ้างอิงตอนสงสัยว่า test หรือ implementation ผิด: ถ้า mock ผ่านแต่ implementation ไม่ผ่าน มักผิดที่ implementation; ถ้าทั้งคู่ไม่ผ่าน มักผิดที่ test หรือสเปก
+ทั้งห้าภาษา (`go/`, `typescript/`, `python/`, `java/`, `rust/`) ผ่านชุดนี้ทั้งหมด (367 ข้อเมื่อตั้ง `CORS_ORIGINS=https://app.example.com,https://b.example.com` (ต้องมี origin อย่างน้อย 2 ตัวจึงครบ; ตัวเดียวได้ 366), 365 ข้อเมื่อ `*`, 355 ข้อเมื่อไม่ตั้ง — ที่เหลือถูกข้ามอย่างตั้งใจ ไม่ใช่ล้ม; แบบเรียง `--test-concurrency=1`; ตอนที่ชุดมี 313 ข้อ ตรวจแบบขนานและ Go build ด้วย `-race` ด้วย) วิธีรัน: [`../../go/README.md`](../../go/README.md), [`../../typescript/README.md`](../../typescript/README.md) หรือหัวข้อ "Getting started" ใน [`README.md`](../../README.md) เก็บ mock ไว้เป็นตัวอ้างอิงตอนสงสัยว่า test หรือ implementation ผิด: ถ้า mock ผ่านแต่ implementation ไม่ผ่าน มักผิดที่ implementation; ถ้าทั้งคู่ไม่ผ่าน มักผิดที่ test หรือสเปก

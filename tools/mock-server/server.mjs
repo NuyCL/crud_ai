@@ -419,7 +419,7 @@ const CORS_PATHS = new Set(["/v1/evaluate", "/v1/events"]);
 function cors(req, res) {
   const origin = req.headers.origin;
   const onClientPath = CORS_PATHS.has(req.url.split("?")[0]) || (BUG === "cors-everywhere" && req.url.startsWith("/v1/"));
-  if (CORS.length === 0 || origin === undefined || !onClientPath) return false;
+  if (CORS.length === 0 || !origin || !onClientPath) return false;
   const star = CORS.includes("*");
   if (!star && !CORS.includes(origin)) return false;
   if (req.method === "OPTIONS") {

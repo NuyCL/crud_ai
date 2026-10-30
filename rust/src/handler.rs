@@ -325,7 +325,7 @@ async fn guard(State(cors_origins): State<Arc<Vec<String>>>, req: Request, next:
 /// BR-56: the value for Access-Control-Allow-Origin when this is a POST or preflight to a client endpoint from an
 /// allowed Origin, else None.
 fn cors_allow(origins: &[String], method: &axum::http::Method, path: &str, headers: &HeaderMap) -> Option<String> {
-    let origin = headers.get(header::ORIGIN)?.to_str().ok()?;
+    let origin = headers.get(header::ORIGIN)?.to_str().ok().filter(|o| !o.is_empty())?;
     if !(path == "/v1/evaluate" || path == "/v1/events") || !(method == "POST" || method == "OPTIONS") {
         return None;
     }

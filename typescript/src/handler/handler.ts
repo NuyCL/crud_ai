@@ -104,7 +104,7 @@ export function buildApp(svc: Service, cfg: HandlerConfig): FastifyInstance {
   app.addHook("onRequest", async (request, reply) => {
     const origin = request.headers.origin;
     const path = request.url.split("?")[0];
-    if (origin === undefined || (path !== "/v1/evaluate" && path !== "/v1/events")) return;
+    if (origin === undefined || origin === "" || (path !== "/v1/evaluate" && path !== "/v1/events")) return;
     if (request.method !== "OPTIONS" && request.method !== "POST") return;
     const allow = corsOrigins.includes("*") ? "*" : corsOrigins.includes(origin) ? origin : undefined;
     if (allow === undefined) return;

@@ -144,7 +144,7 @@ def create_app(service: Service, admin_key: str, client_key: str, cors_origins: 
     def cors_headers(request: Request, raw_path: bytes) -> dict[str, str] | None:
         """BR-56: the headers for a POST or preflight on a client endpoint from an allowed Origin, else None."""
         origin = request.headers.get("origin")
-        if origin is None or raw_path not in _CORS_PATHS or request.method not in ("OPTIONS", "POST"):
+        if not origin or raw_path not in _CORS_PATHS or request.method not in ("OPTIONS", "POST"):
             return None
         if "*" in cors_origins:
             return {"access-control-allow-origin": "*"}
