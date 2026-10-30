@@ -6,7 +6,7 @@
 
 1. `spec/` และ `tests/` (contract, vectors) เป็นของกลาง **ห้ามแก้เพื่อให้โค้ดผ่าน**
 2. แปลเป็นโค้ดที่เป็น idiom ของภาษานั้น ไม่แปลทีละบรรทัด
-3. ใช้เฉพาะ library ในตารางด้านล่าง ถ้าต้องการเพิ่มให้ขออนุมัติก่อน — ยกเว้นสิ่งที่ framework ในตารางพึ่งพาโดยตรง (ดูหัวข้อ "Dependency" ใน `CLAUDE.md`) และ devDependencies ของ `typescript/` กับ `sdk-js/` (`typescript`, `eslint`, `@eslint/js`, `typescript-eslint`, `@types/*`, `esbuild`) ซึ่งอนุมัติแล้ว
+3. ใช้เฉพาะ library ในตารางด้านล่าง ถ้าต้องการเพิ่มให้ขออนุมัติก่อน — ยกเว้นสิ่งที่ framework ในตารางพึ่งพาโดยตรง (ดูหัวข้อ "Dependency" ใน `CLAUDE.md`) และ devDependencies ของ `typescript/` กับ `sdk-js/` (`typescript`, `eslint`, `@eslint/js`, `typescript-eslint`, `@types/*`, `esbuild`) และ `playwright` (เฉพาะ `tools/browser-check/`, pin เวอร์ชัน, ผู้ใช้สั่งเพิ่ม) ซึ่งอนุมัติแล้ว
 4. ไม่มี global mutable state; ทำ dependency injection ผ่าน constructor/parameter
 
 ## โครงสร้าง layer (ทุกภาษาเหมือนกัน)

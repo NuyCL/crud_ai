@@ -1,0 +1,13 @@
+{
+  "name": "ffservice-browser-check",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Real-browser check of BR-56 (CORS) using the SDK bundle",
+  "scripts": {
+    "check": "node check.mjs"
+  },
+  "devDependencies": {
+    "playwright": "1.63.0"
+  }
+}
