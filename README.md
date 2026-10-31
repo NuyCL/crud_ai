@@ -2,7 +2,7 @@
 
 โปรเจกต์ฝึกเขียนโค้ดหลายภาษาและฝึกใช้ AI แปลโค้ดอย่างมีขั้นตอน โดยใช้โจทย์เป็น **microservice สำหรับ feature flag** ที่ต่อยอดไปเป็น **A/B testing** ได้
 
-> **สถานะ (2026-10-31): ปิดงานเกือบครบ ยังเหลือรีวิวอิสระ** — มีสเปก (กฎ BR-xx ถึง BR-57 รวม CORS), test vectors, contract test **390 ข้อ** (เมื่อตั้ง `CORS_ORIGINS=https://app.example.com,https://b.example.com`; 388 เมื่อ `*`; 378 เมื่อไม่ตั้ง), implementation 5 ภาษา — **Go** (ต้นฉบับ), **TypeScript**, **Python**, **Java**, **Rust** — ผ่านชุด test เดียวกัน, differential test เทียบกับ Go (seed 1 และ 2, ภาษาละ 3,000 คำขอ) ได้ 0 ความต่าง, และ **JS SDK** (MVP3, `sdk-js/`) ที่ผ่านเบราว์เซอร์จริงด้วย `tools/browser-check` ทั้ง 6 server สรุปรวมอยู่ที่ [`lessons/summary.md`](lessons/summary.md) **รีวิวอิสระใน session ใหม่โดยผู้ใช้ กำลังดำเนินการ ยังไม่เสร็จ** จึงยังไม่เรียกว่า "เสร็จสมบูรณ์" ตาม `CLAUDE.md` — ดูตาราง "สถานะ" ด้านล่าง; แล็บฝึกหัดอยู่ที่ [`docs/lab/README.md`](docs/lab/README.md)
+> **สถานะ (2026-10-31): ปิดงานแล้ว (รีวิวอิสระผ่าน)** — มีสเปก (กฎ BR-xx ถึง BR-57 รวม CORS), test vectors, contract test **390 ข้อ** (เมื่อตั้ง `CORS_ORIGINS=https://app.example.com,https://b.example.com`; 388 เมื่อ `*`; 378 เมื่อไม่ตั้ง), implementation 5 ภาษา — **Go** (ต้นฉบับ), **TypeScript**, **Python**, **Java**, **Rust** — ผ่านชุด test เดียวกัน, differential test เทียบกับ Go (seed 1 และ 2, ภาษาละ 3,000 คำขอ) ได้ 0 ความต่าง, และ **JS SDK** (MVP3, `sdk-js/`) ที่ผ่านเบราว์เซอร์จริงด้วย `tools/browser-check` ทั้ง 6 server สรุปรวมอยู่ที่ [`lessons/summary.md`](lessons/summary.md) **รีวิวอิสระใน session ใหม่โดยผู้ใช้ เสร็จแล้ว ไม่มีข้อที่ต้องแก้** (ตามที่ผู้ใช้แจ้ง; รายงานไม่ได้เก็บไว้ในรีโป) จึงครบเงื่อนไข "เสร็จ" ตาม `CLAUDE.md` — ดูตาราง "สถานะ" ด้านล่าง; แล็บฝึกหัดอยู่ที่ [`docs/lab/README.md`](docs/lab/README.md)
 
 ## สถานะ: อะไรเสร็จ อะไรยังเปิด
 
@@ -15,7 +15,7 @@
 | `tools/browser-check` (Chromium จริง) | ✅ | ผ่านทั้ง 6 server |
 | เอกสาร workshop step 0–12, `docs/porting`, `lessons` | ✅ | ดู [`docs/workshop/README.md`](docs/workshop/README.md) หัวข้อ "สถานะการปิดงาน" |
 | รีวิวโดย agent ใหม่ (โมเดลเดียวกัน) | ✅ 1 รอบ | แก้ทุกข้อแล้ว แต่ไม่นับเป็นรีวิวอิสระ |
-| **รีวิวอิสระใน session ใหม่ (`/review-port`)** | ⏳ ผู้ใช้กำลังทำ | จนกว่าจะเสร็จ: "ยังไม่ได้รีวิวอิสระ" |
+| **รีวิวอิสระใน session ใหม่ (`/review-port`)** | ✅ ผ่าน | ผู้ใช้แจ้งว่าไม่มีข้อที่ต้องแก้ (ไม่มีรายงานในรีโป) |
 | ทดสอบ 5xx ของ CORS จากภายนอก | ❌ ทำไม่ได้ | มีแค่ unit test ต่อภาษา |
 | dev คนอื่นลองทำตามเอกสาร, สไลด์, license, Makefile | ❌ ยังไม่มี | |
 
@@ -229,7 +229,7 @@ rm -f go/contract.db go/contract.db-shm go/contract.db-wal go/ffservice
 5. ~~MVP3 JavaScript library~~ เสร็จแล้ว (`sdk-js/`) และ CORS เสร็จแล้ว (BR-56)
 6. ~~สรุปบทเรียนรวม~~ เสร็จแล้ว (`lessons/summary.md`) ข้อเสนอนำไปใช้แล้ว
 7. ~~CORS (BR-56), BR-57, `review-port`, `tools/browser-check`~~ เสร็จแล้ว
-8. เหลือ: รีวิวอิสระใน session ใหม่ (ผู้ใช้กำลังทำ), สไลด์ workshop, license
+8. รีวิวอิสระใน session ใหม่: ผ่านแล้ว; เหลือ: สไลด์ workshop, license
 
 ## License
 
