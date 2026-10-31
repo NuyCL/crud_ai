@@ -228,6 +228,7 @@ rm -f go/contract.db go/contract.db-shm go/contract.db-wal go/ffservice
 6. ~~สรุปบทเรียนรวม~~ เสร็จแล้ว (`lessons/summary.md`) ข้อเสนอนำไปใช้แล้ว
 7. ~~CORS (BR-56), BR-57, `review-port`, `tools/browser-check`~~ เสร็จแล้ว
 8. รีวิวอิสระใน session ใหม่: ผ่านแล้ว; เหลือ: สไลด์ workshop, license
+9. **MVP4 (แผนเท่านั้น ยังไม่ implement):** อัปเดต flag แบบ real-time (SSE) + deploy บน cloud — ดู [`docs/plan-mvp4.md`](docs/plan-mvp4.md) (มีคำถามที่ต้องตัดสินก่อนเริ่ม)
 
 ## License
 
