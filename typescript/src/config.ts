@@ -3,12 +3,14 @@
 //   DB_PATH     SQLite file (default ./flags.db)
 //   ADMIN_KEY   key for the admin API (required)
 //   CLIENT_KEY  key for evaluate and events (required)
+//   CORS_ORIGINS  comma-separated origins allowed to call evaluate and events from a browser, or "*" (default: none)
 
 export interface Config {
   port: number;
   dbPath: string;
   adminKey: string;
   clientKey: string;
+  corsOrigins: string[];
 }
 
 export function loadConfig(env: Readonly<Record<string, string | undefined>>): Config {
@@ -18,5 +20,6 @@ export function loadConfig(env: Readonly<Record<string, string | undefined>>): C
   const clientKey = env["CLIENT_KEY"] ?? "";
   if (adminKey === "" || clientKey === "") throw new Error("ADMIN_KEY and CLIENT_KEY must both be set");
   const dbPath = env["DB_PATH"] === undefined || env["DB_PATH"] === "" ? "./flags.db" : env["DB_PATH"];
-  return { port, dbPath, adminKey, clientKey };
+  const corsOrigins = (env["CORS_ORIGINS"] ?? "").split(",").map((o) => o.trim()).filter((o) => o !== "");
+  return { port, dbPath, adminKey, clientKey, corsOrigins };
 }

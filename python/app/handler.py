@@ -12,6 +12,7 @@ import hmac
 import json
 import logging
 import re
+from collections.abc import Sequence
 from typing import Any
 from urllib.parse import unquote_to_bytes
 
@@ -108,8 +109,17 @@ def _reject_constant(name: str) -> Any:
     raise ValueError(f"{name} is not valid JSON")  # json.loads accepts NaN, Infinity and -Infinity by default
 
 
-def create_app(service: Service, admin_key: str, client_key: str) -> FastAPI:
-    """Build the HTTP application. Both keys are required (BR-10)."""
+def _encoded_outside_key(raw_path: bytes) -> bool:
+    """BR-57: only the flag key (/v1/flags/{key}...) may be percent-encoded."""
+    parts = raw_path.split(b"/")
+    return any(b"%" in part and not (i == 3 and parts[1:3] == [b"v1", b"flags"]) for i, part in enumerate(parts))
+
+
+_CORS_PATHS = frozenset({b"/v1/evaluate", b"/v1/events"})
+
+
+def create_app(service: Service, admin_key: str, client_key: str, cors_origins: Sequence[str] = ()) -> FastAPI:
+    """Build the HTTP application. Both keys are required (BR-10). cors_origins: BR-56, empty means CORS is off."""
     if not admin_key or not client_key:
         raise ValueError("both an admin key and a client key are required")
     admin_digest, client_digest = _digest(admin_key.encode()), _digest(client_key.encode())
@@ -137,6 +147,17 @@ def create_app(service: Service, admin_key: str, client_key: str) -> FastAPI:
         ):
             raise ServiceError(CODE_UNAUTHORIZED, "missing or invalid key")
 
+    def cors_headers(request: Request, raw_path: bytes) -> dict[str, str] | None:
+        """BR-56: the headers for a POST or preflight on a client endpoint from an allowed Origin, else None."""
+        origin = request.headers.get("origin")
+        if not origin or raw_path not in _CORS_PATHS or request.method not in ("OPTIONS", "POST"):
+            return None
+        if "*" in cors_origins:
+            return {"access-control-allow-origin": "*"}
+        if origin in cors_origins:
+            return {"access-control-allow-origin": origin, "vary": "Origin"}
+        return None
+
     @app.middleware("http")
     async def guard(request: Request, call_next: Any) -> Response:
         # "%zz" is not a path at all (400). "%FF" is a well-formed escape for bytes that are not UTF-8: no flag
@@ -144,13 +165,28 @@ def create_app(service: Service, admin_key: str, client_key: str) -> FastAPI:
         raw_path = request.scope.get("raw_path") or b""
         if _BROKEN_ESCAPE.search(raw_path):
             return _error_response(400, CODE_VALIDATION, "malformed request")
+        if _encoded_outside_key(raw_path):
+            return _error_response(404, CODE_FLAG_NOT_FOUND, "no such route")
         if b"%2" in raw_path:
             request.scope["path"] = _route_path(raw_path)
+        cors = cors_headers(request, raw_path)
+        if cors is not None and request.method == "OPTIONS":  # a preflight is answered here, without a key
+            return Response(
+                status_code=204,
+                headers={
+                    **cors,
+                    "access-control-allow-methods": "POST",
+                    "access-control-allow-headers": "Content-Type, X-Client-Key",
+                    "access-control-max-age": "600",
+                },
+            )
         try:
-            return await call_next(request)
+            response = await call_next(request)
         except Exception as exc:  # anything unexpected is an opaque 500; the details go to the log only
             log.error("internal error serving %s %s: %r", request.method, request.url.path, exc)
-            return _error_response(500, CODE_INTERNAL, "internal error")
+            response = _error_response(500, CODE_INTERNAL, "internal error")
+        response.headers.update(cors or {})
+        return response
 
     @app.exception_handler(ServiceError)
     async def on_service_error(_request: Request, exc: ServiceError) -> Response:

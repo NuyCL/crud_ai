@@ -133,3 +133,12 @@ node --test --test-concurrency=1 "tests/contract/*.test.mjs"      # หลัง
 1. อนุมัติ devDependencies ในข้อ 3 หรือไม่ (จำเป็นต่อ gate)
 2. อนุมัติการตัดสินใจในข้อ 8 ที่ **แก้สเปก** (BR-30, 43, 52, 53 และ evaluation.md 3.1) ซึ่งเปลี่ยนสเปกที่ Go ใช้อยู่ด้วย (Go ผ่านชุดใหม่ทั้งหมดโดยไม่ต้องแก้โค้ด: 299/299)
 3. ยอมรับความต่างข้อ 6 หรือต้องการให้เพิ่ม test บังคับ
+
+## 10. หลังเพิ่ม CORS (BR-56) และ BR-57
+
+อ่านจากโค้ดจริงใน `typescript/src/handler/handler.ts` (`buildApp`) และ `typescript/src/config.ts`:
+
+- **CORS** อยู่ใน hook `onRequest` ของ Fastify (ไม่ใช่ plugin `@fastify/cors` เพราะไม่อยู่ในตาราง `CONVENTIONS.md`): ถ้า `Origin` ไม่ว่างและ path เป็น `/v1/evaluate` หรือ `/v1/events` ด้วย method `POST`/`OPTIONS` และ origin อยู่ในรายการ จะตั้ง `access-control-allow-origin` (และ `vary: Origin` เมื่อไม่ใช่ `*`) แล้วถ้าเป็น `OPTIONS` ตอบ 204 ทันทีโดยไม่ผ่านการตรวจ key; กรณีอื่นปล่อยผ่านไปยัง route ปกติ ส่วน header ที่ตั้งไว้ติดไปกับทุกสถานะของ `POST`
+- **BR-57** เป็น hook `onRequest` อีกตัวที่ทำงาน**ก่อน** hook ของ CORS: ถ้า segment ใดของ path มี `%` ที่ไม่ใช่ key ของ `/v1/flags/{key}` ตอบ 404 `FLAG_NOT_FOUND` ทันที (จึงไม่มี CORS บน `/v1/%65valuate` ตามสเปก) ก่อนมีกฎนี้ Fastify ถอดรหัสทุก segment ก่อน routing ทำให้ `/v1/%65valuate` เข้า route จริง
+- config: `CORS_ORIGINS` อ่านใน `config.ts` แล้วส่งเข้า `buildApp` ผ่าน `corsOrigins` (ไม่มี global state)
+- ความต่างจาก Go: Go ใช้ middleware ห่อ `ServeMux`; ผลที่สังเกตได้จากภายนอกเหมือนกัน (ผ่าน contract 390 ข้อ และ differential)

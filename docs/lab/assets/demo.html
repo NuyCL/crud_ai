@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<title>Feature flag demo (lab module 7)</title>
+<style>
+  body { font-family: system-ui, "Noto Sans Thai", sans-serif; background: #f4f6fa; color: #1b2433; margin: 0; padding: 24px; }
+  .card { max-width: 760px; margin: 0 auto; background: #fff; border: 1px solid #c9d1e0; border-radius: 10px; padding: 20px 24px; }
+  h1 { font-size: 20px; margin: 0 0 12px; }
+  table { border-collapse: collapse; width: 100%; margin: 8px 0 14px; }
+  td { padding: 6px 8px; border-bottom: 1px solid #e3e8f1; font-size: 15px; vertical-align: top; }
+  td:first-child { width: 190px; color: #4a5568; }
+  code { font-family: ui-monospace, Menlo, Consolas, monospace; }
+  #badge { display: inline-block; padding: 6px 14px; border-radius: 6px; font-weight: 700; font-size: 16px; background: #e3e8f1; }
+  #badge.ok { background: #c6f6d5; color: #14532d; }
+  #badge.blocked { background: #fed7d7; color: #7f1d1d; }
+  #error, #console { display: none; margin-top: 10px; padding: 10px 12px; border-radius: 6px; font-size: 14px; white-space: pre-wrap; word-break: break-word; }
+  #error { background: #fff5f5; border: 1px solid #fc8181; color: #7f1d1d; }
+  #console { background: #1b2433; color: #f7fafc; border: 1px solid #1b2433; }
+  #console b { color: #feb2b2; }
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>Feature flag demo</h1>
+  <p id="badge">loading...</p>
+  <table>
+    <tr><td>หน้านี้ (origin)</td><td><code id="origin"></code></td></tr>
+    <tr><td>service (baseUrl)</td><td><code id="svc"></code></td></tr>
+    <tr><td>flag / user</td><td><code id="flag"></code></td></tr>
+    <tr><td>isEnabled()</td><td><code id="enabled">-</code></td></tr>
+    <tr><td>getVariant()</td><td><code id="variant">-</code></td></tr>
+    <tr><td>probe: POST /v1/evaluate</td><td><code id="probe">-</code></td></tr>
+  </table>
+  <div id="error"></div>
+  <div id="console"></div>
+</div>
+<script src="../../../sdk-js/dist/index.umd.js"></script>
+<script>
+  const q = new URLSearchParams(location.search);
+  const svc = q.get("svc") || "http://localhost:8080";
+  const clientKey = q.get("clientKey") || "test-client-key";
+  const flag = q.get("flag") || "new-checkout";
+  const userId = q.get("user") || "u1";
+  const $ = (id) => document.getElementById(id);
+  $("origin").textContent = location.origin;
+  $("svc").textContent = svc;
+  $("flag").textContent = flag + " / " + userId;
+
+  async function main() {
+    // 1) probe with plain fetch: unlike the SDK (which never throws) this shows WHY a call failed
+    try {
+      const r = await fetch(svc + "/v1/evaluate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-Client-Key": clientKey },
+        body: JSON.stringify({ flags: [flag], context: { userId } }),
+      });
+      $("probe").textContent = "HTTP " + r.status;
+    } catch (e) {
+      $("probe").textContent = "FAILED";
+      $("error").style.display = "block";
+      $("error").textContent = "fetch() rejected: " + e.name + ": " + e.message +
+        "\n(the browser hides the reason from JavaScript; the real reason is in DevTools > Console)";
+    }
+    // 2) the SDK itself: ready() never rejects, it falls back to the default we pass in
+    const ff = new FeatureFlags.FlagClient({ baseUrl: svc, clientKey, user: { id: userId }, pollIntervalMs: 0 });
+    await ff.ready();
+    const on = ff.isEnabled(flag, false);
+    const variant = ff.getVariant(flag, "(fallback)");
+    $("enabled").textContent = String(on);
+    $("variant").textContent = String(variant);
+    ff.close();
+    const blocked = $("probe").textContent === "FAILED";
+    $("badge").className = blocked ? "blocked" : "ok";
+    $("badge").textContent = blocked ? "BLOCKED by browser (CORS) - SDK uses fallback" : "ALLOWED - flag evaluated by the service";
+    document.title = "done";
+  }
+  main();
+</script>
+</body>
+</html>

@@ -5,7 +5,7 @@ use std::collections::BTreeMap;
 use std::io::{Read, Write};
 use std::net::TcpStream;
 
-use ffservice::handler::{MAX_BODY_BYTES, router};
+use ffservice::handler::{MAX_BODY_BYTES, router, router_with_cors};
 use ffservice::repository::SqliteRepository;
 use ffservice::service::Service;
 use serde_json::{Value, json};
@@ -19,11 +19,22 @@ struct Server {
 }
 
 fn start() -> Server {
+    start_with(&[])
+}
+
+fn start_with(cors_origins: &[&str]) -> Server {
+    let cors_origins: Vec<String> = cors_origins.iter().map(|o| (*o).to_string()).collect();
     let (tx, rx) = std::sync::mpsc::channel();
     std::thread::spawn(move || {
         let runtime = tokio::runtime::Runtime::new().unwrap();
         runtime.block_on(async {
-            let app = router(Service::new(SqliteRepository::open(":memory:").unwrap()), ADMIN, CLIENT).unwrap();
+            let app = router_with_cors(
+                Service::new(SqliteRepository::open(":memory:").unwrap()),
+                ADMIN,
+                CLIENT,
+                &cors_origins,
+            )
+            .unwrap();
             let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
             tx.send(listener.local_addr().unwrap().port()).unwrap();
             axum::serve(listener, app).await.unwrap();
@@ -619,4 +630,133 @@ fn a_panic_in_a_handler_is_an_opaque_500_and_the_server_carries_on() {
     assert!(!r.text().contains("secret"), "{}", r.text());
     assert_error(&s.call("POST", "/v1/evaluate", r#"{"flags":["x"]}"#, "client"), 500, "INTERNAL_ERROR");
     assert_eq!(s.call("GET", "/healthz", "", "none").status, 200);
+}
+
+// ------------------------------------------------------------------- CORS (BR-56)
+
+const APP: &str = "https://app.example.com";
+const ALLOW: &str = "access-control-allow-origin";
+
+fn with_origin(server: &Server, method: &str, target: &str, body: &str, auth: &str, origin: Option<&str>) -> Response {
+    let headers = origin.map(|o| vec![("Origin", o.as_bytes().to_vec())]).unwrap_or_default();
+    server.send(Req { method, target: target.into(), body: body.as_bytes().to_vec(), auth, headers })
+}
+
+#[test]
+fn br56_preflight_from_an_allowed_origin_is_204_without_a_key() {
+    let server = start_with(&[APP]);
+    for path in ["/v1/evaluate", "/v1/events"] {
+        let r = with_origin(&server, "OPTIONS", path, "", "none", Some(APP));
+        assert_eq!((r.status, r.body.len()), (204, 0), "{path}");
+        assert_eq!(r.headers[ALLOW], APP);
+        assert_eq!(r.headers["access-control-allow-methods"], "POST");
+        assert_eq!(r.headers["access-control-allow-headers"], "Content-Type, X-Client-Key");
+        assert_eq!(r.headers["access-control-max-age"], "600");
+        assert_eq!(r.headers["vary"], "Origin");
+        assert!(!r.headers.contains_key("access-control-allow-credentials"));
+    }
+}
+
+#[test]
+fn br56_every_other_preflight_is_the_usual_404() {
+    let server = start_with(&[APP]);
+    let upper = APP.to_uppercase();
+    let slash = format!("{APP}/");
+    let cases: Vec<(&str, Option<&str>)> = vec![
+        ("/v1/evaluate", None),
+        ("/v1/evaluate", Some("https://evil.example.org")),
+        ("/v1/evaluate", Some("null")),
+        ("/v1/evaluate", Some(&slash)),
+        ("/v1/evaluate", Some("http://app.example.com")),
+        ("/v1/evaluate", Some(&upper)),
+        ("/v1/events", Some("https://evil.example.org")),
+        ("/v1/flags", Some(APP)),
+        ("/v1/flags/x", Some(APP)),
+        ("/healthz", Some(APP)),
+        ("/nope", Some(APP)),
+        ("/v1/evaluate/", Some(APP)),
+    ];
+    for (path, origin) in cases {
+        let r = with_origin(&server, "OPTIONS", path, "", "none", origin);
+        assert_eq!((r.status, r.code().as_str()), (404, "FLAG_NOT_FOUND"), "{path} {origin:?}");
+        assert!(!r.headers.contains_key(ALLOW), "{path} {origin:?}");
+        assert!(!r.headers.contains_key("access-control-allow-methods"), "{path} {origin:?}");
+    }
+}
+
+#[test]
+fn br56_post_responses_carry_the_origin_in_every_status() {
+    let server = start_with(&[APP]);
+    let event = r#"{"events":[{"type":"conversion","userId":"u","goal":"g"}]}"#;
+    let cases = [
+        ("/v1/evaluate", r#"{"flags":[]}"#, "client", 200),
+        ("/v1/evaluate", "[]", "client", 400),
+        ("/v1/evaluate", "{}", "none", 401),
+        ("/v1/events", event, "client", 202),
+        ("/v1/events", r#"{"events":[]}"#, "client", 400),
+    ];
+    for (path, body, auth, status) in cases {
+        let r = with_origin(&server, "POST", path, body, auth, Some(APP));
+        assert_eq!(r.status, status, "{path} {body}");
+        assert_eq!(r.headers[ALLOW], APP);
+        assert_eq!(r.headers["vary"], "Origin");
+    }
+}
+
+#[test]
+fn br56_no_cors_headers_without_an_allowed_origin_or_on_other_paths() {
+    let server = start_with(&[APP]);
+    assert!(
+        !with_origin(&server, "POST", "/v1/evaluate", r#"{"flags":[]}"#, "client", None).headers.contains_key(ALLOW)
+    );
+    let stranger =
+        with_origin(&server, "POST", "/v1/evaluate", r#"{"flags":[]}"#, "client", Some("https://evil.example.org"));
+    assert_eq!(stranger.status, 200);
+    assert!(!stranger.headers.contains_key(ALLOW));
+    for path in ["/healthz", "/v1/flags", "/v1/evaluate"] {
+        assert!(!with_origin(&server, "GET", path, "", "admin", Some(APP)).headers.contains_key(ALLOW), "{path}");
+    }
+}
+
+#[test]
+fn br56_star_allows_every_origin_and_sends_no_vary() {
+    let server = start_with(&["*"]);
+    let r = with_origin(&server, "OPTIONS", "/v1/events", "", "none", Some("https://anything.example"));
+    assert_eq!((r.status, r.headers[ALLOW].as_str()), (204, "*"));
+    assert!(!r.headers.contains_key("vary"));
+    assert!(
+        !with_origin(&server, "POST", "/v1/evaluate", r#"{"flags":[]}"#, "client", None).headers.contains_key(ALLOW)
+    );
+}
+
+#[test]
+fn br56_cors_is_off_by_default() {
+    let server = start();
+    assert_eq!(with_origin(&server, "OPTIONS", "/v1/evaluate", "", "none", Some(APP)).status, 404);
+    let r = with_origin(&server, "POST", "/v1/evaluate", r#"{"flags":[]}"#, "client", Some(APP));
+    assert!(!r.headers.contains_key(ALLOW));
+}
+
+#[test]
+fn br57_only_the_flag_key_is_percent_decoded() {
+    let server = start();
+    let routes = [
+        ("GET", "/%68ealthz"),
+        ("GET", "/v1/%66lags"),
+        ("GET", "/%76%31/flags"),
+        ("GET", "/v1/audit%2Dlogs"),
+        ("POST", "/v1/%65valuate"),
+        ("POST", "/v1/%65vents"),
+        ("GET", "/v1/flags/k/%72esults?goal=g"),
+    ];
+    for (method, path) in routes {
+        for auth in ["admin", "client", "none"] {
+            let r = server.call(method, path, "{}", auth);
+            assert_eq!((r.status, r.code().as_str()), (404, "FLAG_NOT_FOUND"), "{method} {path} {auth}");
+        }
+    }
+    assert_eq!(server.call("POST", "/v1/%66lags", r#"{"key":"made-by-alias"}"#, "admin").status, 404);
+    assert_eq!(server.call("GET", "/v1/flags/made-by-alias", "", "admin").status, 404);
+    server.call("POST", "/v1/flags", r#"{"key":"abc"}"#, "admin");
+    assert_eq!(server.call("GET", "/v1/flags/%61bc", "", "admin").status, 200);
 }

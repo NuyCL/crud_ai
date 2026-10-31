@@ -43,10 +43,12 @@ public class Api implements Filter {
 
   private final FlagService service;
   private final Auth auth;
+  private final List<String> corsOrigins;
 
   public Api(FlagService service, ffservice.Config config) {
     this.service = service;
     this.auth = new Auth(config.adminKey(), config.clientKey());
+    this.corsOrigins = config.corsOrigins();
   }
 
   @Override
@@ -61,6 +63,9 @@ public class Api implements Filter {
         // "%zz" is not a path at all. (A well-formed escape for bytes that are not UTF-8, "%FF", is not an error:
         // it is a key no flag has, BR-55.)
         throw ServiceError.validation("malformed request");
+      }
+      if (cors(request, response)) {
+        return;
       }
       Optional<Router.Match> match = Router.match(request.getMethod(), request.getRequestURI());
       if (match.isEmpty()) {
@@ -77,6 +82,36 @@ public class Api implements Filter {
         writeError(response, ErrorCode.INTERNAL_ERROR, "internal error");
       }
     }
+  }
+
+  /**
+   * BR-56: CORS only for POST and OPTIONS on the two client endpoints, only for an allowed Origin. Sets the headers a
+   * POST response needs and answers a preflight itself (true: done, no key needed). Everything else goes on untouched.
+   */
+  private boolean cors(HttpServletRequest request, HttpServletResponse response) {
+    String origin = request.getHeader("Origin");
+    String path = request.getRequestURI();
+    String method = request.getMethod();
+    if (origin == null || origin.isEmpty() || !(path.equals("/v1/evaluate") || path.equals("/v1/events"))
+        || !(method.equals("POST") || method.equals("OPTIONS"))) {
+      return false;
+    }
+    boolean star = corsOrigins.contains("*");
+    if (!star && !corsOrigins.contains(origin)) {
+      return false;
+    }
+    response.setHeader("Access-Control-Allow-Origin", star ? "*" : origin);
+    if (!star) {
+      response.setHeader("Vary", "Origin");
+    }
+    if (method.equals("POST")) {
+      return false;
+    }
+    response.setHeader("Access-Control-Allow-Methods", "POST");
+    response.setHeader("Access-Control-Allow-Headers", "Content-Type, X-Client-Key");
+    response.setHeader("Access-Control-Max-Age", "600");
+    response.setStatus(204);
+    return true;
   }
 
   private void dispatch(Router.Match match, HttpServletRequest request, HttpServletResponse response)

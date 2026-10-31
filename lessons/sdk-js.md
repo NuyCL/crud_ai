@@ -34,11 +34,11 @@
 
 ## เรื่องที่ไม่ได้ทำนายไว้
 
-1. **CORS:** service ตอบ `OPTIONS` เป็น 404 (BR-53) และสเปกไม่มีกติกา CORS; header `X-Client-Key` ทำให้ทุก request ข้าม origin ต้อง preflight → SDK ใช้ข้าม origin ในเบราว์เซอร์ไม่ได้จนกว่าจะมีกติกาในสเปก (หรือใช้ reverse proxy origin เดียวกัน) ตรวจพบตอนออกแบบ ไม่ใช่ตอนรัน (Node ไม่มี CORS) **ต้องให้เจ้าของโปรเจกต์ตัดสินใจ**
+1. **CORS (แก้แล้วเป็น BR-56 ดู `lessons/summary.md`):** ตอนนั้น service ตอบ `OPTIONS` เป็น 404 (BR-53) และสเปกไม่มีกติกา CORS; header `X-Client-Key` ทำให้ทุก request ข้าม origin ต้อง preflight → SDK ใช้ข้าม origin ในเบราว์เซอร์ไม่ได้จนกว่าจะมีกติกาในสเปก (หรือใช้ reverse proxy origin เดียวกัน) ตรวจพบตอนออกแบบ ไม่ใช่ตอนรัน (Node ไม่มี CORS) **ต้องให้เจ้าของโปรเจกต์ตัดสินใจ**
 2. **ชุด contract ช่วย SDK ไม่ได้ตรงๆ**: SDK ไม่ใช่ service; ตัวตัดสินคือ unit (fake fetch), spec test (hard-code ตรงกับ OpenAPI) และ integration กับ service จริง
 3. `Response` ใน Node อ่าน body ได้ครั้งเดียว: test ที่ใช้ `Response` ซ้ำข้ามรอบ poll ต้องสร้างใหม่ทุกครั้ง (ล้มรอบแรกจากเหตุนี้)
 
 ## สิ่งที่จะเปลี่ยน
 
 - **CONVENTIONS.md:** เพิ่มหัวข้อ SDK (build/lint/test, devDependencies: `esbuild`, `typescript`, `eslint`, `typescript-eslint` — **ข้อสมมติที่ต้องยืนยัน** เหมือน `typescript/`)
-- **สเปก (เสนอ ยังไม่ได้ทำ):** กติกา CORS (`Access-Control-Allow-Origin`/`Headers` + `OPTIONS` ตอบ 204) ถ้าต้องการให้ SDK ใช้ข้าม origin ได้
+- **สเปก (ทำแล้ว = BR-56):** กติกา CORS (`Access-Control-Allow-Origin`/`Headers` + `OPTIONS` ตอบ 204) ถ้าต้องการให้ SDK ใช้ข้าม origin ได้

@@ -1,6 +1,6 @@
 # Step 11: JavaScript SDK สำหรับ web (MVP3)
 
-> ✅ **ทดสอบแล้ว:** ทำจริงที่ [`sdk-js/`](../../../sdk-js/README.md) ผลและบทเรียนใน [`lessons/sdk-js.md`](../../../lessons/sdk-js.md) (ข้อจำกัด: AI ตัวเดียวกันเขียน SDK และ test; เวลาไม่ได้บันทึก; **ข้อค้นพบสำคัญ: service ไม่รองรับ CORS ดูท้ายเอกสาร**)
+> ✅ **ทดสอบแล้ว:** ทำจริงที่ [`sdk-js/`](../../../sdk-js/README.md) ผลและบทเรียนใน [`lessons/sdk-js.md`](../../../lessons/sdk-js.md) (ข้อจำกัด: AI ตัวเดียวกันเขียน SDK และ test; เวลาไม่ได้บันทึก; **ข้อค้นพบสำคัญ: service ไม่รองรับ CORS ตอนแรก → แก้แล้วเป็น BR-56 ดูท้ายเอกสาร**)
 
 **เป้าหมาย:** ไลบรารี TypeScript เล็กๆ ที่เว็บเรียกใช้ได้ เพื่อดึงผลการประเมิน flag และส่ง exposure/conversion โดย **สร้างจาก OpenAPI** ไม่ใช่แปลจาก Go
 **เวลา:** 45 นาที · **ก่อนหน้า:** [Step 10](10-port-other-languages.md) · **ถัดไป:** [Step 12](12-retrospective.md)
@@ -107,4 +107,5 @@ npm run size                    # ล้มถ้า >= 5120 ไบต์
 - AI มักแถม feature (retry แบบซับซ้อน, event emitter เต็มรูปแบบ, React hook) ที่ไม่ได้ขอ ให้ตัดออก SDK ที่เล็กและทำน้อยแต่ไม่พัง ดีกว่า
 - ถ้า SDK ต้องรู้ "ความหมายของ reason" เพื่อตัดสินใจเอง แปลว่า logic รั่วมาฝั่ง client ให้ทบทวนว่า server ควรคืนค่าที่ใช้ได้เลย (SDK นี้อ่านแค่ `enabled` และ `variant`)
 - ห้ามใส่ admin key ในตัวอย่างหรือใน test ที่ build ไปรวมกับ SDK (SDK ไม่มี option สำหรับ admin key)
-- **CORS (ยังไม่มีในสเปก):** service ตอบ `OPTIONS` เป็น 404 (BR-53) และ header `X-Client-Key` ทำให้ทุก request ข้าม origin ต้อง preflight → เบราว์เซอร์ที่เรียกข้าม origin จะถูกบล็อก ใช้ได้เมื่อเว็บกับ service อยู่ origin เดียวกัน (reverse proxy) จนกว่าจะเพิ่มกติกา CORS ในสเปก — **ต้องให้เจ้าของโปรเจกต์ตัดสินใจ** (Node ไม่มี CORS ทดสอบแล้วจึงไม่เห็นปัญหานี้ใน test)
+- **CORS:** ตอนทำ SDK service ตอบ `OPTIONS` เป็น 404 (BR-53) และ `X-Client-Key` ทำให้ทุก request ข้าม origin ต้อง preflight จึงใช้ข้าม origin ไม่ได้ (Node ไม่มี CORS จึงไม่เห็นปัญหาใน test) ต่อมาเจ้าของโปรเจกต์ตัดสินใจให้เพิ่มกติกา **BR-56** (`CORS_ORIGINS`, เฉพาะ `/v1/evaluate` กับ `/v1/events`) พร้อม contract test 10 ข้อ ทั้งห้าภาษาทำตาม — บทเรียน: gate "ใช้งานจริงจากเบราว์เซอร์" ต้องมีแยกจาก test ที่รันใน Node
+- **ผลจริง (gate ใหม่):** [`tools/browser-check/`](../../../tools/browser-check/README.md) (Playwright + Chromium จริง + bundle ของ SDK) ผ่านกับทั้ง 6 server (mock, Go, TypeScript, Python, Java, Rust) ทั้งโหมด `EXPECT=allowed` และ `EXPECT=blocked` — `playwright` เป็น devDependency ที่ผู้ใช้สั่งเพิ่ม (เฉพาะโฟลเดอร์นั้น, pin เวอร์ชัน) ตาม `CONVENTIONS.md`

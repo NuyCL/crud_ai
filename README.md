@@ -2,7 +2,22 @@
 
 โปรเจกต์ฝึกเขียนโค้ดหลายภาษาและฝึกใช้ AI แปลโค้ดอย่างมีขั้นตอน โดยใช้โจทย์เป็น **microservice สำหรับ feature flag** ที่ต่อยอดไปเป็น **A/B testing** ได้
 
-> **สถานะ:** มีสเปก, test vectors, contract test (354 ข้อ), implementation 5 ภาษา — **Go** (ต้นฉบับ), **TypeScript**, **Python**, **Java**, **Rust** — ผ่านชุด test เดียวกัน และเทียบกับ Go ด้วย differential test แล้ว (0 ความต่างที่เหลือ) กับ **JS SDK** (MVP3, `sdk-js/`) สรุปรวมอยู่ที่ [`lessons/summary.md`](lessons/summary.md) เรื่องที่รอตัดสินใจ — ดู [`lessons/comparison.md`](lessons/comparison.md) ข้อ 4 (ช่องว่างของ test กลาง) และ [`sdk-js/README.md`](sdk-js/README.md) (CORS)
+> **สถานะ (2026-10-31): ปิดงานเกือบครบ ยังเหลือรีวิวอิสระ** — มีสเปก (กฎ BR-xx ถึง BR-57 รวม CORS), test vectors, contract test **390 ข้อ** (เมื่อตั้ง `CORS_ORIGINS=https://app.example.com,https://b.example.com`; 388 เมื่อ `*`; 378 เมื่อไม่ตั้ง), implementation 5 ภาษา — **Go** (ต้นฉบับ), **TypeScript**, **Python**, **Java**, **Rust** — ผ่านชุด test เดียวกัน, differential test เทียบกับ Go (seed 1 และ 2, ภาษาละ 3,000 คำขอ) ได้ 0 ความต่าง, และ **JS SDK** (MVP3, `sdk-js/`) ที่ผ่านเบราว์เซอร์จริงด้วย `tools/browser-check` ทั้ง 6 server สรุปรวมอยู่ที่ [`lessons/summary.md`](lessons/summary.md) **รีวิวอิสระใน session ใหม่โดยผู้ใช้ กำลังดำเนินการ ยังไม่เสร็จ** จึงยังไม่เรียกว่า "เสร็จสมบูรณ์" ตาม `CLAUDE.md` — ดูตาราง "สถานะ" ด้านล่าง; แล็บฝึกหัดอยู่ที่ [`docs/lab/README.md`](docs/lab/README.md)
+
+## สถานะ: อะไรเสร็จ อะไรยังเปิด
+
+| ส่วน | สถานะ | หมายเหตุ |
+|---|---|---|
+| สเปก, vectors (65 แถว), contract (390) | ✅ | BR-56 CORS, BR-57 path เทียบตามตัวอักษร |
+| Go, TypeScript, Python, Java, Rust | ✅ | build/lint/unit ผ่านทุกภาษา; contract 390/388/378 ผ่านทุกโหมด |
+| JS SDK | ✅ | build, lint, test, ขนาด gzip < 5120 ไบต์ |
+| differential Go เทียบอีก 4 ภาษา | ✅ | 0 ความต่าง |
+| `tools/browser-check` (Chromium จริง) | ✅ | ผ่านทั้ง 6 server |
+| เอกสาร workshop step 0–12, `docs/porting`, `lessons` | ✅ | ดู [`docs/workshop/README.md`](docs/workshop/README.md) หัวข้อ "สถานะการปิดงาน" |
+| รีวิวโดย agent ใหม่ (โมเดลเดียวกัน) | ✅ 1 รอบ | แก้ทุกข้อแล้ว แต่ไม่นับเป็นรีวิวอิสระ |
+| **รีวิวอิสระใน session ใหม่ (`/review-port`)** | ⏳ ผู้ใช้กำลังทำ | จนกว่าจะเสร็จ: "ยังไม่ได้รีวิวอิสระ" |
+| ทดสอบ 5xx ของ CORS จากภายนอก | ❌ ทำไม่ได้ | มีแค่ unit test ต่อภาษา |
+| dev คนอื่นลองทำตามเอกสาร, สไลด์, license, Makefile | ❌ ยังไม่มี | |
 
 | เอกสาร | เนื้อหา |
 |---|---|
@@ -10,13 +25,15 @@
 | [`spec/evaluation.md`](spec/evaluation.md) | ลำดับและอัลกอริทึมการประเมิน flag รวม bucketing |
 | [`spec/business-rules.md`](spec/business-rules.md) | กฎ BR-xx และรูปแบบ error |
 | [`tests/vectors/`](tests/vectors/README.md) | ข้อมูลทดสอบกลาง (fnv1a32 / bucketing / evaluation / erfc) |
-| [`tests/contract/`](tests/contract/README.md) | contract test ผ่าน HTTP (354 ข้อ) ใช้กับทุกภาษา |
+| [`tests/contract/`](tests/contract/README.md) | contract test ผ่าน HTTP (390 ข้อ) ใช้กับทุกภาษา |
 | [`docs/workshop/`](docs/workshop/README.md) | **คู่มือ workshop แบบ step-by-step** (ภาพรวม + เอกสารละเอียด 13 step) |
 | [`CONVENTIONS.md`](CONVENTIONS.md) | โครงสร้าง layer, library ต่อภาษา, กับดักต่อภาษา, คำสั่ง gate |
 | [`docs/porting/`](docs/porting) | รายงานวิเคราะห์ก่อนแปล ([TypeScript](docs/porting/typescript-analysis.md), [Python](docs/porting/python-analysis.md), [Java](docs/porting/java-analysis.md), [Rust](docs/porting/rust-analysis.md)) |
 | [`lessons/`](lessons/comparison.md) | บทเรียนหลังแปลแต่ละภาษา + [ตารางเปรียบเทียบ](lessons/comparison.md) |
 | [`sdk-js/`](sdk-js/README.md) | MVP3: JavaScript library สำหรับ web (1.6 KB gzip) |
-| [`CLAUDE.md`](CLAUDE.md), [`.claude/skills/`](.claude/skills) | กติกาและ skill ที่ AI ใช้ทำงานในรีโปนี้ |
+| [`CLAUDE.md`](CLAUDE.md), [`.claude/skills/`](.claude/skills) | กติกาและ skill ที่ AI ใช้ทำงานในรีโปนี้ (`port-layer`, `verify-gates`, `spec-ambiguity-check`, `review-port`) |
+| [`tools/browser-check/`](tools/browser-check/README.md) | ตรวจ CORS ด้วย Chromium จริงกับ bundle ของ SDK |
+| [`docs/lab/`](docs/lab/README.md) | แล็บฝึกหัด |
 
 ## วัตถุประสงค์
 
@@ -30,7 +47,7 @@
 |---|---|---|
 | MVP1 | Feature flag เปิด/ปิด (on/off) | ✅ Go, TypeScript, Python, Java, Rust (ฝั่ง server) |
 | MVP2 | A/B testing: variants, targeting, rollout %, exposure/conversion | ✅ Go, TypeScript, Python, Java, Rust (ฝั่ง server) |
-| MVP3 | JavaScript/TypeScript library สำหรับ web | ✅ `sdk-js/` (ติด CORS: ดูข้อจำกัดใน `sdk-js/README.md`) |
+| MVP3 | JavaScript/TypeScript library สำหรับ web | ✅ `sdk-js/` (ใช้ข้าม origin ได้เมื่อตั้ง `CORS_ORIGINS`, BR-56) |
 
 ### MVP1: On/Off
 - Admin API: สร้าง/แก้/ลบ/ดู flag (`key`, `enabled`, `description`)
@@ -154,6 +171,7 @@ tools/
   mock-server/   mock ในหน่วยความจำ ไว้พิสูจน์ว่า contract test ถูก     ✅
   check-openapi/ ตัวตรวจโครงสร้าง openapi.yaml (Python)                  ✅
   diff-servers/  เทียบ response ของสอง service ด้วย request สุ่มชุดเดียวกัน ✅
+  browser-check/ ตรวจ CORS ด้วย Chromium จริง (Playwright) + bundle ของ SDK ✅
   mutation-check/ ใส่ bug ในสำเนาของโค้ด (ts.sh, py.sh, java.sh, rust.sh, sdk.sh) แล้วดูว่า test จับไหม ✅
 go/              original implementation (golden) ✅  ดู go/README.md
 typescript/      port ✅  ดู typescript/README.md
@@ -164,6 +182,7 @@ sdk-js/          MVP3 JavaScript library ✅  ดู sdk-js/README.md
 prompts/         prompt templates
 lessons/         บทเรียนต่อภาษา + comparison.md + sdk-js.md ✅
 docs/porting/    รายงานวิเคราะห์ก่อนแปลต่อภาษา (typescript, python, java, rust ✅)
+docs/lab/        แล็บฝึกหัด (ดู docs/lab/README.md)
 CLAUDE.md        กติกาของโปรเจกต์สำหรับ AI ✅   .claude/skills/ ✅
 CONVENTIONS.md   โครงสร้างและ library ที่ใช้ต่อภาษา
 Makefile         make test-<lang>, make build-<lang>
@@ -182,7 +201,7 @@ node tools/verify-vectors/verify.mjs                  # ตรวจด้วย
 
 ```bash
 cd go && go build -o ffservice ./cmd/server && cd ..
-ADMIN_KEY=test-admin-key CLIENT_KEY=test-client-key PORT=8080 DB_PATH=go/contract.db go/ffservice & SVC_PID=$!
+ADMIN_KEY=test-admin-key CLIENT_KEY=test-client-key CORS_ORIGINS=https://app.example.com,https://b.example.com PORT=8080 DB_PATH=go/contract.db go/ffservice & SVC_PID=$!
 sleep 1
 node --test --test-concurrency=1 "tests/contract/*.test.mjs"
 kill $SVC_PID
@@ -207,8 +226,10 @@ rm -f go/contract.db go/contract.db-shm go/contract.db-wal go/ffservice
 2. ~~MVP1 ใน Go~~ เสร็จแล้ว (รวมฝั่ง server ของ MVP2: variants, rollout, events, รายงานผล)
 3. ~~แปลเป็น TypeScript และบันทึกบทเรียน~~ เสร็จแล้ว (`typescript/`, `lessons/typescript.md`)
 4. ~~แปลเป็น Python, Java, Rust~~ เสร็จแล้ว (`python/`, `java/`, `rust/`, `lessons/*.md`, `lessons/comparison.md`)
-5. ~~MVP3 JavaScript library~~ เสร็จแล้ว (`sdk-js/`) — เหลือตัดสินใจเรื่อง CORS
-6. ~~สรุปบทเรียนรวม~~ เสร็จแล้ว (`lessons/summary.md`) — เหลืออนุมัติข้อเสนอในนั้น แล้วจัดทำสไลด์ workshop
+5. ~~MVP3 JavaScript library~~ เสร็จแล้ว (`sdk-js/`) และ CORS เสร็จแล้ว (BR-56)
+6. ~~สรุปบทเรียนรวม~~ เสร็จแล้ว (`lessons/summary.md`) ข้อเสนอนำไปใช้แล้ว
+7. ~~CORS (BR-56), BR-57, `review-port`, `tools/browser-check`~~ เสร็จแล้ว
+8. เหลือ: รีวิวอิสระใน session ใหม่ (ผู้ใช้กำลังทำ), สไลด์ workshop, license
 
 ## License
 

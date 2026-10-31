@@ -11,6 +11,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"strings"
 	"unicode/utf8"
 
 	"ffservice/internal/service"
@@ -18,17 +19,21 @@ import (
 
 const maxBodyBytes = 1 << 20
 
-// Config holds the two API keys. Both are required.
+// Config holds the two API keys (both required) and the origins browsers may
+// call the client endpoints from (BR-56). No origins means CORS is off; "*"
+// allows every origin.
 type Config struct {
-	AdminKey  string
-	ClientKey string
+	AdminKey    string
+	ClientKey   string
+	CORSOrigins []string
 }
 
 type api struct {
-	svc        *service.Service
-	adminKey   []byte
-	clientKey  []byte
-	errorLogFn func(format string, args ...any)
+	svc         *service.Service
+	adminKey    []byte
+	clientKey   []byte
+	corsOrigins []string
+	errorLogFn  func(format string, args ...any)
 }
 
 // New returns the HTTP handler of the service.
@@ -36,7 +41,7 @@ func New(svc *service.Service, cfg Config) (http.Handler, error) {
 	if cfg.AdminKey == "" || cfg.ClientKey == "" {
 		return nil, errors.New("both an admin key and a client key are required")
 	}
-	a := &api{svc: svc, adminKey: []byte(cfg.AdminKey), clientKey: []byte(cfg.ClientKey), errorLogFn: log.Printf}
+	a := &api{svc: svc, adminKey: []byte(cfg.AdminKey), clientKey: []byte(cfg.ClientKey), corsOrigins: cfg.CORSOrigins, errorLogFn: log.Printf}
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /healthz", a.healthz)
@@ -56,7 +61,7 @@ func New(svc *service.Service, cfg Config) (http.Handler, error) {
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusNotFound, service.CodeFlagNotFound, "no such route")
 	})
-	return a.recoverPanics(mux), nil
+	return a.recoverPanics(literalPaths(a.cors(mux))), nil
 }
 
 // ------------------------------------------------------------------ auth
@@ -92,6 +97,59 @@ func (a *api) clientOrAdmin(next http.HandlerFunc) http.HandlerFunc {
 		}
 		writeError(w, http.StatusUnauthorized, service.CodeUnauthorized, "missing or invalid key")
 	}
+}
+
+// literalPaths implements BR-57: only the flag key may be percent-encoded. A path with an escape anywhere else
+// ("/v1/%65valuate") is a route that does not exist, not an alias of one.
+func literalPaths(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		parts := strings.Split(r.URL.EscapedPath(), "/")
+		for i, part := range parts {
+			keySegment := i == 3 && len(parts) > 2 && parts[1] == "v1" && parts[2] == "flags"
+			if strings.Contains(part, "%") && !keySegment {
+				writeError(w, http.StatusNotFound, service.CodeFlagNotFound, "no such route")
+				return
+			}
+		}
+		next.ServeHTTP(w, r)
+	})
+}
+
+// cors implements BR-56: only POST /v1/evaluate and /v1/events, only for an
+// allowed Origin. A preflight is answered here, without a key; for everything
+// else the request goes on untouched.
+func (a *api) cors(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		origin := r.Header.Get("Origin")
+		clientPath := r.URL.Path == "/v1/evaluate" || r.URL.Path == "/v1/events"
+		allow := ""
+		for _, o := range a.corsOrigins {
+			if o == "*" {
+				allow = "*"
+				break
+			}
+			if o == origin {
+				allow = origin
+			}
+		}
+		if origin == "" || !clientPath || allow == "" || (r.Method != http.MethodOptions && r.Method != http.MethodPost) {
+			next.ServeHTTP(w, r)
+			return
+		}
+		h := w.Header()
+		h.Set("Access-Control-Allow-Origin", allow)
+		if allow != "*" {
+			h.Add("Vary", "Origin")
+		}
+		if r.Method == http.MethodOptions {
+			h.Set("Access-Control-Allow-Methods", "POST")
+			h.Set("Access-Control-Allow-Headers", "Content-Type, X-Client-Key")
+			h.Set("Access-Control-Max-Age", "600")
+			w.WriteHeader(http.StatusNoContent)
+			return
+		}
+		next.ServeHTTP(w, r)
+	})
 }
 
 func (a *api) recoverPanics(next http.Handler) http.Handler {

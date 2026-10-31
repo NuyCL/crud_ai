@@ -89,3 +89,11 @@ BR-52 (JSON เข้มงวด, UTF-8), BR-54 (lone surrogate), BR-55 (key �
 - escape ผิดรูป (`%zz`): Go ตอบ 400 `text/plain`; Java ตอบ 400 JSON `VALIDATION_ERROR` (เหมือน Python/TypeScript)
 - `HEAD`: Go ตอบเหมือน `GET` (ไม่มี body); Java ตอบ 404 (เหมือน Python)
 - `DB_PATH` ที่มีอักษรไม่ใช่ ASCII ต้องรัน JVM ด้วย locale UTF-8
+
+## 7. หลังเพิ่ม CORS (BR-56) และ BR-57
+
+อ่านจากโค้ดจริงใน `java/src/main/java/ffservice/handler/Api.java`, `Router.java` และ `Config.java`:
+
+- **CORS** เป็นเมธอด `cors(request, response)` ใน servlet filter `Api.handle` ตัวเดียวกับที่ตัดสิน route: ลำดับคือ `%zz` → 400, แล้ว `cors()` (ตั้ง header ให้ `POST`, หรือตอบ 204 ให้ preflight แล้วจบ), แล้ว `Router.match` → dispatch. ไม่ใช้ `@CrossOrigin`/`CorsFilter` ของ Spring เพราะ Spring MVC controller ถูกเลิกใช้ไปแล้ว (ข้อ 4)
+- **BR-57** ไม่ต้องเขียนเพิ่ม: `Router.match` เทียบ `getRequestURI()` แบบดิบกับ path ตรงตัวและถอดรหัสเฉพาะ key จึงเป็นไปตามกฎตั้งแต่ออกแบบ (contract ของ BR-57 ผ่านก่อนแก้ Go/TypeScript/Python) — ผลพลอยได้ของการทดลองก่อนเขียนในข้อ 4
+- `CORS_ORIGINS` อ่านใน `Config.java` (`corsOrigins()`) ส่งเข้า `Api` ทาง constructor

@@ -349,3 +349,28 @@ def test_an_encoded_slash_is_part_of_the_key_not_a_path_separator(app) -> None:
     assert (r.status, r.code) == (400, "KEY_IMMUTABLE")
     assert send(app, "GET", "/v1/flags/a/b").code == "FLAG_NOT_FOUND"  # a real extra segment is no route
     assert send(app, "GET", "/v1/flags/a%252Fb").code == "FLAG_NOT_FOUND"
+
+
+@pytest.mark.parametrize(
+    ("method", "path"),
+    [
+        ("GET", "/%68ealthz"),
+        ("GET", "/v1/%66lags"),
+        ("GET", "/%76%31/flags"),
+        ("GET", "/v1/audit%2Dlogs"),
+        ("POST", "/v1/%65valuate"),
+        ("POST", "/v1/%65vents"),
+        ("GET", "/v1/flags/k/%72esults?goal=g"),
+    ],
+)
+@pytest.mark.parametrize("auth", ["admin", "client", "none"])
+def test_br57_an_escape_outside_the_key_is_a_route_that_does_not_exist(app, method: str, path: str, auth: str) -> None:
+    r = send(app, method, path, "{}" if method == "POST" else "", auth=auth)
+    assert (r.status, r.code) == (404, "FLAG_NOT_FOUND")
+
+
+def test_br57_the_alias_does_nothing_and_an_encoded_key_still_works(app) -> None:
+    assert send(app, "POST", "/v1/%66lags", '{"key":"made-by-alias"}').status == 404
+    assert send(app, "GET", "/v1/flags/made-by-alias").status == 404
+    send(app, "POST", "/v1/flags", '{"key":"abc"}')
+    assert send(app, "GET", "/v1/flags/%61bc").status == 200

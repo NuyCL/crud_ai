@@ -6,7 +6,7 @@
 
 1. `spec/` และ `tests/` (contract, vectors) เป็นของกลาง **ห้ามแก้เพื่อให้โค้ดผ่าน**
 2. แปลเป็นโค้ดที่เป็น idiom ของภาษานั้น ไม่แปลทีละบรรทัด
-3. ใช้เฉพาะ library ในตารางด้านล่าง ถ้าต้องการเพิ่มให้ขออนุมัติก่อน — ยกเว้นสิ่งที่ framework ในตารางพึ่งพาโดยตรง (ดูหัวข้อ "Dependency" ใน `CLAUDE.md`) และ devDependencies ของ `typescript/` กับ `sdk-js/` (`typescript`, `eslint`, `@eslint/js`, `typescript-eslint`, `@types/*`, `esbuild`) ซึ่งอนุมัติแล้ว
+3. ใช้เฉพาะ library ในตารางด้านล่าง ถ้าต้องการเพิ่มให้ขออนุมัติก่อน — ยกเว้นสิ่งที่ framework ในตารางพึ่งพาโดยตรง (ดูหัวข้อ "Dependency" ใน `CLAUDE.md`) และ devDependencies ของ `typescript/` กับ `sdk-js/` (`typescript`, `eslint`, `@eslint/js`, `typescript-eslint`, `@types/*`, `esbuild`) และ `playwright` (เฉพาะ `tools/browser-check/`, pin เวอร์ชัน, ผู้ใช้สั่งเพิ่ม) ซึ่งอนุมัติแล้ว
 4. ไม่มี global mutable state; ทำ dependency injection ผ่าน constructor/parameter
 
 ## โครงสร้าง layer (ทุกภาษาเหมือนกัน)
@@ -44,6 +44,7 @@ model       Flag, Rule, Variant, Context, EvaluationResult
 | `DB_PATH` | ไฟล์ SQLite | `./flags.db` |
 | `ADMIN_KEY` | admin key (**จำเป็น**) | — |
 | `CLIENT_KEY` | client key (**จำเป็น**) | — |
+| `CORS_ORIGINS` | origin ที่เบราว์เซอร์เรียก `/v1/evaluate` และ `/v1/events` ได้ คั่นด้วย `,` หรือ `*` (BR-56; ชื่อและรูปแบบเป็นข้อสมมติของเรา สเปกกำหนดแค่พฤติกรรม) | ว่าง = ปิด CORS |
 
 ## กับดักเรื่องตัวเลข/ข้อความ (ต้องผ่าน `tests/vectors/` ทุกแถว)
 
@@ -79,7 +80,7 @@ model       Flag, Rule, Variant, Context, EvaluationResult
 
 ⁴ ต้องมี `rust/rustfmt.toml` (`max_width = 120`) และ C compiler (SQLite ถูกคอมไพล์รวม); `tokio`, `serde_json`, `http-body-util` เป็น dependency ที่ axum ใช้อยู่ — ข้อสมมติที่ต้องยืนยัน
 
-**Contract test** (ทุกภาษาเหมือนกัน): เริ่ม server ด้วย `ADMIN_KEY=test-admin-key CLIENT_KEY=test-client-key PORT=8080 DB_PATH=<ไฟล์ชั่วคราว>` แล้วรัน
+**Contract test** (ทุกภาษาเหมือนกัน): เริ่ม server ด้วย `ADMIN_KEY=test-admin-key CLIENT_KEY=test-client-key CORS_ORIGINS=https://app.example.com,https://b.example.com PORT=8080 DB_PATH=<ไฟล์ชั่วคราว>` แล้วรัน (ถ้าไม่ตั้ง `CORS_ORIGINS` test CORS ส่วนที่ต้องมี origin จะถูกข้าม แต่ test ที่ว่า "ปิดแล้วต้องไม่ตอบ CORS" จะรัน)
 
 ```bash
 node --test --test-concurrency=1 "tests/contract/*.test.mjs"

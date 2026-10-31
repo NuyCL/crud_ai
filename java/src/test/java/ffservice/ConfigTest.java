@@ -37,4 +37,20 @@ class ConfigTest {
         () -> Config.load(Map.of("ADMIN_KEY", "a", "CLIENT_KEY", "c", "PORT", port)));
     assertTrue(e.getMessage().contains("PORT"), e.getMessage());
   }
+
+  @Test
+  void corsOriginsAreSplitTrimmedAndEmptyItemsDropped() {
+    Map<String, String> base = Map.of("ADMIN_KEY", "a", "CLIENT_KEY", "c");
+    assertEquals(java.util.List.of(), load(base, ""));
+    assertEquals(java.util.List.of(), load(base, " , "));
+    assertEquals(java.util.List.of("https://a.example", "https://b.example"),
+        load(base, " https://a.example , https://b.example,"));
+    assertEquals(java.util.List.of("*"), load(base, "*"));
+  }
+
+  private static java.util.List<String> load(Map<String, String> base, String origins) {
+    var env = new java.util.HashMap<>(base);
+    env.put("CORS_ORIGINS", origins);
+    return Config.load(env).corsOrigins();
+  }
 }

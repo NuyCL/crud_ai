@@ -86,6 +86,37 @@ describe("routes that do not exist (BR-53)", () => {
   }
 });
 
+describe("only the flag key is percent-decoded; the rest of the path is literal (BR-57)", () => {
+  const routes = [
+    ["GET", "/%68ealthz"],
+    ["GET", "/v1/%66lags"],
+    ["GET", "/%76%31/flags"],
+    ["GET", "/v1/audit%2Dlogs"],
+    ["POST", "/v1/%65valuate"],
+    ["POST", "/v1/%65vents"],
+    ["GET", "/v1/flags/some-key/%72esults?goal=g"],
+  ];
+  for (const [method, path] of routes) {
+    for (const auth of ["admin", "client", "none"]) {
+      test(`${method} ${path} (${auth}) -> 404, as if the route did not exist`, async () => {
+        assertError(await call(method, path, { auth, body: method === "POST" ? {} : undefined }), 404, "FLAG_NOT_FOUND");
+      });
+    }
+  }
+
+  test("POST /v1/%66lags does not create a flag", async () => {
+    const key = uniqueKey();
+    assertError(await call("POST", "/v1/%66lags", { body: { key } }), 404, "FLAG_NOT_FOUND");
+    assertError(await get(`/v1/flags/${key}`), 404, "FLAG_NOT_FOUND");
+  });
+
+  test("an encoded key still works: /v1/flags/{key} is decoded (BR-55 is unchanged)", async () => {
+    const f = await fx.create({});
+    const encoded = [...f.key].map((c) => `%${c.charCodeAt(0).toString(16).padStart(2, "0")}`).join("");
+    assert.equal((await get(`/v1/flags/${encoded}`)).body.key, f.key);
+  });
+});
+
 describe("a method with no route for a path is 404 even when another method has one (BR-53)", () => {
   test("PATCH, POST on /v1/flags/{key}, PUT on /v1/flags and POST on /results change nothing", async () => {
     const f = await fx.create({ description: "before" });

@@ -8,10 +8,13 @@ pub struct Config {
     pub db_path: String,
     pub admin_key: String,
     pub client_key: String,
+    /// BR-56: origins that may call evaluate and events from a browser ("*" allows all); empty means CORS is off.
+    pub cors_origins: Vec<String>,
 }
 
 impl Config {
     /// Read `PORT` (default 8080), `DB_PATH` (default ./flags.db), `ADMIN_KEY` and `CLIENT_KEY` (both required).
+    /// `CORS_ORIGINS` is a comma-separated list of origins (or "*").
     pub fn load(env: &HashMap<String, String>) -> Result<Config, String> {
         let get = |name: &str| env.get(name).map(String::as_str).filter(|v| !v.is_empty());
         let missing: Vec<&str> = ["ADMIN_KEY", "CLIENT_KEY"].into_iter().filter(|n| get(n).is_none()).collect();
@@ -31,6 +34,13 @@ impl Config {
             db_path: get("DB_PATH").unwrap_or("./flags.db").to_string(),
             admin_key: get("ADMIN_KEY").unwrap_or_default().to_string(),
             client_key: get("CLIENT_KEY").unwrap_or_default().to_string(),
+            cors_origins: get("CORS_ORIGINS")
+                .unwrap_or_default()
+                .split(',')
+                .map(str::trim)
+                .filter(|o| !o.is_empty())
+                .map(str::to_string)
+                .collect(),
         })
     }
 }
@@ -48,7 +58,13 @@ mod tests {
         let c = Config::load(&env(&[("ADMIN_KEY", "a"), ("CLIENT_KEY", "c")])).unwrap();
         assert_eq!(
             c,
-            Config { port: 8080, db_path: "./flags.db".into(), admin_key: "a".into(), client_key: "c".into() }
+            Config {
+                port: 8080,
+                db_path: "./flags.db".into(),
+                admin_key: "a".into(),
+                client_key: "c".into(),
+                cors_origins: vec![]
+            }
         );
         let c =
             Config::load(&env(&[("ADMIN_KEY", "a"), ("CLIENT_KEY", "c"), ("PORT", "9000"), ("DB_PATH", "/tmp/x.db")]))
@@ -74,5 +90,16 @@ mod tests {
             let e = Config::load(&env(&[("ADMIN_KEY", "a"), ("CLIENT_KEY", "c"), ("PORT", port)])).unwrap_err();
             assert!(e.contains("PORT"), "{port}: {e}");
         }
+    }
+
+    #[test]
+    fn cors_origins_are_split_trimmed_and_empty_items_dropped() {
+        let load = |raw: &str| {
+            Config::load(&env(&[("ADMIN_KEY", "a"), ("CLIENT_KEY", "c"), ("CORS_ORIGINS", raw)])).unwrap().cors_origins
+        };
+        assert!(load("").is_empty());
+        assert!(load(" , ").is_empty());
+        assert_eq!(load(" https://a.example , https://b.example,"), ["https://a.example", "https://b.example"]);
+        assert_eq!(load("*"), ["*"]);
     }
 }

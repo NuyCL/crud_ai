@@ -125,7 +125,7 @@ kill $SVC_PID
 rm -f typescript/contract.db typescript/contract.db-shm typescript/contract.db-wal
 ```
 
-ผลที่ถูกต้อง: `# pass 333`, `# fail 0`, `# skipped 0`
+ผลที่ถูกต้อง: `# pass 333`, `# fail 0`, `# skipped 0` (ตัวเลข ณ เวลาที่ทำ step นี้; ชุดปัจจุบันเป็น **390** เมื่อตั้ง `CORS_ORIGINS=https://app.example.com,https://b.example.com` ตามคำสั่งใน [`CONVENTIONS.md`](../../../CONVENTIONS.md) หัวข้อ "Contract test")
 
 หรือใช้ `/verify-gates typescript` (step 7) ถ้า fail ส่งผลกลับให้ AI ด้วยรูปแบบเดียวกับ step 6.6 (วิเคราะห์ก่อนว่าโค้ด/test/สเปกผิด) ไม่เกิน 3 รอบต่อกลุ่มปัญหา
 

@@ -82,3 +82,11 @@ BR-52, BR-54, BR-55, `evaluation.md` 3.1 (ดู [python-analysis.md](python-ana
 - escape ผิดรูป (`%zz`): Go ตอบ 400 `text/plain`; Rust ตอบ 400 JSON `VALIDATION_ERROR` (เหมือนภาษาอื่น)
 - lone surrogate ใน body: Rust ตอบ 400 (serde_json ปฏิเสธ) แทนที่จะแปลงเป็น U+FFFD แบบ Go — BR-54 อนุญาตทั้งสองแบบ
 - ซ้อน JSON เกิน 128 ชั้นเป็น 400 (Go ไม่จำกัดจนกว่าสแตกจะหมด 10,000 ชั้น) — BR-52 บอกว่า "ซ้อนลึก → 400"
+
+## 7. หลังเพิ่ม CORS (BR-56) และ BR-57
+
+อ่านจากโค้ดจริงใน `rust/src/handler.rs` (`guard`, `cors_allow`, `router_with_cors`), `rust/src/config.rs`:
+
+- **CORS** อยู่ใน middleware `guard` (`middleware::from_fn_with_state`) ตัวเดียวกับที่ตอบ `%zz` เป็น 400 และเปลี่ยน panic เป็น 500: ลำดับคือ `%zz` → 400, `cors_allow` → preflight ตอบ 204 ทันที, ไม่งั้นรัน handler ใน `tokio::spawn` แล้วเติม `access-control-allow-origin` (+ `vary`) ใส่ response **หลัง** รู้ผล จึงติดทุกสถานะรวม 500 ที่ guard สร้างเอง. ไม่เพิ่ม crate (`tower-http` ไม่อยู่ในตาราง)
+- **BR-57** ไม่ต้องเขียนเพิ่ม: route ของ axum (`/v1/flags/{key}`) เทียบกับ path ดิบ และเราตัด key จาก URI ดิบแล้วถอดรหัสเอง (BR-55) segment อื่นที่เขียนแบบ `%65` จึงตกไป `fallback(no_such_route)` → 404 เอง
+- `CORS_ORIGINS` อ่านใน `config.rs` ส่งเข้า `router_with_cors(...)`

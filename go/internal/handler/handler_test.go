@@ -234,3 +234,27 @@ func TestAPanicBecomesAnOpaque500(t *testing.T) {
 		t.Fatalf("internal details leaked: %s", r.Text)
 	}
 }
+
+func TestBR57_OnlyTheKeyIsPercentDecoded(t *testing.T) {
+	h := newServer(t)
+	for _, c := range []struct{ method, path string }{
+		{"GET", "/%68ealthz"}, {"GET", "/v1/%66lags"}, {"GET", "/%76%31/flags"}, {"GET", "/v1/audit%2Dlogs"},
+		{"POST", "/v1/%65valuate"}, {"POST", "/v1/%65vents"}, {"GET", "/v1/flags/k/%72esults?goal=g"},
+	} {
+		for _, auth := range []string{"admin", "client", ""} {
+			if r := do(h, c.method, c.path, "{}", auth); r.Code != 404 || r.errorCode(t) != "FLAG_NOT_FOUND" {
+				t.Errorf("%s %s (%q): %d %s", c.method, c.path, auth, r.Code, r.Text)
+			}
+		}
+	}
+	if r := do(h, "POST", "/v1/%66lags", `{"key":"made-by-alias"}`, "admin"); r.Code != 404 {
+		t.Fatalf("alias created a flag: %d", r.Code)
+	}
+	if r := do(h, "GET", "/v1/flags/made-by-alias", "", "admin"); r.Code != 404 {
+		t.Errorf("flag exists: %d", r.Code)
+	}
+	do(h, "POST", "/v1/flags", `{"key":"abc"}`, "admin")
+	if r := do(h, "GET", "/v1/flags/%61bc", "", "admin"); r.Code != 200 {
+		t.Errorf("an encoded key must still be decoded: %d", r.Code)
+	}
+}

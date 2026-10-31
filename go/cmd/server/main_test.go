@@ -1,6 +1,9 @@
 package main
 
-import "testing"
+import (
+	"strings"
+	"testing"
+)
 
 func env(m map[string]string) func(string) string { return func(k string) string { return m[k] } }
 
@@ -24,6 +27,22 @@ func TestLoadConfigReadsOverridesAndRequiresBothKeys(t *testing.T) {
 	} {
 		if _, err := loadConfig(env(m)); err == nil {
 			t.Errorf("%s: accepted", name)
+		}
+	}
+}
+
+func TestLoadConfigCORSOrigins(t *testing.T) {
+	base := map[string]string{"ADMIN_KEY": "a", "CLIENT_KEY": "c"}
+	for in, want := range map[string]string{
+		"": "", " , ": "", "https://a.example": "https://a.example", " https://a.example , https://b.example,": "https://a.example|https://b.example", "*": "*",
+	} {
+		m := map[string]string{"CORS_ORIGINS": in}
+		for k, v := range base {
+			m[k] = v
+		}
+		cfg, err := loadConfig(env(m))
+		if err != nil || strings.Join(cfg.CORSOrigins, "|") != want {
+			t.Errorf("%q: %q %v", in, cfg.CORSOrigins, err)
 		}
 	}
 }

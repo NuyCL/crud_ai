@@ -93,3 +93,14 @@
 - path ที่ไม่สะอาด (`//`, `/./`): Go ตอบ 301; Python ตอบ 404 (differential test ไม่สร้างกรณีนี้)
 - escape ผิดรูป (`%zz`): Go ตอบ 400 เป็นข้อความธรรมดา (`text/plain`); Python ตอบ 400 JSON `VALIDATION_ERROR` (สเปกไม่ได้บอก; status เหมือนกัน)
 - header ซ้ำ: ใช้ค่าแรกทั้งคู่ แต่ไม่มี test
+
+## 7. หลังเพิ่ม CORS (BR-56) และ BR-57
+
+อ่านจากโค้ดจริงใน `python/app/handler.py` (`create_app`) และ `python/app/config.py`: ทั้งสองเรื่องอยู่ใน middleware `guard` ตัวเดียวกับที่ตอบ `%zz` เป็น 400 และจับ exception เป็น 500 ทึบ ลำดับในตัว:
+
+1. `%zz` (escape ผิดรูป) → 400 `VALIDATION_ERROR`
+2. **BR-57:** `_encoded_outside_key(raw_path)` ตรวจ `raw_path` (ไบต์ดิบ ก่อน Starlette ถอดรหัส) ถ้ามี `%` นอก key → 404 `FLAG_NOT_FOUND` (ก่อนมีกฎนี้ Starlette ถอดรหัสทั้ง path ก่อน routing ทำให้ `/v1/%65valuate` ใช้ได้)
+3. ถ้ามี `%2` ใน path ให้ route ด้วย path ที่ถอดรหัสเฉพาะ key (แก้ `%2F` ตาม BR-55)
+4. **BR-56:** `cors_headers()` คืน header เมื่อ `Origin` ไม่ว่าง, path ตรงตัวกับ `/v1/evaluate`|`/v1/events`, method เป็น `POST`/`OPTIONS` และ origin อยู่ในรายการ; `OPTIONS` ตอบ 204 จาก middleware เลย (ไม่ตรวจ key); ที่เหลือเรียก `call_next` แล้ว `response.headers.update(cors)` **หลัง** `try/except` จึงติดทั้ง 4xx และ 500 ที่ middleware สร้างเอง
+
+`CORS_ORIGINS` อ่านใน `config.py` แล้วส่งเป็นพารามิเตอร์ `cors_origins` (ไม่มี global state). ไม่ใช้ `CORSMiddleware` ของ Starlette: เขียนเองในสิบกว่าบรรทัดเพื่อให้ตรง BR-56 (origin ที่ไม่อยู่ในรายการต้องได้ 404 ตาม BR-53 ไม่ใช่ response ของ framework — ข้อสมมติของผู้เขียน ไม่ได้ทดลองกับ `CORSMiddleware` จริง)

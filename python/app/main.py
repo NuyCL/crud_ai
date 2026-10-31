@@ -14,7 +14,7 @@ from app.repository import SqliteRepository
 from app.service import Service
 
 config = load_config()
-app = create_app(Service(SqliteRepository(config.db_path)), config.admin_key, config.client_key)
+app = create_app(Service(SqliteRepository(config.db_path)), config.admin_key, config.client_key, config.cors_origins)
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=config.port)
