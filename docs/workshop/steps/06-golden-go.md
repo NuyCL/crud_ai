@@ -130,7 +130,7 @@ kill $SVC_PID
 rm -f go/contract.db go/contract.db-shm go/contract.db-wal go/ffservice
 ```
 
-ผลที่ถูกต้อง: `# pass 333`, `# fail 0`, `# skipped 0` เหมือนที่ mock ผ่าน (เฉลยผ่านตั้งแต่รันครั้งแรกกับ Go ตอนที่ชุด test ยังมี 258 ข้อ ต่อมาชุดโตเป็น 313 ระหว่าง step 8–9 โดยที่ Go ต้องถูกแก้ 1 จุด: ดู [`lessons/typescript.md`](../../../lessons/typescript.md) ข้อ 2 และเป็น 333 ใน step 10 โดย Go ต้องถูกแก้อีก 1 จุด: อ่านทั้งก้อนแล้วตรวจ UTF-8, ดู [`lessons/python.md`](../../../lessons/python.md))
+ผลที่ถูกต้อง: `# pass 333`, `# fail 0`, `# skipped 0` เหมือนที่ mock ผ่าน (เฉลยผ่านตั้งแต่รันครั้งแรกกับ Go ตอนที่ชุด test ยังมี 258 ข้อ ต่อมาชุดโตเป็น 313 ระหว่าง step 8–9 โดยที่ Go ต้องถูกแก้ 1 จุด: ดู [`lessons/typescript.md`](../../../lessons/typescript.md) ข้อ 2 และเป็น 333 ใน step 10 โดย Go ต้องถูกแก้อีก 1 จุด: อ่านทั้งก้อนแล้วตรวจ UTF-8, ดู [`lessons/python.md`](../../../lessons/python.md); ปัจจุบันชุดเป็น 390 ข้อด้วย `CORS_ORIGINS` ตามข้อ "ผลจริง: CORS" ท้าย [step 5](05-contract-tests.md) และ Go ต้องถูกแก้ตาม BR-57 อีก 1 จุด: middleware `literalPaths` ใน `go/internal/handler/handler.go`)
 
 ถ้า fail ให้ส่งชื่อ test และข้อความ error กลับให้ AI **ไม่เกิน 3 รอบ** แล้วคนเข้ามาอ่านเอง:
 

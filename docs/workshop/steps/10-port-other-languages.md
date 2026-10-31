@@ -14,6 +14,8 @@
 | 2 | **Java** | โครงสร้างชัด framework ทำเยอะ | **ทดลอง HTTP server ก่อนเขียน handler → เปลี่ยน Tomcat เป็น Undertow และเลิกใช้ Spring MVC controller**; contract 333/333 รอบแรก |
 | 3 | **Rust** | ห่างจาก Go สุด | compile ผ่านรอบแรก ไม่มี borrow checker ปัญหา; contract 333/333 รอบแรก; ห้ามใช้ extractor `Path` ของ axum |
 
+> **ผลจริงหลังจบ step นี้:** เพิ่ม CORS (BR-56) และ BR-57 ให้ทั้งห้าภาษา ชุด contract เป็น 390 ข้อ (388 เมื่อ `CORS_ORIGINS=*`, 378 เมื่อไม่ตั้ง) unit/lint/build ผ่านทุกภาษา และ differential test (Go เทียบกับแต่ละภาษา, seed 1 และ 2, ภาษาละ 3,000 คำขอ) ได้ 0 ความต่าง; BR-57 เป็นตัวอย่างของ bug ที่ **รีวิวเจอแต่ test เดิมไม่เจอ**: Go/TypeScript/Python ถอดรหัสทุก segment ส่วน Java/Rust (ซึ่งทดลอง framework ก่อนเขียน handler) ตรงสเปกอยู่แล้ว ดู [`docs/porting/*-analysis.md`](../../porting) ท้ายไฟล์ว่า CORS/guard อยู่ตรงไหนของแต่ละภาษา
+
 **ทำทีละภาษา** เพราะบทเรียนจากภาษาก่อนหน้าถูกใช้กับภาษาถัดไปจริง (เช่น Java และ Rust ทดลอง `%FF`/`%2F`/`;`/`%zz`/OPTIONS ก่อนเขียน handler เพราะ TypeScript และ Python เจอมาแล้ว)
 
 ## ขั้นตอนต่อภาษา (เหมือน step 9)
