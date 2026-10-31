@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 420" width="880" height="420" font-family="Noto Sans Thai, Sarabun, Tahoma, sans-serif">
+  <rect width="880" height="420" fill="#f7f9fc"/>
+  <text x="440" y="30" text-anchor="middle" font-size="20" font-weight="700" fill="#1b2433">ลำดับความจริง: spec &gt; tests &gt; โค้ด (CLAUDE.md)</text>
+  <polygon points="250,70 190,150 310,150" fill="#bfdbfe" stroke="#1d4ed8" stroke-width="2"/>
+  <polygon points="190,150 310,150 370,230 130,230" fill="#bbf7d0" stroke="#15803d" stroke-width="2"/>
+  <polygon points="130,230 370,230 430,310 70,310" fill="#fde68a" stroke="#b45309" stroke-width="2"/>
+  <text x="250" y="130" text-anchor="middle" font-size="15" font-weight="700" fill="#1b2433">spec</text>
+  <text x="250" y="195" text-anchor="middle" font-size="15" font-weight="700" fill="#1b2433">tests</text>
+  <text x="250" y="275" text-anchor="middle" font-size="15" font-weight="700" fill="#1b2433">โค้ด 5 ภาษา</text>
+  <g font-size="14" fill="#1b2433">
+    <text x="470" y="100" font-weight="700">spec/ : openapi.yaml, evaluation.md, business-rules.md</text>
+    <text x="470" y="122">ชนะเสมอ ถ้าโค้ดหรือ test ขัดกับสเปก สเปกถูก</text>
+    <text x="470" y="180" font-weight="700">tests/vectors + tests/contract (read-only สำหรับ AI)</text>
+    <text x="470" y="202">ตัดสินด้วยข้อมูลและ HTTP ไม่ผูกกับภาษา: 390 ข้อ</text>
+    <text x="470" y="260" font-weight="700">go/ typescript/ python/ java/ rust/</text>
+    <text x="470" y="282">ผ่านชุดเดียวกัน Go ไม่ใช่ตัวตัดสิน (เป็นแค่ต้นฉบับ)</text>
+  </g>
+  <text x="440" y="350" text-anchor="middle" font-size="14" fill="#1b2433">ห้ามแก้ spec/ tests/contract/ tests/vectors/ เพื่อให้โค้ดผ่าน • ห้ามข้าม/ปิด test</text>
+  <text x="440" y="375" text-anchor="middle" font-size="14" fill="#1b2433">ชั้นล่างขัดชั้นบน = ชั้นล่างผิด (แก้โค้ด) หรือสเปกกำกวม (ถามคน)</text>
+</svg>

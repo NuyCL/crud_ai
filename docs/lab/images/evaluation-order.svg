@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 560" width="880" height="560" font-family="Noto Sans Thai, Sarabun, Tahoma, sans-serif">
+  <defs><marker id="a" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#1b2433"/></marker></defs>
+  <rect width="880" height="560" fill="#f7f9fc"/>
+  <text x="440" y="28" text-anchor="middle" font-size="20" font-weight="700" fill="#1b2433">ลำดับการประเมิน flag (spec/evaluation.md ข้อ 3: ห้ามสลับ)</text>
+  <g font-size="14" fill="#1b2433">
+    <rect x="40" y="50" width="330" height="56" rx="8" fill="#bfdbfe" stroke="#1d4ed8"/><text x="205" y="74" text-anchor="middle" font-weight="700">1. flag มีในระบบไหม</text><text x="205" y="94" text-anchor="middle" font-size="12">ไม่มี → FLAG_NOT_FOUND</text>
+    <rect x="40" y="130" width="330" height="56" rx="8" fill="#bfdbfe" stroke="#1d4ed8"/><text x="205" y="154" text-anchor="middle" font-weight="700">2. enabled == true ไหม</text><text x="205" y="174" text-anchor="middle" font-size="12">false → DISABLED</text>
+    <rect x="40" y="210" width="330" height="56" rx="8" fill="#bbf7d0" stroke="#15803d"/><text x="205" y="234" text-anchor="middle" font-weight="700">3. targeting: ทุก rule ผ่าน (AND)</text><text x="205" y="254" text-anchor="middle" font-size="12">attribute ไม่มี = ไม่ผ่าน → TARGETING_MISS</text>
+    <rect x="40" y="290" width="330" height="56" rx="8" fill="#fde68a" stroke="#b45309"/><text x="205" y="314" text-anchor="middle" font-weight="700">4. ต้อง bucketing ไหม (rollout&lt;100 หรือมี variants)</text><text x="205" y="334" text-anchor="middle" font-size="12">ไม่มี userId → MISSING_USER_ID</text>
+    <rect x="40" y="370" width="330" height="56" rx="8" fill="#fde68a" stroke="#b45309"/><text x="205" y="394" text-anchor="middle" font-weight="700">5. rollout: bucket(rollout) &lt; percent×100</text><text x="205" y="414" text-anchor="middle" font-size="12">ไม่ผ่าน → NOT_IN_ROLLOUT</text>
+    <rect x="40" y="450" width="330" height="56" rx="8" fill="#fbcfe8" stroke="#be185d"/><text x="205" y="474" text-anchor="middle" font-weight="700">6. variants</text><text x="205" y="494" text-anchor="middle" font-size="12">ว่าง → ON • ไม่ว่าง → VARIANT (bucket variant)</text>
+  </g>
+  <g stroke="#1b2433" stroke-width="2" marker-end="url(#a)">
+    <line x1="205" y1="106" x2="205" y2="128"/><line x1="205" y1="186" x2="205" y2="208"/><line x1="205" y1="266" x2="205" y2="288"/><line x1="205" y1="346" x2="205" y2="368"/><line x1="205" y1="426" x2="205" y2="448"/>
+  </g>
+  <g font-size="14" fill="#1b2433">
+    <rect x="410" y="90" width="460" height="205" rx="8" fill="#ffffff" stroke="#334155"/>
+    <text x="430" y="116" font-weight="700">bucket = fnv1a32(flagKey:salt:userId) mod 10000</text>
+    <text x="430" y="142">salt = "rollout" หรือ "variant" (แยกกัน)</text>
+    <text x="430" y="172" font-weight="700">ตัวอย่างจริง (ตรวจในแลบ):</text>
+    <text x="430" y="196">new-checkout:rollout:u1 → hash 2091417145 → bucket 7145</text>
+    <text x="430" y="220">new-checkout:variant:u1 → hash 3245987181 → bucket 7181</text>
+    <text x="430" y="244">variants [blue 50, green 50]: blue 0..4999, green 5000..9999</text>
+    <text x="430" y="268">7181 → green • rollout 70% = 0..6999 → 7145 อยู่นอก</text>
+    <rect x="410" y="320" width="460" height="116" rx="8" fill="#fff7ed" stroke="#b45309"/>
+    <text x="430" y="346" font-weight="700">ทุกผลที่ enabled:false มี variant:null</text>
+    <text x="430" y="372">ตรวจ userId หลัง targeting ผ่านแล้วเท่านั้น</text>
+    <text x="430" y="396">(rollout-targeting-miss-no-user → TARGETING_MISS</text>
+    <text x="430" y="418">ไม่ใช่ MISSING_USER_ID)</text>
+  </g>
+</svg>

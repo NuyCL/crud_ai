@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 420" width="880" height="420" font-family="Noto Sans Thai, Sarabun, Tahoma, sans-serif">
+  <defs><marker id="a" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#1b2433"/></marker></defs>
+  <rect width="880" height="420" fill="#f7f9fc"/>
+  <text x="440" y="30" text-anchor="middle" font-size="20" font-weight="700" fill="#1b2433">สถาปัตยกรรม: 4 ชั้น เหมือนกันทุกภาษา (CONVENTIONS.md)</text>
+  <rect x="20" y="60" width="130" height="60" rx="8" fill="#e2e8f0" stroke="#334155"/>
+  <text x="85" y="86" text-anchor="middle" font-size="14" fill="#1b2433">curl / test</text><text x="85" y="106" text-anchor="middle" font-size="12" fill="#1b2433">เบราว์เซอร์ + SDK</text>
+  <rect x="200" y="60" width="300" height="60" rx="8" fill="#bfdbfe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="350" y="86" text-anchor="middle" font-size="16" font-weight="700" fill="#1b2433">handler</text><text x="350" y="106" text-anchor="middle" font-size="12" fill="#1b2433">HTTP, status code, auth, CORS, อ่าน body</text>
+  <rect x="200" y="160" width="300" height="60" rx="8" fill="#bbf7d0" stroke="#15803d" stroke-width="2"/>
+  <text x="350" y="186" text-anchor="middle" font-size="16" font-weight="700" fill="#1b2433">service</text><text x="350" y="206" text-anchor="middle" font-size="12" fill="#1b2433">กฎธุรกิจ BR-xx, audit, รายงานผล</text>
+  <rect x="200" y="260" width="300" height="60" rx="8" fill="#fde68a" stroke="#b45309" stroke-width="2"/>
+  <text x="350" y="286" text-anchor="middle" font-size="16" font-weight="700" fill="#1b2433">repository</text><text x="350" y="306" text-anchor="middle" font-size="12" fill="#1b2433">SQLite (interface ที่ service ใช้)</text>
+  <rect x="580" y="160" width="270" height="60" rx="8" fill="#fbcfe8" stroke="#be185d" stroke-width="2"/>
+  <text x="715" y="186" text-anchor="middle" font-size="16" font-weight="700" fill="#1b2433">evaluation (pure function)</text><text x="715" y="206" text-anchor="middle" font-size="12" fill="#1b2433">ไม่แตะ DB / เวลา / random</text>
+  <rect x="580" y="260" width="270" height="60" rx="8" fill="#e9d5ff" stroke="#7e22ce" stroke-width="2"/>
+  <text x="715" y="286" text-anchor="middle" font-size="16" font-weight="700" fill="#1b2433">model</text><text x="715" y="306" text-anchor="middle" font-size="12" fill="#1b2433">Flag, Rule, Variant, Context, Result</text>
+  <line x1="150" y1="90" x2="198" y2="90" stroke="#1b2433" stroke-width="2" marker-end="url(#a)"/>
+  <line x1="350" y1="120" x2="350" y2="158" stroke="#1b2433" stroke-width="2" marker-end="url(#a)"/>
+  <line x1="350" y1="220" x2="350" y2="258" stroke="#1b2433" stroke-width="2" marker-end="url(#a)"/>
+  <line x1="500" y1="190" x2="578" y2="190" stroke="#1b2433" stroke-width="2" marker-end="url(#a)"/>
+  <line x1="715" y1="220" x2="715" y2="258" stroke="#1b2433" stroke-width="2" marker-end="url(#a)"/>
+  <text x="440" y="360" text-anchor="middle" font-size="14" fill="#1b2433">ลูกศร = ทิศทาง dependency (ทางเดียว: handler → service → repository; service → evaluation → model)</text>
+  <text x="440" y="385" text-anchor="middle" font-size="14" fill="#1b2433">แปลทีละ layer: model → evaluation → repository → service → handler → main (port-layer)</text>
+</svg>

@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 540" width="880" height="540" font-family="Noto Sans Thai, Sarabun, Tahoma, sans-serif">
+  <defs><marker id="a" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#1b2433"/></marker></defs>
+  <rect width="880" height="540" fill="#f7f9fc"/>
+  <text x="440" y="28" text-anchor="middle" font-size="20" font-weight="700" fill="#1b2433">CORS preflight (BR-56): เบราว์เซอร์ถามก่อน แล้วค่อยส่งจริง</text>
+  <g font-size="15" font-weight="700" fill="#1b2433">
+    <rect x="60" y="50" width="220" height="44" rx="8" fill="#bfdbfe" stroke="#1d4ed8"/><text x="170" y="78" text-anchor="middle">หน้าเว็บ + SDK</text>
+    <rect x="600" y="50" width="220" height="44" rx="8" fill="#bbf7d0" stroke="#15803d"/><text x="710" y="78" text-anchor="middle">feature flag service</text>
+  </g>
+  <text x="170" y="112" text-anchor="middle" font-size="12" fill="#1b2433">origin http://localhost:9001</text>
+  <text x="710" y="112" text-anchor="middle" font-size="12" fill="#1b2433">http://localhost:8080</text>
+  <line x1="170" y1="120" x2="170" y2="520" stroke="#64748b" stroke-dasharray="6 5"/>
+  <line x1="710" y1="120" x2="710" y2="520" stroke="#64748b" stroke-dasharray="6 5"/>
+  <g stroke="#1b2433" stroke-width="2" marker-end="url(#a)" fill="none">
+    <line x1="172" y1="170" x2="706" y2="170"/>
+    <line x1="708" y1="250" x2="174" y2="250"/>
+    <line x1="172" y1="330" x2="706" y2="330"/>
+    <line x1="708" y1="410" x2="174" y2="410"/>
+  </g>
+  <g font-size="13" fill="#1b2433">
+    <text x="440" y="140" text-anchor="middle" font-weight="700">1. OPTIONS /v1/evaluate  (เพราะมี X-Client-Key)</text>
+    <text x="440" y="158" text-anchor="middle">Origin: http://localhost:9001 • Access-Control-Request-Headers: x-client-key</text>
+    <text x="440" y="222" text-anchor="middle" font-weight="700">2. 204 ไม่มี body ไม่ต้องมี key</text>
+    <text x="440" y="240" text-anchor="middle">Allow-Origin: http://localhost:9001 • Allow-Methods: POST • Vary: Origin</text>
+    <text x="440" y="300" text-anchor="middle" font-weight="700">3. (เบราว์เซอร์ตรวจแล้วอนุญาต) POST /v1/evaluate</text>
+    <text x="440" y="318" text-anchor="middle">X-Client-Key + Origin</text>
+    <text x="440" y="382" text-anchor="middle" font-weight="700">4. 200 + Access-Control-Allow-Origin (ทุกสถานะ รวม 4xx)</text>
+    <text x="440" y="400" text-anchor="middle">JavaScript อ่านผลได้</text>
+  </g>
+  <rect x="190" y="440" width="500" height="80" rx="8" fill="#fff1f2" stroke="#be123c"/>
+  <g font-size="13" fill="#1b2433">
+    <text x="210" y="464" font-weight="700">ถ้าไม่ตั้ง CORS_ORIGINS (หรือ origin ไม่อยู่ในรายการ)</text>
+    <text x="210" y="484">ข้อ 2 เป็น 404 ไม่มี header → เบราว์เซอร์ไม่ส่งข้อ 3 → fetch() ล้ม</text>
+    <text x="210" y="504">(Failed to fetch) SDK ไม่ throw แต่ใช้ค่า fallback</text>
+  </g>
+</svg>
