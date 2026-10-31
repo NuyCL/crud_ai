@@ -32,6 +32,8 @@ node --test --test-concurrency=1 "tests/contract/*.test.mjs"
 
 test ทุกข้อใช้ key ที่ไม่ซ้ำและรันซ้ำบน server เดิมได้ แนะนำให้ใช้ `--test-concurrency=1` เพื่อผลที่แน่นอน: ถ้ารันขนาน ไฟล์อื่นสร้าง/ลบ flag ตลอดเวลา จนข้อทดสอบการแบ่งหน้า ("limit and offset page through the same ordering") หา snapshot ที่นิ่งไม่ได้ ข้อนั้นจะถูกรายงานเป็น **skipped** (ไม่ใช่ pass หรือ fail) ส่วนโหมดเรียงรันครบทุกข้อ
 
+> **ข้อที่ถูกข้ามตามโหมด CORS (`cors.test.mjs`) ไม่ถูกนับเลย:** Node ไม่นับ test ภายใน `describe` ที่ถูก skip ทั้งก้อนทั้งใน `# tests` และ `# skipped` (`# skipped` จึงเป็น 0 เกือบทุกโหมด) จำนวน `# tests` จึงต่างกันตามค่า `CORS_ORIGINS` ที่ตั้ง (390 / 388 / 378) ไม่ได้แปลว่ามี test หายไป
+
 `CONTRACT_MVP=1` ข้าม test ของ variants, targeting rules, rollout, events (ใช้ตอนทำ MVP1 อยู่) vector ที่เป็น flag แบบ on/off ธรรมดายังรันอยู่
 
 ## โครงสร้าง

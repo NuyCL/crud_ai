@@ -17,7 +17,7 @@
 | รีวิวโดย agent ใหม่ (โมเดลเดียวกัน) | ✅ 1 รอบ | แก้ทุกข้อแล้ว แต่ไม่นับเป็นรีวิวอิสระ |
 | **รีวิวอิสระใน session ใหม่ (`/review-port`)** | ✅ ผ่าน | ผู้ใช้แจ้งว่าไม่มีข้อที่ต้องแก้ (ไม่มีรายงานในรีโป) |
 | ทดสอบ 5xx ของ CORS จากภายนอก | ❌ ทำไม่ได้ | มีแค่ unit test ต่อภาษา |
-| dev คนอื่นลองทำตามเอกสาร, สไลด์, license, Makefile | ❌ ยังไม่มี | |
+| dev คนอื่นลองทำตามเอกสาร, สไลด์, license | ❌ ยังไม่มี | |
 
 | เอกสาร | เนื้อหา |
 |---|---|
@@ -179,13 +179,11 @@ python/          port ✅  ดู python/README.md
 java/            port ✅  ดู java/README.md
 rust/            port ✅  ดู rust/README.md
 sdk-js/          MVP3 JavaScript library ✅  ดู sdk-js/README.md
-prompts/         prompt templates
 lessons/         บทเรียนต่อภาษา + comparison.md + sdk-js.md ✅
 docs/porting/    รายงานวิเคราะห์ก่อนแปลต่อภาษา (typescript, python, java, rust ✅)
 docs/lab/        แล็บฝึกหัด (ดู docs/lab/README.md)
 CLAUDE.md        กติกาของโปรเจกต์สำหรับ AI ✅   .claude/skills/ ✅
 CONVENTIONS.md   โครงสร้างและ library ที่ใช้ต่อภาษา
-Makefile         make test-<lang>, make build-<lang>
 ```
 
 ## Getting started

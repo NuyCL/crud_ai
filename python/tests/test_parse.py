@@ -140,7 +140,8 @@ def test_br31_to_br34_variants() -> None:
     assert v(f"[{a},{b}]") == ""
     assert v(f"[{a}]") == "INVALID_VARIANTS"
     assert v('[{"key":"a","weight":100}]') == "INVALID_VARIANTS"  # one variant is not an experiment
-    assert v(f'[{a},{{"key":"b","weight":49}}]') == "INVALID_VARIANTS"
+    assert v(f'[{a},{{"key":"b","weight":49}}]') == "INVALID_VARIANTS"  # BR-31: sum 99
+    assert v(f'[{a},{{"key":"b","weight":51}}]') == "INVALID_VARIANTS"  # BR-31: sum 101
     assert v(f'[{a},{{"key":"a","weight":50}}]') == "INVALID_VARIANTS"
     assert v(f'[{a},{{"key":"b","weight":0}}]') == "INVALID_VARIANTS"
     assert v(f'[{a},{{"key":"b","weight":50.5}}]') == "INVALID_VARIANTS"

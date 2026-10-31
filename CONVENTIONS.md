@@ -88,7 +88,6 @@ node --test --test-concurrency=1 "tests/contract/*.test.mjs"
 
 ปิด server ด้วย PID ของโปรเซสที่เปิดเอง (ห้าม `pkill` / `killall`)
 
-> Makefile (`make build-<lang>`, `make test-<lang>`, `make contract-<lang>`) เป็นแผนในอนาคตเพื่อห่อคำสั่งข้างบน
 
 ทุก task ถือว่า "เสร็จ" เมื่อ build + lint + test + contract ผ่านครบ และไม่มี warning ใหม่
 

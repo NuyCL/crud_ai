@@ -133,7 +133,7 @@ flowchart LR
 | skill ยังไม่เคยถูกเรียกผ่าน `/ชื่อ` ใน session ใหม่ | `port-layer`, `verify-gates`, `spec-ambiguity-check`, `review-port` |
 | เวลาที่ใช้ต่อ step/ภาษา | ไม่ได้บันทึก จึงเทียบ "คุ้มต่อเวลา" ไม่ได้ |
 | ชื่อ/รูปแบบ env `CORS_ORIGINS`, dependency ที่ framework พ่วงมา (tokio, serde_json, http-body-util ฯลฯ) | เป็นข้อสมมติของเรา ระบุไว้ใน `CONVENTIONS.md` และ `docs/porting/` |
-| `Makefile`, `prompts/`, สไลด์ workshop, license | ยังไม่มี (Makefile อยู่ในแผนของ `CONVENTIONS.md`) |
+| สไลด์ workshop, license | ยังไม่มี (prompt พร้อมใช้อยู่ที่ [`docs/lab/cheatsheet.md`](../lab/cheatsheet.md); ไม่มี Makefile คำสั่ง gate อยู่ใน `CONVENTIONS.md`) |
 
 **รันทุก gate ซ้ำได้อย่างไร**
 

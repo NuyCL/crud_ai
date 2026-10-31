@@ -120,7 +120,8 @@ class ParseTest {
     assertEquals("", variantsCode("[" + a + "," + b + "]"));
     assertEquals("INVALID_VARIANTS", variantsCode("[" + a + "]"));
     assertEquals("INVALID_VARIANTS", variantsCode("[{\"key\":\"a\",\"weight\":100}]")); // one variant is no experiment
-    assertEquals("INVALID_VARIANTS", variantsCode("[" + a + ",{\"key\":\"b\",\"weight\":49}]"));
+    assertEquals("INVALID_VARIANTS", variantsCode("[" + a + ",{\"key\":\"b\",\"weight\":49}]")); // BR-31: sum 99
+    assertEquals("INVALID_VARIANTS", variantsCode("[" + a + ",{\"key\":\"b\",\"weight\":51}]")); // BR-31: sum 101
     assertEquals("INVALID_VARIANTS", variantsCode("[" + a + ",{\"key\":\"a\",\"weight\":50}]"));
     assertEquals("INVALID_VARIANTS", variantsCode("[" + a + ",{\"key\":\"b\",\"weight\":0}]"));
     assertEquals("INVALID_VARIANTS", variantsCode("[" + a + ",{\"key\":\"b\",\"weight\":50.5}]"));

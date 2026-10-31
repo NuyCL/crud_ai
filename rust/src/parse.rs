@@ -505,7 +505,8 @@ mod tests {
         assert_eq!(variants_code(&format!("[{a}]")), Some(Code::InvalidVariants));
         assert_eq!(variants_code(r#"[{"key":"a","weight":100}]"#), Some(Code::InvalidVariants)); // one variant is no experiment
         for bad in [
-            r#"{"key":"b","weight":49}"#,
+            r#"{"key":"b","weight":49}"#, // BR-31: sum 99
+            r#"{"key":"b","weight":51}"#, // BR-31: sum 101
             r#"{"key":"a","weight":50}"#,
             r#"{"key":"b","weight":0}"#,
             r#"{"key":"b","weight":50.5}"#,
