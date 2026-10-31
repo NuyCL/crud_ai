@@ -11,6 +11,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"strings"
 	"unicode/utf8"
 
 	"ffservice/internal/service"
@@ -60,7 +61,7 @@ func New(svc *service.Service, cfg Config) (http.Handler, error) {
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusNotFound, service.CodeFlagNotFound, "no such route")
 	})
-	return a.recoverPanics(a.cors(mux)), nil
+	return a.recoverPanics(literalPaths(a.cors(mux))), nil
 }
 
 // ------------------------------------------------------------------ auth
@@ -96,6 +97,22 @@ func (a *api) clientOrAdmin(next http.HandlerFunc) http.HandlerFunc {
 		}
 		writeError(w, http.StatusUnauthorized, service.CodeUnauthorized, "missing or invalid key")
 	}
+}
+
+// literalPaths implements BR-57: only the flag key may be percent-encoded. A path with an escape anywhere else
+// ("/v1/%65valuate") is a route that does not exist, not an alias of one.
+func literalPaths(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		parts := strings.Split(r.URL.EscapedPath(), "/")
+		for i, part := range parts {
+			keySegment := i == 3 && len(parts) > 2 && parts[1] == "v1" && parts[2] == "flags"
+			if strings.Contains(part, "%") && !keySegment {
+				writeError(w, http.StatusNotFound, service.CodeFlagNotFound, "no such route")
+				return
+			}
+		}
+		next.ServeHTTP(w, r)
+	})
 }
 
 // cors implements BR-56: only POST /v1/evaluate and /v1/events, only for an

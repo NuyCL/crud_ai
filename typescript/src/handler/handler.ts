@@ -98,6 +98,14 @@ export function buildApp(svc: Service, cfg: HandlerConfig): FastifyInstance {
   // BR-53: a route that does not exist answers in our error shape, not Fastify's.
   app.setNotFoundHandler((_request, reply) => reply.code(404).send(errorBody("FLAG_NOT_FOUND", "no such route")));
 
+  // BR-57: only the flag key may be percent-encoded. An escape anywhere else ("/v1/%65valuate") is a route that
+  // does not exist, not an alias of one.
+  app.addHook("onRequest", async (request, reply) => {
+    const parts = (request.url.split("?")[0] ?? "").split("/");
+    const encodedOutsideKey = parts.some((part, i) => part.includes("%") && !(i === 3 && parts[1] === "v1" && parts[2] === "flags"));
+    if (encodedOutsideKey) return reply.code(404).send(errorBody("FLAG_NOT_FOUND", "no such route"));
+  });
+
   // BR-56: CORS only for POST /v1/evaluate and /v1/events and only for an allowed Origin. A preflight is
   // answered here without a key; every other request goes on untouched.
   const corsOrigins = cfg.corsOrigins ?? [];

@@ -109,6 +109,12 @@ def _reject_constant(name: str) -> Any:
     raise ValueError(f"{name} is not valid JSON")  # json.loads accepts NaN, Infinity and -Infinity by default
 
 
+def _encoded_outside_key(raw_path: bytes) -> bool:
+    """BR-57: only the flag key (/v1/flags/{key}...) may be percent-encoded."""
+    parts = raw_path.split(b"/")
+    return any(b"%" in part and not (i == 3 and parts[1:3] == [b"v1", b"flags"]) for i, part in enumerate(parts))
+
+
 _CORS_PATHS = frozenset({b"/v1/evaluate", b"/v1/events"})
 
 
@@ -159,6 +165,8 @@ def create_app(service: Service, admin_key: str, client_key: str, cors_origins: 
         raw_path = request.scope.get("raw_path") or b""
         if _BROKEN_ESCAPE.search(raw_path):
             return _error_response(400, CODE_VALIDATION, "malformed request")
+        if _encoded_outside_key(raw_path):
+            return _error_response(404, CODE_FLAG_NOT_FOUND, "no such route")
         if b"%2" in raw_path:
             request.scope["path"] = _route_path(raw_path)
         cors = cors_headers(request, raw_path)

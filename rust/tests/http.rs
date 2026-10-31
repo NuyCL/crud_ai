@@ -736,3 +736,27 @@ fn br56_cors_is_off_by_default() {
     let r = with_origin(&server, "POST", "/v1/evaluate", r#"{"flags":[]}"#, "client", Some(APP));
     assert!(!r.headers.contains_key(ALLOW));
 }
+
+#[test]
+fn br57_only_the_flag_key_is_percent_decoded() {
+    let server = start();
+    let routes = [
+        ("GET", "/%68ealthz"),
+        ("GET", "/v1/%66lags"),
+        ("GET", "/%76%31/flags"),
+        ("GET", "/v1/audit%2Dlogs"),
+        ("POST", "/v1/%65valuate"),
+        ("POST", "/v1/%65vents"),
+        ("GET", "/v1/flags/k/%72esults?goal=g"),
+    ];
+    for (method, path) in routes {
+        for auth in ["admin", "client", "none"] {
+            let r = server.call(method, path, "{}", auth);
+            assert_eq!((r.status, r.code().as_str()), (404, "FLAG_NOT_FOUND"), "{method} {path} {auth}");
+        }
+    }
+    assert_eq!(server.call("POST", "/v1/%66lags", r#"{"key":"made-by-alias"}"#, "admin").status, 404);
+    assert_eq!(server.call("GET", "/v1/flags/made-by-alias", "", "admin").status, 404);
+    server.call("POST", "/v1/flags", r#"{"key":"abc"}"#, "admin");
+    assert_eq!(server.call("GET", "/v1/flags/%61bc", "", "admin").status, 200);
+}

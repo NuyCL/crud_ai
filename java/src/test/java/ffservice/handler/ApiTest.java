@@ -428,4 +428,22 @@ class ApiTest {
     assertEquals(java.util.Set.of("code", "message"), error.keySet());
     assertFalse(((String) error.get("message")).isEmpty());
   }
+
+  @Test
+  void br57OnlyTheFlagKeyIsPercentDecoded() throws IOException {
+    String[][] routes = {{"GET", "/%68ealthz"}, {"GET", "/v1/%66lags"}, {"GET", "/%76%31/flags"},
+        {"GET", "/v1/audit%2Dlogs"}, {"POST", "/v1/%65valuate"}, {"POST", "/v1/%65vents"},
+        {"GET", "/v1/flags/k/%72esults?goal=g"}};
+    for (String[] route : routes) {
+      for (String auth : List.of("admin", "client", "none")) {
+        Response r = send(route[0], route[1], "{}", auth);
+        assertEquals(404, r.status(), route[0] + " " + route[1] + " " + auth);
+        assertEquals("FLAG_NOT_FOUND", r.code());
+      }
+    }
+    assertEquals(404, send("POST", "/v1/%66lags", "{\"key\":\"made-by-alias\"}", "admin").status());
+    assertEquals(404, send("GET", "/v1/flags/made-by-alias", "", "admin").status());
+    send("POST", "/v1/flags", "{\"key\":\"abc\"}", "admin");
+    assertEquals(200, send("GET", "/v1/flags/%61bc", "", "admin").status());
+  }
 }

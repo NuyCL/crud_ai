@@ -252,3 +252,22 @@ describe("errors", () => {
     assert.deepEqual(body.items.map((e) => e.flagKey), ["a"]);
   });
 });
+
+test("BR-57: only the flag key is percent-decoded; an escape anywhere else is a route that does not exist", async (t) => {
+  const app = newApp(t);
+  const routes: [string, string][] = [
+    ["GET", "/%68ealthz"], ["GET", "/v1/%66lags"], ["GET", "/%76%31/flags"], ["GET", "/v1/audit%2Dlogs"],
+    ["POST", "/v1/%65valuate"], ["POST", "/v1/%65vents"], ["GET", "/v1/flags/k/%72esults?goal=g"],
+  ];
+  for (const [method, url] of routes) {
+    for (const auth of ["admin", "client", "none"] as const) {
+      const r = await app.inject({ method: method as "GET" | "POST", url, headers: authHeaders(auth), payload: method === "POST" ? "{}" : undefined });
+      assert.equal(r.statusCode, 404, `${method} ${url} ${auth}`);
+      assert.equal((r.json() as { error: { code: string } }).error.code, "FLAG_NOT_FOUND");
+    }
+  }
+  assert.equal((await app.inject({ method: "POST", url: "/v1/%66lags", headers: authHeaders("admin"), payload: '{"key":"made-by-alias"}' })).statusCode, 404);
+  assert.equal((await app.inject({ method: "GET", url: "/v1/flags/made-by-alias", headers: authHeaders("admin") })).statusCode, 404);
+  await app.inject({ method: "POST", url: "/v1/flags", headers: authHeaders("admin"), payload: '{"key":"abc"}' });
+  assert.equal((await app.inject({ method: "GET", url: "/v1/flags/%61bc", headers: authHeaders("admin") })).statusCode, 200);
+});
